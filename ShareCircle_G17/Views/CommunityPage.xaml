@@ -1,0 +1,191 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    x:Class="ShareCircle_G17.Views.CommunityPage"
+    NavigationPage.HasNavigationBar="False"
+    BackgroundColor="Transparent"
+    Padding="0">
+
+    <!-- Gradient Background -->
+    <ContentPage.Background>
+        <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+            <GradientStop Color="#5B2EFF" Offset="0.0" />
+            <GradientStop Color="#EDE7FF" Offset="1.0" />
+        </LinearGradientBrush>
+    </ContentPage.Background>
+
+    <Grid Padding="15,0,15,0">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <!-- Header -->
+        <Frame
+            Grid.Row="0"
+            BackgroundColor="Transparent"
+            CornerRadius="0"
+            Padding="20,50,20,20"
+            HasShadow="False"
+            HorizontalOptions="Fill">
+            <HorizontalStackLayout Spacing="12" VerticalOptions="Center">
+                <ImageButton Source="back2.png"
+                             BackgroundColor="Transparent"
+                             Clicked="OnBackClicked"    
+                             WidthRequest="12"
+                             HeightRequest="12" 
+                             Aspect="AspectFit" />
+                <Label Text="Community Feed"
+                       FontSize="25"
+                       FontAttributes="Bold"
+                       TextColor="White"
+                       VerticalOptions="Center" />
+            </HorizontalStackLayout>
+        </Frame>
+
+        <!-- Feed Content -->
+        <CollectionView
+            Grid.Row="1"
+            x:Name="DonationsFeed"
+            ItemsSource="{Binding Donations}"
+            BackgroundColor="Transparent"
+            Margin="0,0,0,0">
+            
+            <CollectionView.ItemTemplate>
+                <DataTemplate>
+                    <!-- Each donation post card -->
+                    <Frame
+                        BackgroundColor="White"
+                        CornerRadius="16"
+                        Padding="0"
+                        Margin="16,12,16,12"
+                        HasShadow="True"
+                        BorderColor="#E0E0E0">
+                        
+                        <VerticalStackLayout Spacing="0">
+                            <!-- Header: Profile picture + Username + Location -->
+                            <Grid
+                                Padding="12,12,12,8"
+                                ColumnSpacing="10">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+
+                                <!-- Profile Picture -->
+                                <Frame
+                                    Grid.Column="0"
+                                    HeightRequest="40"
+                                    WidthRequest="40"
+                                    CornerRadius="20"
+                                    Padding="0"
+                                    HasShadow="False"
+                                    BackgroundColor="#F0F0F0"
+                                    IsClippedToBounds="True">
+                                    <Image Source="{Binding ProfileImageUrl}"
+                                           Aspect="AspectFill" />
+                                </Frame>
+
+                                <!-- Username and Location -->
+                                <VerticalStackLayout
+                                    Grid.Column="1"
+                                    Spacing="2"
+                                    VerticalOptions="Center">
+                                    <Label
+                                        Text="{Binding Username}"
+                                        FontSize="14"
+                                        FontAttributes="Bold"
+                                        TextColor="#222222" />
+                                    <Label
+                                        Text="{Binding Location}"
+                                        FontSize="12"
+                                        TextColor="#666666" />
+                                </VerticalStackLayout>
+
+                                <!-- Category Badge -->
+                                <Frame
+                                    Grid.Column="2"
+                                    BackgroundColor="#5B2EFF"
+                                    CornerRadius="12"
+                                    Padding="8,4,8,4"
+                                    HasShadow="False"
+                                    VerticalOptions="Center">
+                                    <Label
+                                        Text="{Binding Category}"
+                                        FontSize="11"
+                                        FontAttributes="Bold"
+                                        TextColor="White" />
+                                </Frame>
+                            </Grid>
+
+                            <!-- Donation Image -->
+                            <Image
+                                Source="{Binding ImageUrl}"
+                                Aspect="AspectFill"
+                                HeightRequest="300"
+                                HorizontalOptions="Fill" />
+
+                            <!-- Content Section -->
+                            <VerticalStackLayout
+                                Padding="12,10,12,12"
+                                Spacing="8">
+                                
+                                <!-- Item Title -->
+                                <Label
+                                    Text="{Binding ItemTitle}"
+                                    FontSize="16"
+                                    FontAttributes="Bold"
+                                    TextColor="#222222" />
+
+                                <!-- Description and Request Button in same row -->
+                                <Grid ColumnSpacing="12" Margin="0,0,0,0">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+
+                                    <!-- Item Description - Left Column -->
+                                    <Label
+                                        Grid.Column="0"
+                                        Text="{Binding Description}"
+                                        FontSize="14"
+                                        TextColor="#666666"
+                                        LineBreakMode="WordWrap"
+                                        VerticalOptions="Center" />
+
+                                    <!-- Request Button - Right Column -->
+                                    <Frame
+                                        Grid.Column="1"
+                                        BackgroundColor="#5B2EFF"
+                                        CornerRadius="30"
+                                        Padding="0"
+                                        HeightRequest="60"
+                                        WidthRequest="60"
+                                        HasShadow="True"
+                                        VerticalOptions="Center">
+                                        <Frame.GestureRecognizers>
+                                            <TapGestureRecognizer 
+                                                Tapped="OnRequestClicked" 
+                                                NumberOfTapsRequired="1"
+                                                CommandParameter="{Binding .}" />
+                                        </Frame.GestureRecognizers>
+                                        <Image
+                                            Source="heart_check.png"
+                                            WidthRequest="28"
+                                            HeightRequest="28"
+                                            Aspect="AspectFit"
+                                            HorizontalOptions="Center"
+                                            VerticalOptions="Center" />
+                                    </Frame>
+                                </Grid>
+                            </VerticalStackLayout>
+                        </VerticalStackLayout>
+                    </Frame>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
+    </Grid>
+</ContentPage>
+

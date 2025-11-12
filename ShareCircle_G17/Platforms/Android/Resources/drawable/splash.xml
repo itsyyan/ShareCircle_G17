@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+	<item>
+		<shape android:shape="rectangle">
+			<gradient
+                android:startColor="#f40082"
+                android:endColor="#f40082"
+                android:angle="270" />
+		</shape>
+	</item>
+
+	<item>
+		<bitmap
+            android:gravity="center"
+            android:src="@mipmap/splash_logo" />
+	</item>
+</layer-list>

@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    x:Class="ShareCircle_G17.Views.SignUpPage"
+    NavigationPage.HasNavigationBar="False"
+    BackgroundColor="Transparent"
+    Padding="0">
+
+    <!-- Gradient Background -->
+    <ContentPage.Background>
+        <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+            <GradientStop Color="#5B2EFF" Offset="0.0" />
+            <GradientStop Color="#EDE7FF" Offset="1.0" />
+        </LinearGradientBrush>
+    </ContentPage.Background>
+
+    <ScrollView>
+        <VerticalStackLayout
+            Spacing="25"
+            Padding="40,30,40,30"
+            HorizontalOptions="Center"
+            VerticalOptions="Start">
+
+            <!-- Logo -->
+            <Image
+                Source="lock.png"
+                HeightRequest="60"
+                WidthRequest="90"
+                HorizontalOptions="Center" />
+
+            <!-- Title -->
+            <Label
+                Text="Sign Up"
+                FontSize="32"
+                FontAttributes="Bold"
+                HorizontalOptions="Center"
+                TextColor="White" />
+
+            <!-- Glassmorphic Card -->
+            <Frame
+                BackgroundColor="#80FFFFFF"
+                CornerRadius="20"
+                HasShadow="True"
+                Padding="20,50,20,50"
+                WidthRequest="330">
+
+                <VerticalStackLayout Spacing="15">
+                    <!-- Username label + input -->
+                    <Label
+                        Text="Username"
+                        FontSize="18"
+                        FontAttributes="Bold"
+                        TextColor="White"
+                        Margin="4,0,0,0" />
+                    <Frame CornerRadius="50" Padding="6" HasShadow="False" BackgroundColor="#33FFFFFF">
+                        <Entry
+                            x:Name="UsernameEntry"
+                            Placeholder="Username"
+                            PlaceholderColor="White"
+                            BackgroundColor="Transparent"
+                            TextColor="White"
+                            HeightRequest="44"
+                            Margin="0" />
+                    </Frame>
+
+                    <!-- Email -->
+                    <Label
+                        Text="Email"
+                        FontSize="18"
+                        FontAttributes="Bold"
+                        TextColor="White"
+                        Margin="4,0,0,0" />
+                    <Frame CornerRadius="50" Padding="6" HasShadow="False" BackgroundColor="#33FFFFFF">
+                        <Entry
+                            x:Name="EmailEntry"
+                            Placeholder="Email"
+                            PlaceholderColor="White"
+                            BackgroundColor="Transparent"
+                            TextColor="White"
+                            HeightRequest="44"
+                            Margin="0"
+                            Keyboard="Email" />
+                    </Frame>
+
+                    <!-- Password -->
+                    <Label
+                        Text="Password"
+                        FontSize="18"
+                        FontAttributes="Bold"
+                        TextColor="White"
+                        Margin="4,0,0,0" />
+                    <Frame CornerRadius="50" Padding="6" HasShadow="False" BackgroundColor="#33FFFFFF">
+                        <Entry
+                            x:Name="PasswordEntry"
+                            Placeholder="Password"
+                            IsPassword="True"
+                            PlaceholderColor="White"
+                            BackgroundColor="Transparent"
+                            TextColor="White"
+                            HeightRequest="44"
+                            Margin="0" />
+                    </Frame>
+
+                    <!-- Confirm Password -->
+                    <Label
+                        Text="Confirm Password"
+                        FontSize="18"
+                        FontAttributes="Bold"
+                        TextColor="White"
+                        Margin="4,0,0,0" />
+                    <Frame CornerRadius="50" Padding="6" HasShadow="False" BackgroundColor="#33FFFFFF">
+                        <Entry
+                            x:Name="ConfirmPasswordEntry"
+                            Placeholder="Confirm Password"
+                            IsPassword="True"
+                            PlaceholderColor="White"
+                            BackgroundColor="Transparent"
+                            TextColor="White"
+                            HeightRequest="44"
+                            Margin="0" />
+                    </Frame>
+
+                    <!-- Sign Up button -->
+                    <Button
+                        Text="Sign Up"
+                        TextColor="White"
+                        BackgroundColor="#5B2EFF"
+                        CornerRadius="24"
+                        HeightRequest="48"
+                        FontAttributes="Bold"
+                        HorizontalOptions="Fill"
+                        Margin="30,20,30,0"
+                        Clicked="OnSignUpClicked" />
+
+                    <!-- Divider -->
+                    <BoxView
+                        HeightRequest="2"
+                        BackgroundColor="White"
+                        Margin="30,12,30,12" />
+
+                    <!-- Sign In button -->
+                    <Button
+                        Text="Sign In"
+                        TextColor="Black"
+                        BackgroundColor="White"
+                        CornerRadius="24"
+                        HeightRequest="48"
+                        FontAttributes="Bold"
+                        HorizontalOptions="Fill"
+                        Margin="30,0,30,0"
+                        Clicked="OnSignInClicked" />
+
+                </VerticalStackLayout>
+            </Frame>
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>
+

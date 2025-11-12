@@ -1,0 +1,228 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    x:Class="ShareCircle_G17.Views.DonationPage"
+    NavigationPage.HasNavigationBar="False"
+    Padding="0"
+    BackgroundColor="Transparent">
+
+    <!-- Same gradient background as HomePage -->
+    <ContentPage.Background>
+        <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+            <GradientStop Color="#5B2EFF" Offset="0.0" />
+            <GradientStop Color="#EDE7FF" Offset="1.0" />
+        </LinearGradientBrush>
+    </ContentPage.Background>
+
+    <ScrollView>
+        <VerticalStackLayout Padding="40,20,40,40" Spacing="20">
+            <!-- Header: back icon + title -->
+            <HorizontalStackLayout Spacing="12" VerticalOptions="Center">
+                <ImageButton Source="back2.png"
+                             BackgroundColor="Transparent"
+                             Clicked="OnBackClicked"    
+                             WidthRequest="12"
+                             HeightRequest="12" 
+                             Aspect="AspectFit" />
+                <Label Text="Create Post"
+                       FontSize="25"
+                       FontAttributes="Bold"
+                       TextColor="White"
+                       VerticalOptions="Center" />
+            </HorizontalStackLayout>
+
+            <!-- Upload Photo label -->
+            <Label Text="Upload Photo"
+                   FontSize="20"
+                   FontAttributes="Bold"
+                   TextColor="White"
+                   Margin="0,8,0,0" />
+
+            <!-- Glassy clickable upload area -->
+            <Frame BackgroundColor="#33FFFFFF"
+                   CornerRadius="12"
+                   Padding="12"
+                   HeightRequest="180"
+                   HasShadow="False"
+                   HorizontalOptions="Fill">
+                <Grid>
+                    <!-- Image that will display the selected photo -->
+                    <Image x:Name="SelectedImage"
+                           Aspect="AspectFill"
+                           HorizontalOptions="Fill"
+                           VerticalOptions="Fill"
+                           IsVisible="False" />
+
+                    <!-- Placeholder shown before an image is selected -->
+                    <VerticalStackLayout HorizontalOptions="Center" VerticalOptions="Center" Spacing="8">
+                        <Label Text="📷" FontSize="36" TextColor="White" HorizontalOptions="Center" />
+                        <Label x:Name="UploadPlaceholderLabel"
+                               Text="Tap to upload photo"
+                               TextColor="White"
+                               HorizontalOptions="Center" />
+                    </VerticalStackLayout>
+                </Grid>
+
+                <Frame.GestureRecognizers>
+                    <TapGestureRecognizer Tapped="OnUploadPhotoTapped" NumberOfTapsRequired="1" />
+                </Frame.GestureRecognizers>
+            </Frame>
+
+            <!-- What is it label + entry -->
+            <Label Text="What is it ?"
+                   FontSize="20"
+                   FontAttributes="Bold"
+                   TextColor="White"
+                   Margin="0,8,0,0" />
+
+            <Frame BackgroundColor="White"
+                   CornerRadius="50"
+                   Padding="30,6,30,6"
+                   HasShadow="False"
+                   HorizontalOptions="Fill">
+                <Entry x:Name="WhatIsItEntry"
+                       Placeholder="Describe the item"
+                       BackgroundColor="Transparent"
+                       TextColor="grey" />
+            </Frame>
+
+            <!-- Category label -->
+            <Label Text="Category"
+                   FontSize="20"
+                   FontAttributes="Bold"
+                   TextColor="White"
+                   Margin="0,8,0,0" />
+
+            <!-- Two selectable frames for category (icons only, no grey circle) -->
+            <HorizontalStackLayout Spacing="12" HorizontalOptions="Center" >
+                <!-- Food selectable frame -->
+                <Frame x:Name="FoodButton"
+                       BackgroundColor="White"
+                       CornerRadius="32"
+                       Padding="10"
+                       HeightRequest="48"
+                       WidthRequest="160"
+                       HasShadow="False"
+                       HorizontalOptions="Fill">
+                    <HorizontalStackLayout Spacing="12" VerticalOptions="Center" HorizontalOptions="Center">
+                        <!-- icon image only (no grey circle) -->
+                        <Image Source="fruit.png"
+                               WidthRequest="20"
+                               HeightRequest="20"
+                               Aspect="AspectFit"
+                               HorizontalOptions="Center"
+                               VerticalOptions="Center" />
+
+                        <Label x:Name="FoodButtonLabel"
+                               Text="Food"
+                               FontSize="14"
+                               TextColor="#222222"
+                               VerticalOptions="Center" />
+                    </HorizontalStackLayout>
+                    <Frame.GestureRecognizers>
+                        <TapGestureRecognizer Tapped="OnFoodSelected" NumberOfTapsRequired="1" />
+                    </Frame.GestureRecognizers>
+                </Frame>
+
+                <!-- Item selectable frame -->
+                <Frame x:Name="ItemButton"
+                       BackgroundColor="White"
+                       CornerRadius="32"
+                       Padding="10"
+                       HeightRequest="48"
+                       WidthRequest="160"
+                       HasShadow="False"
+                       HorizontalOptions="Fill">
+                    <HorizontalStackLayout Spacing="15" VerticalOptions="Center" HorizontalOptions="Center">
+                        <!-- icon image only (no grey circle) -->
+                        <Image Source="apparel.png"
+                               WidthRequest="20"
+                               HeightRequest="20"
+                               Aspect="AspectFit"
+                               HorizontalOptions="Center"
+                               VerticalOptions="Center" />
+
+                        <Label x:Name="ItemButtonLabel"
+                               Text="Item"
+                               FontSize="14"
+                               TextColor="#222222"
+                               VerticalOptions="Center" />
+                    </HorizontalStackLayout>
+                    <Frame.GestureRecognizers>
+                        <TapGestureRecognizer Tapped="OnItemSelected" NumberOfTapsRequired="1" />
+                    </Frame.GestureRecognizers>
+                </Frame>
+            </HorizontalStackLayout>
+
+            <!-- Item description label + multiline editor -->
+            <Label Text="Item Description"
+                   FontSize="20"
+                   FontAttributes="Bold"
+                   TextColor="White"
+                   Margin="0,8,0,0" />
+
+            <Frame BackgroundColor="White"
+                   CornerRadius="22"
+                   Padding="20"
+                   HasShadow="False"
+                   HorizontalOptions="Fill">
+                <Editor x:Name="DescriptionEditor"
+                        Placeholder="Enter a item description..."
+                        AutoSize="TextChanges"
+                        HeightRequest="120"
+                        BackgroundColor="Transparent"
+                        TextColor="#222222" />
+            </Frame>
+
+            <!-- Contact Information (Email) -->
+            <Label Text="Contact Information (Email)"
+                   FontSize="16"
+                   FontAttributes="Bold"
+                   TextColor="White"
+                   Margin="0,8,0,0" />
+
+            <Frame BackgroundColor="White"
+                   CornerRadius="32"
+                   Padding="30,6,30,6"
+                   HasShadow="False"
+                   HorizontalOptions="Fill">
+                <Entry x:Name="ContactEmailEntry"
+                       Placeholder="you@example.com"
+                       Keyboard="Email"
+                       BackgroundColor="Transparent"
+                       TextColor="#222222" />
+            </Frame>
+
+            <!-- Location / Item Drop-off -->
+            <Label Text="Location / Item Drop-off"
+                   FontSize="16"
+                   FontAttributes="Bold"
+                   TextColor="White"
+                   Margin="0,8,0,0" />
+
+            <Frame BackgroundColor="White"
+                   CornerRadius="32"
+                   Padding="30,6,30,6"
+                   HasShadow="False"
+                   HorizontalOptions="Fill">
+                <Entry x:Name="LocationEntry"
+                       Placeholder="Enter drop-off location" 
+                       BackgroundColor="Transparent"
+                       TextColor="#222222" />
+            </Frame>
+
+            <!-- Post button -->
+            <Button x:Name="PostButton"
+                    Text="Post"
+					FontSize="18"
+                    BackgroundColor="#5B2EFF"
+                    TextColor="White"
+                    CornerRadius="24"
+                    HeightRequest="50"
+                    HorizontalOptions="Fill"
+                    Clicked="OnPostDonationClicked" />
+
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

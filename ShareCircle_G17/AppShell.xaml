@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<Shell
+    x:Class="ShareCircle_G17.AppShell"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:views="clr-namespace:ShareCircle_G17.Views"
+    xmlns:local="clr-namespace:ShareCircle_G17"
+    Shell.NavBarIsVisible="False"
+    Title="ShareCircle_G17">
+    
+    
+
+    <ShellContent
+        ContentTemplate="{DataTemplate local:SplashPage}"
+        Route="SplashPage" 
+        
+        />
+
+    <ShellContent
+    ContentTemplate="{DataTemplate views:HomePage}"
+    Route="HomePage" 
+    
+    />
+
+
+</Shell>

@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    x:Class="ShareCircle_G17.Views.LoginPage"
+    NavigationPage.HasNavigationBar="False"
+    BackgroundColor="Transparent"
+    Padding="0">
+
+    <!-- Gradient Background -->
+    <ContentPage.Background>
+        <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+            <GradientStop Color="#5B2EFF" Offset="0.0" />
+            <GradientStop Color="#EDE7FF" Offset="1.0" />
+        </LinearGradientBrush>
+    </ContentPage.Background>
+
+    <ScrollView>
+        <VerticalStackLayout
+            Spacing="25"
+            Padding="40,80,40,30"
+            HorizontalOptions="Center"
+            VerticalOptions="Start">
+
+            <!-- Logo -->
+            <Image
+                Source="lock.png"
+                HeightRequest="60"
+                WidthRequest="90"
+                HorizontalOptions="Center" />
+
+            <!-- Title -->
+            <Label
+                Text="Sign In"
+                FontSize="32"
+                FontAttributes="Bold"
+                HorizontalOptions="Center"
+                TextColor="White" />
+
+            <!-- Glassmorphic Card -->
+            <Frame
+                BackgroundColor="#80FFFFFF"
+                CornerRadius="20"
+                HasShadow="True"
+                Padding="20,50,20,50"
+                WidthRequest="330">
+
+                <VerticalStackLayout Spacing="15">
+                    <!-- Username label + input -->
+                    <Label
+                        Text="Username"
+                        FontSize="18"
+                        FontAttributes="Bold"
+                        TextColor="White"
+                        Margin="4,0,0,0" />
+                    <Frame CornerRadius="50" Padding="6" HasShadow="False" BackgroundColor="#33FFFFFF">
+                        <Entry
+                            x:Name="UsernameEntry"
+                            Placeholder="Username"
+                            PlaceholderColor="White"
+                            BackgroundColor="Transparent"
+                            TextColor="White"
+                            HeightRequest="44"
+                            Margin="0" />
+                    </Frame>
+
+                    <!-- Password -->
+                    <Label
+                        Text="Password"
+                        FontSize="18"
+                        FontAttributes="Bold"
+                        TextColor="White"
+                        Margin="4,0,0,0" />
+                    <Frame CornerRadius="50" Padding="6" HasShadow="False" BackgroundColor="#33FFFFFF">
+                        <Entry
+                            x:Name="PasswordEntry"
+                            Placeholder="Password"
+                            IsPassword="True"
+                            PlaceholderColor="White"
+                            BackgroundColor="Transparent"
+                            TextColor="White"
+                            HeightRequest="44"
+                            Margin="0" />
+                    </Frame>
+
+                    <!-- Log In button -->
+                    <Button
+                        Text="Log In"
+                        TextColor="White"
+                        BackgroundColor="#5B2EFF"
+                        CornerRadius="24"
+                        HeightRequest="48"
+                        FontAttributes="Bold"
+                        HorizontalOptions="Fill"
+                        Margin="30,20,30,0"
+                        Clicked="OnLoginClicked" />
+
+                    <!-- Divider -->
+                    <BoxView
+                        HeightRequest="2"
+                        BackgroundColor="White"
+                        Margin="30,12,30,12" />
+
+                    <!-- Register button -->
+                    <Button
+                        Text="Register"
+                        TextColor="Black"
+                        BackgroundColor="White"
+                        CornerRadius="24"
+                        HeightRequest="48"
+                        FontAttributes="Bold"
+                        HorizontalOptions="Fill"
+                        Margin="30,0,30,0"
+                        Clicked="OnRegisterClicked" />
+
+                </VerticalStackLayout>
+            </Frame>
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

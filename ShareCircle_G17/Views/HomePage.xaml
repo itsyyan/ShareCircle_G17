@@ -1,0 +1,526 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    x:Class="ShareCircle_G17.Views.HomePage"
+    NavigationPage.HasNavigationBar="False"
+    BackgroundColor="Transparent"
+    Padding="0">
+
+    <!-- Gradient Background (matches LoginPage) -->
+    <ContentPage.Background>
+        <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+            <GradientStop Color="#5B2EFF" Offset="0.0" />
+            <GradientStop Color="#EDE7FF" Offset="1.0" />
+        </LinearGradientBrush>
+    </ContentPage.Background>
+
+    <!-- Top-level grid keeps header pinned to the top -->
+    <Grid Padding="40,20,40,30">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <!-- Header: centered horizontally (via symmetric padding) and sits at the top.
+             Column widths: Auto, Auto, * (flex spacer), Auto -> creates space-between behavior -->
+        <Grid
+            Grid.Row="0"
+            HeightRequest="72"
+            ColumnSpacing="12"
+            VerticalOptions="Start"
+            HorizontalOptions="Fill">
+
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+
+            <!-- Round profile picture -->
+            <Frame
+                Grid.Column="0"
+                HeightRequest="46"
+                WidthRequest="46"
+                CornerRadius="28"
+                Padding="0"
+                HasShadow="False"
+                BackgroundColor="White"
+                VerticalOptions="Center"
+                IsClippedToBounds="True">
+                <Image Source="https://t4.ftcdn.net/jpg/04/31/64/75/360_F_431647519_usrbQ8Z983hTYe8zgA7t1XVc5fEtqcpa.jpg" Aspect="AspectFill" />
+            </Frame>
+
+            <!-- App name -->
+            <Label
+                Grid.Column="1"
+                Text="ShareCircle"
+                FontSize="18"
+                FontAttributes="Bold"
+                VerticalOptions="Center"
+                TextColor="White"
+                Margin="0,0,0,0" />
+
+            <!-- Location text (will be pushed toward the right by the '*' column) -->
+            <Label
+                Grid.Column="2"
+                Text="Sibu, Sarawak"
+                FontSize="14"
+                VerticalOptions="Center"
+                TextColor="White"
+				Margin="40,0,0,0"
+                HorizontalOptions="Start" />
+			
+
+            <!-- Location icon -->
+            <Image
+                Grid.Column="3"
+                Source="https://uxwing.com/wp-content/themes/uxwing/download/location-travel-map/location-pointer-white-icon.png"
+                WidthRequest="24"
+                HeightRequest="24"
+                Aspect="AspectFit"
+                VerticalOptions="Center" />
+        </Grid>
+
+        <!-- Page content below header -->
+        <ScrollView Grid.Row="1">
+            <VerticalStackLayout
+                Spacing="20"
+                Padding="0"
+                HorizontalOptions="Fill"
+                VerticalOptions="Start">
+
+                <!-- Greeting: centered horizontally with sample placeholder name -->
+                <HorizontalStackLayout
+                    Spacing="6"
+                    HorizontalOptions="Center"
+                    VerticalOptions="Start"
+                    Margin="0,16,0,0">
+                    <Label
+                        Text="Hello,"
+                        FontSize="30"
+                        TextColor="White"
+                        VerticalOptions="Center" />
+                    <Label
+                        Text="Yan"
+                        FontSize="30"
+                        FontAttributes="Bold"
+                        TextColor="White"
+                        VerticalOptions="Center" />
+                </HorizontalStackLayout>
+
+                <!-- Glassy rectangle box -->
+                <Frame
+                    Background="#80FFFFFF"
+                    BorderColor="White"
+                    CornerRadius="12"
+                    Padding="26,20,26,20"
+                    Margin="5,8,5,0"
+                    HorizontalOptions="Fill">
+                    <Grid ColumnSpacing="12" VerticalOptions="Center">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="1" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+
+                        <!-- Left side: stacked texts -->
+                        <VerticalStackLayout Grid.Column="0" Spacing="2" VerticalOptions="Center">
+                            <Label
+                                Text="Total"
+                                FontSize="15"
+                                TextColor="White"
+                                Opacity="0.9" />
+                            <Label
+                                Text="Donations"
+                                FontSize="25"
+                                FontAttributes="Bold"
+                                TextColor="White" />
+                        </VerticalStackLayout>
+
+                        <!-- Middle divider -->
+                        <BoxView
+                            Grid.Column="1"
+                            Color="white"
+                            WidthRequest="1"
+                            Opacity="0.4"
+                            VerticalOptions="Fill" />
+
+                        <!-- Right side: number + heart (now using SVG image) -->
+                        <HorizontalStackLayout
+                            Grid.Column="2"
+                            Spacing="10"
+                            VerticalOptions="Center"
+                            HorizontalOptions="Center">
+                            <Label
+                                Text="{Binding TotalDonations}"
+                                FontSize="35"
+                                FontAttributes="Bold"
+                                TextColor="White"
+                                VerticalOptions="Center" />
+                            <Image
+                                Source="heart_check.png"
+                                WidthRequest="40"
+                                HeightRequest="40"
+                                Aspect="AspectFit"
+                                VerticalOptions="Center" />
+                        </HorizontalStackLayout>
+                    </Grid>
+                </Frame>
+
+                <!-- Action buttons: 3 square rounded buttons centered -->
+                <HorizontalStackLayout
+                    Spacing="16"
+                    HorizontalOptions="Center"
+                    Margin="0,18,0,0">
+
+                    <!-- Donate button (now tappable -> navigates to DonationPage) -->
+                    <Frame
+                        Background="#5B2EFF"
+                        BorderColor="#5B2EFF"
+                        CornerRadius="16"
+                        Padding="12"
+                        HeightRequest="96"
+                        WidthRequest="96"
+                        HasShadow="False"
+                        VerticalOptions="Center"
+                        HorizontalOptions="Center">
+                        <Frame.GestureRecognizers>
+                            <TapGestureRecognizer Tapped="OnDonateNavTapped" NumberOfTapsRequired="1" />
+                        </Frame.GestureRecognizers>
+                        <VerticalStackLayout Spacing="8" HorizontalOptions="Center" VerticalOptions="Center">
+                            <Image
+                                Source="https://img.icons8.com/android/512/FFFFFF/plus.png"
+                                WidthRequest="30"
+                                HeightRequest="30"
+                                Aspect="AspectFit" />
+                            <Label
+                                Text="Donate"
+                                FontSize="14"
+                                TextColor="White"
+                                HorizontalTextAlignment="Center" />
+                        </VerticalStackLayout>
+                    </Frame>
+
+                    <!-- Request button -->
+                    <Frame
+                        Background="#FFFFFF"
+                        BorderColor="White"
+                        CornerRadius="16"
+                        Padding="12"
+                        HeightRequest="96"
+                        WidthRequest="96"
+                        HasShadow="False"
+                        VerticalOptions="Center"
+                        HorizontalOptions="Center">
+                        <VerticalStackLayout Spacing="8" HorizontalOptions="Center" VerticalOptions="Center">
+                            <Image
+                                Source="gv.png"
+                                WidthRequest="30"
+                                HeightRequest="30"
+                                Aspect="AspectFit" />
+                            <Label
+                                Text="Request"
+                                FontSize="11"
+                                TextColor="black"
+                                HorizontalTextAlignment="Center" />
+                        </VerticalStackLayout>
+                    </Frame>
+
+                    <!-- Community button -->
+                    <Frame
+                        Background="#FFFFFF"
+                        BorderColor="White"
+                        CornerRadius="16"
+                        Padding="12"
+                        HeightRequest="96"
+                        WidthRequest="96"
+                        HasShadow="False"
+                        VerticalOptions="Center"
+                        HorizontalOptions="Center">
+                        <Frame.GestureRecognizers>
+                            <TapGestureRecognizer Tapped="OnCommunityNavTapped" NumberOfTapsRequired="1" />
+                        </Frame.GestureRecognizers>
+                        <VerticalStackLayout Spacing="8" HorizontalOptions="Center" VerticalOptions="Center">
+                            <Image
+                                Source="comm.png"
+                                WidthRequest="30"
+                                HeightRequest="30"
+                                Aspect="AspectFit" />
+                            <Label
+                                Text="Community"
+                                FontSize="11"
+                                TextColor="black"
+                                HorizontalTextAlignment="Center" />
+                        </VerticalStackLayout>
+                    </Frame>
+
+                </HorizontalStackLayout>
+
+                <!-- White rounded box with Foods and three square buttons -->
+                <Frame
+                    Background="White"
+                    CornerRadius="12"
+                    Padding="16"
+                    Margin="5,18,5,0"
+                    BorderColor="#EFEFEF"
+                    HasShadow="False"
+                    HorizontalOptions="Fill">
+                    <VerticalStackLayout Spacing="12" HorizontalOptions="Fill">
+                        <!-- Header -->
+                        <Label
+                            Text="Foods"
+                            FontSize="16"
+                            FontAttributes="Bold"
+                            TextColor="#222222"
+                            HorizontalOptions="Start" />
+
+                        <!-- Three square white buttons -->
+                        <HorizontalStackLayout
+                            Spacing="16"
+                            HorizontalOptions="Fill"
+                            VerticalOptions="Start">
+                            <!-- Fruits -->
+                            <Frame
+                                Background="White"
+                                BorderColor="#D3D3D3"
+                                CornerRadius="12"
+                                Padding="12"
+                                HeightRequest="84"
+                                WidthRequest="84"
+                                HasShadow="False"
+                                HorizontalOptions="Start">
+                                <VerticalStackLayout Spacing="8" HorizontalOptions="Center" VerticalOptions="Center">
+                                    <Image
+                                        Source="fruit.png"
+                                        WidthRequest="26"
+                                        HeightRequest="26"
+                                        Aspect="AspectFit" />
+                                    <Label
+                                        Text="Fruits"
+                                        FontSize="12"
+                                        TextColor="#222222"
+                                        HorizontalTextAlignment="Center" />
+                                </VerticalStackLayout>
+                            </Frame>
+
+                            <!-- Pastries -->
+                            <Frame
+                                Background="White"
+                                BorderColor="#D3D3D3"
+                                CornerRadius="12"
+                                Padding="12"
+                                HeightRequest="84"
+                                WidthRequest="84"
+                                HasShadow="False"
+                                HorizontalOptions="Center">
+                                <VerticalStackLayout Spacing="8" HorizontalOptions="Center" VerticalOptions="Center">
+                                    <Image
+                                        Source="bread.png"
+                                        WidthRequest="26"
+                                        HeightRequest="26"
+                                        Aspect="AspectFit" />
+                                    <Label
+                                        Text="pastries"
+                                        FontSize="12"
+                                        TextColor="#222222"
+                                        HorizontalTextAlignment="Center" />
+                                </VerticalStackLayout>
+                            </Frame>
+
+                            <!-- Packaged Food -->
+                            <Frame
+                                Background="White"
+                                BorderColor="#D3D3D3"
+                                CornerRadius="12"
+                                Padding="12"
+                                HeightRequest="84"
+                                WidthRequest="84"
+                                HasShadow="False"
+                                HorizontalOptions="End">
+                                <VerticalStackLayout Spacing="8" HorizontalOptions="Center" VerticalOptions="Center">
+                                    <Image
+                                        Source="dine.png"
+                                        WidthRequest="26"
+                                        HeightRequest="26"
+                                        Aspect="AspectFit" />
+                                    <Label
+                                        Text="Packaged"
+                                        FontSize="12"
+                                        TextColor="#222222"
+                                        HorizontalTextAlignment="Center" />
+                                </VerticalStackLayout>
+                            </Frame>
+                        </HorizontalStackLayout>
+
+                        <!-- New section header aligned with Foods -->
+                        <Label
+                            Text="Item"
+                            FontSize="16"
+                            FontAttributes="Bold"
+                            TextColor="#222222"
+                            HorizontalOptions="Start"
+                            Margin="0,8,0,0" />
+
+                        <!-- Three square buttons for Cloths, Toys, Books -->
+                        <HorizontalStackLayout
+                            Spacing="16"
+                            HorizontalOptions="Fill"
+                            VerticalOptions="Start">
+                            <!-- Cloths -->
+                            <Frame
+                                Background="White"
+                                BorderColor="#D3D3D3"
+                                CornerRadius="12"
+                                Padding="12"
+                                HeightRequest="84"
+                                WidthRequest="84"
+                                HasShadow="False"
+                                HorizontalOptions="Start">
+                                <VerticalStackLayout Spacing="8" HorizontalOptions="Center" VerticalOptions="Center">
+                                    <Image
+                                        Source="apparel.png"
+                                        WidthRequest="26"
+                                        HeightRequest="26"
+                                        Aspect="AspectFit" />
+                                    <Label
+                                        Text="Cloths"
+                                        FontSize="12"
+                                        TextColor="#222222"
+                                        HorizontalTextAlignment="Center" />
+                                </VerticalStackLayout>
+                            </Frame>
+
+                            <!-- Toys -->
+                            <Frame
+                                Background="White"
+                                BorderColor="#D3D3D3"
+                                CornerRadius="12"
+                                Padding="12"
+                                HeightRequest="84"
+                                WidthRequest="84"
+                                HasShadow="False"
+                                HorizontalOptions="Center">
+                                <VerticalStackLayout Spacing="8" HorizontalOptions="Center" VerticalOptions="Center">
+                                    <Image
+                                        Source="toys.png"
+                                        WidthRequest="26"
+                                        HeightRequest="26"
+                                        Aspect="AspectFit" />
+                                    <Label
+                                        Text="Toys"
+                                        FontSize="12"
+                                        TextColor="#222222"
+                                        HorizontalTextAlignment="Center" />
+                                </VerticalStackLayout>
+                            </Frame>
+
+                            <!-- Books -->
+                            <Frame
+                                Background="White"
+                                BorderColor="#D3D3D3"
+                                CornerRadius="12"
+                                Padding="12"
+                                HeightRequest="84"
+                                WidthRequest="84"
+                                HasShadow="False"
+                                HorizontalOptions="End">
+                                <VerticalStackLayout Spacing="8" HorizontalOptions="Center" VerticalOptions="Center">
+                                    <Image
+                                        Source="book_2.png"
+                                        WidthRequest="26"
+                                        HeightRequest="26"
+                                        Aspect="AspectFit" />
+                                    <Label
+                                        Text="Books"
+                                        FontSize="12"
+                                        TextColor="#222222"
+                                        HorizontalTextAlignment="Center" />
+                                </VerticalStackLayout>
+                            </Frame>
+                        </HorizontalStackLayout>
+                    </VerticalStackLayout>
+                </Frame>
+
+                <!-- Navigation bar below the big white box -->
+                <Frame
+                    BackgroundColor="#5B2EFF"
+                    CornerRadius="24"
+                    Padding="12"
+                    Margin="5,12,5,24"
+                    HasShadow="True"
+                    HorizontalOptions="Fill">
+                    <Grid ColumnSpacing="12" VerticalOptions="Center">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+
+                        <!-- Home button -->
+                        <VerticalStackLayout
+                            Grid.Column="0"
+                            HorizontalOptions="Center"
+                            VerticalOptions="Center"
+                            Spacing="4">
+                            <VerticalStackLayout.GestureRecognizers>
+                                <TapGestureRecognizer Tapped="OnHomeNavTapped" NumberOfTapsRequired="1" />
+                            </VerticalStackLayout.GestureRecognizers>
+                           <Image
+                                        Source="home.png"
+                                        WidthRequest="26"
+                                        HeightRequest="26"
+                                        Aspect="AspectFit" />
+                            <Label Text="Home" FontSize="12" TextColor="White" HorizontalOptions="Center" />
+                        </VerticalStackLayout>
+
+                        <!-- Donate (center) - visually distinct -->
+                        <VerticalStackLayout
+                            Grid.Column="1"
+                            HorizontalOptions="Center"
+                            VerticalOptions="Center"
+                            Spacing="4">
+                            <Frame
+                                HeightRequest="54"
+                                WidthRequest="54"
+                                CornerRadius="62"
+                                BackgroundColor="White"
+                                HasShadow="True">
+                                <Frame.GestureRecognizers>
+                                    <TapGestureRecognizer Tapped="OnDonateNavTapped" NumberOfTapsRequired="1" />
+                                </Frame.GestureRecognizers>
+                                <VerticalStackLayout HorizontalOptions="Center" VerticalOptions="Center">
+                                    <Image
+                                        Source="add_2.png"
+                                        WidthRequest="17"
+                                        HeightRequest="17"
+                                        Aspect="AspectFit" />
+                                </VerticalStackLayout>
+                            </Frame>
+                            
+                        </VerticalStackLayout>
+
+                        <!-- Profile button -->
+                        <VerticalStackLayout
+                            Grid.Column="2"
+                            HorizontalOptions="Center"
+                            VerticalOptions="Center"
+                            Spacing="4">
+                            <VerticalStackLayout.GestureRecognizers>
+                                <TapGestureRecognizer Tapped="OnProfileNavTapped" NumberOfTapsRequired="1" />
+                            </VerticalStackLayout.GestureRecognizers>
+                            <Image
+                                        Source="face.png"
+                                        WidthRequest="26"
+                                        HeightRequest="26"
+                                        Aspect="AspectFit" />
+                            <Label Text="Profile" FontSize="12" TextColor="White" HorizontalOptions="Center" />
+                        </VerticalStackLayout>
+                    </Grid>
+                </Frame>
+
+            </VerticalStackLayout>
+        </ScrollView>
+    </Grid>
+</ContentPage>

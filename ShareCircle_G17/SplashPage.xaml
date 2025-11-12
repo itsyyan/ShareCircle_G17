@@ -1,0 +1,26 @@
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="ShareCircle_G17.SplashPage"
+             NavigationPage.HasNavigationBar="False"
+             BackgroundColor="Transparent">
+
+    <Grid>
+        <!-- Gradient background -->
+        <Grid.Background>
+            <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                <GradientStop Color="#512BD4" Offset="0.0" />
+                <!-- Top purple -->
+                <GradientStop Color="#FFFFFF" Offset="1.0" />
+                <!-- Bottom white -->
+            </LinearGradientBrush>
+        </Grid.Background>
+
+        <!-- Centered logo -->
+        <Image Source="Resources/Splash/splash_logo.png"
+               WidthRequest="200"
+               HeightRequest="200"
+               VerticalOptions="Center"
+               HorizontalOptions="Center"/>
+
+    </Grid>
+</ContentPage>
