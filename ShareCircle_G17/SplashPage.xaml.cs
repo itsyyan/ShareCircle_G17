@@ -26,9 +26,9 @@ namespace ShareCircle_G17
                 // Optional fade-out before navigation
                 await this.FadeTo(0, 800, Easing.CubicOut);
 
-                // Use Shell: set the Shell as MainPage, then navigate to the registered LoginPage route
+                // Use Shell: set the Shell as MainPage, then navigate to the registered SignUpPage route
                 Application.Current.MainPage = new AppShell();
-                await Shell.Current.GoToAsync(nameof(LoginPage));
+                await Shell.Current.GoToAsync(nameof(SignUpPage));
             }
             catch (Exception ex)
             {

@@ -22,8 +22,8 @@ namespace ShareCircle_G17.Views
 
         private async void OnSignInClicked(object sender, EventArgs e)
         {
-            // Navigate back to LoginPage
-            await Shell.Current.GoToAsync("//LoginPage");
+            // Navigate to LoginPage
+            await Shell.Current.GoToAsync(nameof(LoginPage));
         }
     }
 }
