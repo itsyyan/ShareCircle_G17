@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:viewmodels="clr-namespace:ShareCircle_G17.ViewModels"
+    xmlns:models="clr-namespace:ShareCircle_G17.Models"
+    x:Class="ShareCircle_G17.Views.UserDonationPage"
+    Title="My Donations"
+    NavigationPage.HasNavigationBar="False"
+    BackgroundColor="Transparent"
+    Padding="0">
+
+    <ContentPage.Background>
+        <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+            <GradientStop Color="#5B2EFF" Offset="0.0" />
+            <GradientStop Color="#EDE7FF" Offset="1.0" />
+        </LinearGradientBrush>
+    </ContentPage.Background>
+
+    <Grid Padding="15,0,15,0">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!-- Header bar -->
+        <Frame
+            Grid.Row="0"
+            BackgroundColor="Transparent"
+            CornerRadius="0"
+            Padding="20,50,20,20"
+            HasShadow="False"
+            HorizontalOptions="Fill">
+
+            <HorizontalStackLayout Spacing="12" VerticalOptions="Center">
+                <ImageButton 
+                    Source="back2.png"
+                    BackgroundColor="Transparent"
+                    Clicked="OnBackClicked"
+                    WidthRequest="12"
+                    HeightRequest="12"
+                    Aspect="AspectFit" />
+
+                <Label 
+                    Text="My Donations"
+                    FontSize="25"
+                    FontAttributes="Bold"
+                    TextColor="White"
+                    VerticalOptions="Center" />
+            </HorizontalStackLayout>
+
+        </Frame>
+
+        <!-- RefreshView -->
+        <RefreshView
+            Grid.Row="1"
+            Command="{Binding LoadDonationsCommand}"
+            IsRefreshing="{Binding IsRefreshing}">
+
+            <CollectionView
+                ItemsSource="{Binding Donations}"
+                SelectionMode="None"
+                Margin="0,10,0,0"
+                BackgroundColor="Transparent"
+                VerticalOptions="FillAndExpand">
+
+                <!-- Header -->
+                <CollectionView.Header>
+                    <Label 
+                        Text="Swipe down to refresh."
+                        TextColor="White"
+                        FontSize="14"
+                        HorizontalOptions="Center"
+                        Margin="0,0,0,10"/>
+                </CollectionView.Header>
+
+                <!-- Empty View -->
+                <CollectionView.EmptyView>
+                    <VerticalStackLayout VerticalOptions="CenterAndExpand">
+                        <Label 
+                            Text="No donations posted yet."
+                            TextColor="White"
+                            FontSize="18"
+                            HorizontalOptions="Center"/>
+                    </VerticalStackLayout>
+                </CollectionView.EmptyView>
+
+                <!-- Item Template -->
+                <CollectionView.ItemTemplate>
+                    <DataTemplate x:DataType="models:DonationItem">
+
+                        <Frame
+                            Margin="0,0,0,15"
+                            CornerRadius="10"
+                            Padding="15"
+                            BackgroundColor="White"
+                            BorderColor="#D3D3D3"
+                            HasShadow="False">
+
+                            <Frame.GestureRecognizers>
+                                <TapGestureRecognizer
+                                    Command="{Binding Source={RelativeSource AncestorType={x:Type viewmodels:UserDonationViewModel}}, Path=OpenOptionsCommand}"
+                                    CommandParameter="{Binding .}"
+                                    NumberOfTapsRequired="1" />
+                            </Frame.GestureRecognizers>
+
+                            <Grid ColumnDefinitions="*, Auto">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <!-- Title -->
+                                    <RowDefinition Height="Auto"/>
+                                    <!-- Description + Category -->
+                                </Grid.RowDefinitions>
+
+                                <!-- Title -->
+                                <Label
+                                    Grid.Row="0"
+                                    Grid.Column="0"
+                                    Text="{Binding Title}"
+                                    FontSize="20"
+                                    FontAttributes="Bold"
+                                    TextColor="#333333"
+                                    LineBreakMode="TailTruncation"/>
+
+                                <!-- Description + Category -->
+                                <VerticalStackLayout 
+                                    Grid.Row="1" 
+                                    Grid.Column="0"
+                                    Spacing="2">
+
+                                    <Label
+                                        Text="{Binding Description}"
+                                        FontSize="14"
+                                        TextColor="#666666"
+                                        LineBreakMode="TailTruncation"/>
+
+                                    <Label
+                                        Text="{Binding Category, StringFormat='Category: {0}'}"
+                                        FontSize="12"
+                                        TextColor="#999999" />
+
+                                </VerticalStackLayout>
+
+                                <!-- Edit button -->
+                                <ImageButton
+                                    Grid.Row="0"
+                                    Grid.RowSpan="2"
+                                    Grid.Column="1"
+                                    Source="pencil.png"
+                                    BackgroundColor="#5B2EFF"
+                                    CornerRadius="35"
+                                    Padding="8"
+                                    HeightRequest="35"
+                                    WidthRequest="35"
+                                    VerticalOptions="Center"
+                                    Command="{Binding Source={RelativeSource AncestorType={x:Type viewmodels:UserDonationViewModel}}, Path=EditDonationCommand}"
+                                    CommandParameter="{Binding .}">
+                                    <ImageButton.Triggers>
+                                        <Trigger TargetType="ImageButton" Property="IsPressed" Value="True">
+                                            <Setter Property="Opacity" Value="0.7"/>
+                                        </Trigger>
+                                    </ImageButton.Triggers>
+                                </ImageButton>
+
+                            </Grid>
+                        </Frame>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+
+            </CollectionView>
+
+        </RefreshView>
+
+    </Grid>
+</ContentPage>

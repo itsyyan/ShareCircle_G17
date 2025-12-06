@@ -51,6 +51,29 @@
             ItemsSource="{Binding Donations}"
             BackgroundColor="Transparent"
             Margin="0,0,0,0">
+            <CollectionView.EmptyView>
+                <VerticalStackLayout
+                    Padding="40"
+                    Spacing="12"
+                    HorizontalOptions="Center"
+                    VerticalOptions="Center">
+                    <Image
+                        Source="comm.png"
+                        WidthRequest="80"
+                        HeightRequest="80"
+                        Opacity="0.6" />
+                    <Label
+                        Text="It looks like no one has posted yet."
+                        FontSize="16"
+                        TextColor="White"
+                        HorizontalTextAlignment="Center" />
+                    <Label
+                        Text="Be the first to share something with the community!"
+                        FontSize="14"
+                        TextColor="#E0E0E0"
+                        HorizontalTextAlignment="Center" />
+                </VerticalStackLayout>
+            </CollectionView.EmptyView>
             
             <CollectionView.ItemTemplate>
                 <DataTemplate>
@@ -84,7 +107,7 @@
                                     HasShadow="False"
                                     BackgroundColor="#F0F0F0"
                                     IsClippedToBounds="True">
-                                    <Image Source="{Binding ProfileImageUrl}"
+                                    <Image Source="{Binding ProfileImage}"
                                            Aspect="AspectFill" />
                                 </Frame>
 
@@ -122,7 +145,7 @@
 
                             <!-- Donation Image -->
                             <Image
-                                Source="{Binding ImageUrl}"
+                                Source="{Binding DonationImage}"
                                 Aspect="AspectFill"
                                 HeightRequest="300"
                                 HorizontalOptions="Fill" />

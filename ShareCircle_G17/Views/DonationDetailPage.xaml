@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    x:Class="ShareCircle_G17.Views.DonationDetailPage"
+    NavigationPage.HasNavigationBar="False"
+    BackgroundColor="Transparent"
+    Padding="0">
+
+    <ContentPage.Background>
+        <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+            <GradientStop Color="#5B2EFF" Offset="0.0" />
+            <GradientStop Color="#EDE7FF" Offset="1.0" />
+        </LinearGradientBrush>
+    </ContentPage.Background>
+
+    <ScrollView>
+        <VerticalStackLayout Padding="30,50,30,30" Spacing="20">
+
+            <HorizontalStackLayout Spacing="12" VerticalOptions="Center">
+                <ImageButton
+                    Source="back2.png"
+                    BackgroundColor="Transparent"
+                    WidthRequest="12"
+                    HeightRequest="12"
+                    Clicked="OnBackClicked" />
+                <Label
+                    Text="Product details"
+                    FontSize="25"
+                    FontAttributes="Bold"
+                    TextColor="White"
+                    VerticalOptions="Center" />
+            </HorizontalStackLayout>
+
+            <Frame
+                Padding="0"
+                CornerRadius="24"
+                BackgroundColor="White"
+                HasShadow="False">
+                <VerticalStackLayout Spacing="18" Padding="18">
+                    <HorizontalStackLayout Spacing="12" VerticalOptions="Center">
+                        <Frame
+                            HeightRequest="48"
+                            WidthRequest="48"
+                            CornerRadius="24"
+                            Padding="0"
+                            HasShadow="False"
+                            BackgroundColor="#F5F5F5"
+                            IsClippedToBounds="True">
+                            <Image Source="{Binding ProfileImage}" Aspect="AspectFill" />
+                        </Frame>
+                        <VerticalStackLayout>
+                            <Label
+                                Text="{Binding Username}"
+                                FontSize="16"
+                                FontAttributes="Bold"
+                                TextColor="#222222" />
+                            <Label
+                                Text="{Binding Location}"
+                                FontSize="13"
+                                TextColor="#666666" />
+                        </VerticalStackLayout>
+                    </HorizontalStackLayout>
+
+                    <Border
+                        StrokeThickness="0"
+                        StrokeShape="RoundRectangle 18">
+                        <Image
+                            Source="{Binding DonationImage}"
+                            HeightRequest="240"
+                            Aspect="AspectFill" />
+                    </Border>
+
+                    <Label
+                        Text="{Binding ItemTitle}"
+                        FontSize="20"
+                        FontAttributes="Bold"
+                        TextColor="#222222" />
+
+                    <Label
+                        Text="{Binding Description}"
+                        FontSize="15"
+                        TextColor="#555555" />
+
+                    <Border
+                        StrokeThickness="0"
+                        Background="#5B2EFF"
+                        StrokeShape="RoundRectangle 28"
+                        HeightRequest="56">
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer Tapped="OnRequestClicked" NumberOfTapsRequired="1" />
+                        </Border.GestureRecognizers>
+                        <HorizontalStackLayout
+                            Spacing="10"
+                            HorizontalOptions="Center"
+                            VerticalOptions="Center"
+                            HeightRequest="56">
+                            <Image
+                                Source="heart_check.png"
+                                WidthRequest="18"
+                                HeightRequest="18"
+                                VerticalOptions="Center"
+                                HorizontalOptions="Center"
+                                Aspect="AspectFit" />
+                            <Label
+                                Text="Request"
+                                FontSize="18"
+                                FontAttributes="Bold"
+                                TextColor="White"
+                                VerticalOptions="Center" />
+                        </HorizontalStackLayout>
+                    </Border>
+
+                    <Grid ColumnSpacing="8">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+
+                        <Label
+                            Text="Location"
+                            FontAttributes="Bold"
+                            TextColor="#222222" />
+
+                        <Label
+                            Grid.Column="1"
+                            Text="{Binding DropOffLocation}"
+                            TextColor="#555555" />
+                    </Grid>
+
+                    <Frame BackgroundColor="#EFEFF5" CornerRadius="16" Padding="14">
+                        <VerticalStackLayout Spacing="6">
+                            <Label
+                                Text="Contact Email"
+                                FontAttributes="Bold"
+                                TextColor="#222222" />
+                            <Label
+                                Text="{Binding ContactEmail}"
+                                TextColor="#555555" />
+                        </VerticalStackLayout>
+                    </Frame>
+                </VerticalStackLayout>
+            </Frame>
+
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>
+

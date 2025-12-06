@@ -203,7 +203,7 @@
                         </VerticalStackLayout>
                     </Frame>
 
-                    <!-- Request button -->
+                    <!-- My Donations button -->
                     <Frame
                         Background="#FFFFFF"
                         BorderColor="White"
@@ -214,6 +214,9 @@
                         HasShadow="False"
                         VerticalOptions="Center"
                         HorizontalOptions="Center">
+                        <Frame.GestureRecognizers>
+                            <TapGestureRecognizer Tapped="OnMyDonationNavTapped" NumberOfTapsRequired="1" />
+                        </Frame.GestureRecognizers>
                         <VerticalStackLayout Spacing="8" HorizontalOptions="Center" VerticalOptions="Center">
                             <Image
                                 Source="gv.png"
@@ -221,7 +224,7 @@
                                 HeightRequest="30"
                                 Aspect="AspectFit" />
                             <Label
-                                Text="Request"
+                                Text="My Donations"
                                 FontSize="11"
                                 TextColor="black"
                                 HorizontalTextAlignment="Center" />
@@ -291,6 +294,9 @@
                                 WidthRequest="84"
                                 HasShadow="False"
                                 HorizontalOptions="Start">
+                                <Frame.GestureRecognizers>
+                                    <TapGestureRecognizer Tapped="OnFoodFilterTapped" CommandParameter="fruit" />
+                                </Frame.GestureRecognizers>
                                 <VerticalStackLayout Spacing="8" HorizontalOptions="Center" VerticalOptions="Center">
                                     <Image
                                         Source="fruit.png"
@@ -315,6 +321,9 @@
                                 WidthRequest="84"
                                 HasShadow="False"
                                 HorizontalOptions="Center">
+                                <Frame.GestureRecognizers>
+                                    <TapGestureRecognizer Tapped="OnFoodFilterTapped" CommandParameter="bread" />
+                                </Frame.GestureRecognizers>
                                 <VerticalStackLayout Spacing="8" HorizontalOptions="Center" VerticalOptions="Center">
                                     <Image
                                         Source="bread.png"
@@ -339,6 +348,9 @@
                                 WidthRequest="84"
                                 HasShadow="False"
                                 HorizontalOptions="End">
+                                <Frame.GestureRecognizers>
+                                    <TapGestureRecognizer Tapped="OnFoodFilterTapped" CommandParameter="packaged food" />
+                                </Frame.GestureRecognizers>
                                 <VerticalStackLayout Spacing="8" HorizontalOptions="Center" VerticalOptions="Center">
                                     <Image
                                         Source="dine.png"
@@ -378,6 +390,9 @@
                                 WidthRequest="84"
                                 HasShadow="False"
                                 HorizontalOptions="Start">
+                                <Frame.GestureRecognizers>
+                                    <TapGestureRecognizer Tapped="OnItemFilterTapped" CommandParameter="clothes" />
+                                </Frame.GestureRecognizers>
                                 <VerticalStackLayout Spacing="8" HorizontalOptions="Center" VerticalOptions="Center">
                                     <Image
                                         Source="apparel.png"
@@ -402,6 +417,9 @@
                                 WidthRequest="84"
                                 HasShadow="False"
                                 HorizontalOptions="Center">
+                                <Frame.GestureRecognizers>
+                                    <TapGestureRecognizer Tapped="OnItemFilterTapped" CommandParameter="toys" />
+                                </Frame.GestureRecognizers>
                                 <VerticalStackLayout Spacing="8" HorizontalOptions="Center" VerticalOptions="Center">
                                     <Image
                                         Source="toys.png"
@@ -426,6 +444,9 @@
                                 WidthRequest="84"
                                 HasShadow="False"
                                 HorizontalOptions="End">
+                                <Frame.GestureRecognizers>
+                                    <TapGestureRecognizer Tapped="OnItemFilterTapped" CommandParameter="books" />
+                                </Frame.GestureRecognizers>
                                 <VerticalStackLayout Spacing="8" HorizontalOptions="Center" VerticalOptions="Center">
                                     <Image
                                         Source="book_2.png"

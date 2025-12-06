@@ -3,20 +3,22 @@ using System.IO;
 using Microsoft.Maui.Controls;
 using Microsoft.Maui.Storage;
 using Microsoft.Maui.Graphics;
+using ShareCircle_G17.ViewModels;
 
 namespace ShareCircle_G17.Views;
 
 public partial class DonationPage : ContentPage
 {
-    // track current category selection
-    private string _selectedCategory = null;
+    /* track current category selection
+    private string _selectedCategory = null; */
 
-    public DonationPage()
+    public DonationPage(DonationViewModel viewModel)
     {
         InitializeComponent();
+        BindingContext = viewModel;
     }
 
-    private async void OnBackClicked(object sender, EventArgs e)
+    /* private async void OnBackClicked(object sender, EventArgs e)
     {
         // Navigate back to previous page
         await Shell.Current.GoToAsync("..");
@@ -107,5 +109,5 @@ public partial class DonationPage : ContentPage
             itemFrame.BackgroundColor = Color.FromArgb("#5B2EFF");
             itemLabel.TextColor = Colors.White;
         }
-    }
+    } */
 }

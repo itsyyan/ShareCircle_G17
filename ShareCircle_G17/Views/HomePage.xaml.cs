@@ -39,8 +39,32 @@ public partial class HomePage : ContentPage
 
     private async void OnDonateNavTapped(object? sender, EventArgs e)
     {
-        // Navigate to the new DonationPage
-        await Shell.Current.GoToAsync(nameof(DonationPage));
+        try
+        {
+            await Shell.Current.GoToAsync(nameof(DonationPage));
+        }
+        catch (Exception ex)
+        {
+            var inner = ex.InnerException != null ? $"{ex.InnerException.GetType().Name}: {ex.InnerException.Message}" : "None";
+            await DisplayAlert("Navigation Error",
+                $"Exception: {ex.GetType().Name}\nMessage: {ex.Message}\nInner: {inner}",
+                "OK");
+        }
+    }
+
+    private async void OnMyDonationNavTapped(object? sender, EventArgs e)
+    {
+        try
+        {
+            await Shell.Current.GoToAsync(nameof(UserDonationPage));
+        }
+        catch (Exception ex)
+        {
+            var inner = ex.InnerException != null ? $"{ex.InnerException.GetType().Name}: {ex.InnerException.Message}" : "None";
+            await DisplayAlert("Navigation Error",
+                $"Exception: {ex.GetType().Name}\nMessage: {ex.Message}\nInner: {inner}",
+                "OK");
+        }
     }
 
     private async void OnProfileNavTapped(object? sender, EventArgs e)
@@ -59,5 +83,29 @@ public partial class HomePage : ContentPage
     {
         // Navigate to CommunityPage
         await Shell.Current.GoToAsync(nameof(CommunityPage));
+    }
+
+    private async void OnFoodFilterTapped(object? sender, TappedEventArgs e)
+    {
+        var subCategory = e.Parameter?.ToString() ?? string.Empty;
+        await NavigateToCommunityWithFilters("food", subCategory);
+    }
+
+    private async void OnItemFilterTapped(object? sender, TappedEventArgs e)
+    {
+        var subCategory = e.Parameter?.ToString() ?? string.Empty;
+        await NavigateToCommunityWithFilters("item", subCategory);
+    }
+
+    private static Task NavigateToCommunityWithFilters(string categoryType, string? subCategory)
+    {
+        var route = $"{nameof(CommunityPage)}?categoryType={Uri.EscapeDataString(categoryType)}";
+
+        if (!string.IsNullOrWhiteSpace(subCategory))
+        {
+            route += $"&subcategory={Uri.EscapeDataString(subCategory)}";
+        }
+
+        return Shell.Current.GoToAsync(route);
     }
 }
