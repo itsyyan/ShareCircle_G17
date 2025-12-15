@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %> - ShareCircle Admin</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/open-iconic@1.1.1/font/css/open-iconic-bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/css/site.css">
+</head>
+<body>
+    <div class="page">
+        <div class="sidebar">
+            <%- include('partials/navbar') %>
+        </div>
+        <main>
+            <div class="top-row px-4">
+                <a href="https://docs.microsoft.com/aspnet/" target="_blank">About</a>
+            </div>
+            <article class="content px-4">
+                <h3>Manage Users</h3>
+                <div class="mb-3">
+                    <a href="/users?refresh=true" class="btn btn-outline-primary btn-sm">
+                        Refresh List
+                    </a>
+                </div>
+
+                <% if (message) { %>
+                <div class="alert alert-info alert-dismissible fade show" role="alert">
+                    <%= message %>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+                <% } %>
+
+                <% if (typeof error !== 'undefined' && error) { %>
+                <div class="alert alert-danger" role="alert">
+                    <%= error %>
+                </div>
+                <% } %>
+
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Avatar</th>
+                            <th>Username</th>
+                            <th>Email</th>
+                            <th>Joined Date</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% users.forEach(user => { %>
+                        <tr>
+                            <td>
+                                <% if (user.ProfileImageUrl) { %>
+                                <img src="<%= user.ProfileImageUrl %>" width="40" height="40" style="border-radius: 50%;" alt="Avatar">
+                                <% } else { %>
+                                <div style="width:40px; height:40px; background-color:#ccc; border-radius:50%; display:flex; align-items:center; justify-content:center;">
+                                    <span><%= user.Username ? user.Username.charAt(0) : '?' %></span>
+                                </div>
+                                <% } %>
+                            </td>
+                            <td><%= user.Username || 'N/A' %></td>
+                            <td><%= user.Email || 'N/A' %></td>
+                            <td><%= user.CreatedAt ? new Date(user.CreatedAt).toLocaleDateString() : 'N/A' %></td>
+                            <td>
+                                <form action="/users/delete/<%= user.userId %>" method="POST" style="display:inline;" onsubmit="return confirm('Are you sure you want to delete this user?');">
+                                    <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                                </form>
+                            </td>
+                        </tr>
+                        <% }); %>
+                    </tbody>
+                </table>
+            </article>
+        </main>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
