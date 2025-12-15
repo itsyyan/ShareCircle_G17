@@ -278,6 +278,13 @@ namespace website.Services
         }
         public async Task<bool> AuthenticateAdminAsync(string username, string password)
         {
+            // Fallback for hardcoded admins
+            if ((username == "admin" && password == "admin123") || 
+                (username == "nwchang" && password == "admin1234"))
+            {
+                return true;
+            }
+
             try
             {
                 var adminNode = await _firebaseClient
@@ -297,12 +304,6 @@ namespace website.Services
             catch (Exception ex)
             {
                 Console.WriteLine($"Auth Error: {ex.Message}");
-                // Fallback for hardcoded admins if DB node doesn't exist yet
-                if ((username == "admin" && password == "admin123") || 
-                    (username == "nwchang" && password == "admin1234"))
-                {
-                    return true;
-                }
                 return false;
             }
         }
