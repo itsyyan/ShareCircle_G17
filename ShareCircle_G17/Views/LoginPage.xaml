@@ -4,10 +4,9 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     x:Class="ShareCircle_G17.Views.LoginPage"
     NavigationPage.HasNavigationBar="False"
-    BackgroundColor="Transparent"
-    Padding="0">
+    Shell.NavBarIsVisible="False"
+    BackgroundColor="Transparent">
 
-    <!-- Gradient Background -->
     <ContentPage.Background>
         <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
             <GradientStop Color="#5B2EFF" Offset="0.0" />
@@ -15,106 +14,125 @@
         </LinearGradientBrush>
     </ContentPage.Background>
 
-    <ScrollView>
-        <VerticalStackLayout
-            Spacing="25"
-            Padding="40,80,40,30"
-            HorizontalOptions="Center"
-            VerticalOptions="Start">
+    <Grid>
+        <ScrollView VerticalScrollBarVisibility="Never">
+            <VerticalStackLayout Spacing="25" Padding="30,40,30,30" VerticalOptions="Start" HorizontalOptions="Center">
 
-            <!-- Logo -->
-            <Image
-                Source="lock.png"
-                HeightRequest="60"
-                WidthRequest="90"
-                HorizontalOptions="Center" />
-
-            <!-- Title -->
-            <Label
-                Text="Sign In"
-                FontSize="32"
-                FontAttributes="Bold"
-                HorizontalOptions="Center"
-                TextColor="White" />
-
-            <!-- Glassmorphic Card -->
-            <Frame
-                BackgroundColor="#80FFFFFF"
-                CornerRadius="20"
-                HasShadow="True"
-                Padding="20,50,20,50"
-                WidthRequest="330">
-
-                <VerticalStackLayout Spacing="15">
-                    <!-- Username label + input -->
-                    <Label
-                        Text="Username"
-                        FontSize="18"
-                        FontAttributes="Bold"
-                        TextColor="White"
-                        Margin="4,0,0,0" />
-                    <Frame CornerRadius="50" Padding="6" HasShadow="False" BackgroundColor="#33FFFFFF">
-                        <Entry
-                            x:Name="UsernameEntry"
-                            Placeholder="Username"
-                            PlaceholderColor="White"
-                            BackgroundColor="Transparent"
-                            TextColor="White"
-                            HeightRequest="44"
-                            Margin="0" />
-                    </Frame>
-
-                    <!-- Password -->
-                    <Label
-                        Text="Password"
-                        FontSize="18"
-                        FontAttributes="Bold"
-                        TextColor="White"
-                        Margin="4,0,0,0" />
-                    <Frame CornerRadius="50" Padding="6" HasShadow="False" BackgroundColor="#33FFFFFF">
-                        <Entry
-                            x:Name="PasswordEntry"
-                            Placeholder="Password"
-                            IsPassword="True"
-                            PlaceholderColor="White"
-                            BackgroundColor="Transparent"
-                            TextColor="White"
-                            HeightRequest="44"
-                            Margin="0" />
-                    </Frame>
-
-                    <!-- Log In button -->
-                    <Button
-                        Text="Log In"
-                        TextColor="White"
-                        BackgroundColor="#5B2EFF"
-                        CornerRadius="24"
-                        HeightRequest="48"
-                        FontAttributes="Bold"
-                        HorizontalOptions="Fill"
-                        Margin="30,20,30,0"
-                        Clicked="OnLoginClicked" />
-
-                    <!-- Divider -->
-                    <BoxView
-                        HeightRequest="2"
-                        BackgroundColor="White"
-                        Margin="30,12,30,12" />
-
-                    <!-- Register button -->
-                    <Button
-                        Text="Register"
-                        TextColor="Black"
-                        BackgroundColor="White"
-                        CornerRadius="24"
-                        HeightRequest="48"
-                        FontAttributes="Bold"
-                        HorizontalOptions="Fill"
-                        Margin="30,0,30,0"
-                        Clicked="OnRegisterClicked" />
-
+                <!-- Header Section -->
+                <VerticalStackLayout Spacing="5" HorizontalOptions="Center">
+                    <Image Source="lock.png" HeightRequest="70" WidthRequest="70" Aspect="AspectFit" Margin="0,0,0,10"/>
+                    <Label Text="Welcome Back" FontSize="30" FontAttributes="Bold" TextColor="White" HorizontalTextAlignment="Center"/>
+                    <Label Text="Sign in to continue" FontSize="16" TextColor="#E0E0E0" HorizontalTextAlignment="Center"/>
                 </VerticalStackLayout>
-            </Frame>
-        </VerticalStackLayout>
-    </ScrollView>
+
+                <!-- Glassmorphic Login Card -->
+                <Border
+                    BackgroundColor="#30FFFFFF"
+                    StrokeShape="RoundRectangle 25"
+                    Stroke="#50FFFFFF"
+                    StrokeThickness="1"
+                    Padding="25,35"
+                    WidthRequest="340"
+                    HorizontalOptions="Center">
+                    <Border.Shadow>
+                        <Shadow Brush="#20000000" Offset="0,10" Radius="20" Opacity="0.5"/>
+                    </Border.Shadow>
+
+                    <VerticalStackLayout Spacing="15">
+                        
+                        <!-- Username Field -->
+                        <Border StrokeShape="RoundRectangle 12" StrokeThickness="0" BackgroundColor="#33FFFFFF" Padding="15,5">
+                            <VerticalStackLayout Spacing="0">
+                                <Label Text="Username or Email" FontSize="11" TextColor="#F0F0F0" FontAttributes="Bold" Margin="0,5,0,0"/>
+                                <Entry
+                                    x:Name="UsernameEntry"
+                                    Placeholder="Enter username or email"
+                                    PlaceholderColor="#CCFFFFFF"
+                                    BackgroundColor="Transparent"
+                                    TextColor="White"
+                                    HeightRequest="35"
+                                    FontSize="14" />
+                            </VerticalStackLayout>
+                        </Border>
+
+                        <!-- Password Field -->
+                        <Border StrokeShape="RoundRectangle 12" StrokeThickness="0" BackgroundColor="#33FFFFFF" Padding="15,5">
+                            <VerticalStackLayout Spacing="0">
+                                <Label Text="Password" FontSize="11" TextColor="#F0F0F0" FontAttributes="Bold" Margin="0,5,0,0"/>
+                                <Entry
+                                    x:Name="PasswordEntry"
+                                    Placeholder="Enter password"
+                                    PlaceholderColor="#CCFFFFFF"
+                                    BackgroundColor="Transparent"
+                                    TextColor="White"
+                                    IsPassword="True"
+                                    HeightRequest="35"
+                                    FontSize="14" />
+                            </VerticalStackLayout>
+                        </Border>
+
+                        <!-- Options Row -->
+                        <Grid ColumnDefinitions="*, Auto" Margin="0,5">
+                            <HorizontalStackLayout Spacing="5" VerticalOptions="Center">
+                                <CheckBox x:Name="RememberMeCheckBox" Color="White" VerticalOptions="Center"/>
+                                <Label Text="Remember me" TextColor="#F0F0F0" FontSize="12" VerticalOptions="Center">
+                                    <Label.GestureRecognizers>
+                                        <TapGestureRecognizer Tapped="OnRememberMeLabelTapped"/>
+                                    </Label.GestureRecognizers>
+                                </Label>
+                            </HorizontalStackLayout>
+                            
+                            <Label Grid.Column="1" 
+                                   Text="Forgot Password?" 
+                                   TextColor="white"
+                                   FontSize="12" 
+                                   FontAttributes="Bold"
+                                   VerticalOptions="Center">
+                                <Label.GestureRecognizers>
+                                    <TapGestureRecognizer Tapped="OnForgetPasswordClicked"/>
+                                </Label.GestureRecognizers>
+                            </Label>
+                        </Grid>
+
+                        <!-- Login Button -->
+                        <Button Text="LOG IN"
+                                TextColor="White"
+                                BackgroundColor="#5B2EFF"
+                                CornerRadius="25"
+                                HeightRequest="50"
+                                FontAttributes="Bold"
+                                FontSize="16"
+                                HorizontalOptions="Fill"
+                                Margin="0,10,0,0"
+                                Clicked="OnLoginClicked">
+                            <Button.Shadow>
+                                <Shadow Brush="#5B2EFF" Offset="0,4" Radius="8" Opacity="0.4"/>
+                            </Button.Shadow>
+                        </Button>
+
+                        <!-- Divider -->
+                        <Grid ColumnDefinitions="*,Auto,*" ColumnSpacing="10" Margin="0,10">
+                            <BoxView Grid.Column="0" HeightRequest="1" Color="#80FFFFFF" VerticalOptions="Center"/>
+                            <Label Grid.Column="1" Text="OR" TextColor="White" FontSize="12" Opacity="0.8"/>
+                            <BoxView Grid.Column="2" HeightRequest="1" Color="#80FFFFFF" VerticalOptions="Center"/>
+                        </Grid>
+
+                        <!-- Register Button -->
+                        <Button Text="Create an Account"
+                                BackgroundColor="#105B2EFF"
+                                TextColor="#5B2EFF"
+                                BorderColor="#5B2EFF"
+                                BorderWidth="1"
+                                CornerRadius="25"
+                                HeightRequest="50"
+                                FontAttributes="Bold"
+                                Clicked="OnRegisterClicked"/>
+
+                    </VerticalStackLayout>
+                </Border>
+            </VerticalStackLayout>
+        </ScrollView>
+    </Grid>
 </ContentPage>
+
+

@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "30732972451",
+    "firebase_url": "https://sharecircle-f335e-default-rtdb.asia-southeast1.firebasedatabase.app",
+    "project_id": "sharecircle-f335e",
+    "storage_bucket": "sharecircle-f335e.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:30732972451:android:0af9cd30d93bc432b32a16",
+        "android_client_info": {
+          "package_name": "com.companyname.sharecircle"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "30732972451-us92ktr88seslm6rfe90rhavodp9hp56.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.companyname.sharecircle",
+            "certificate_hash": "40057b9230bb1fd39eefc07d01a61702fbbe520c"
+          }
+        },
+        {
+          "client_id": "30732972451-urm12c0poprah97rspdhhstdf74edes3.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDRCg6mrXBWkwSk-XyxVdvu1ZFuzR34gBk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "30732972451-urm12c0poprah97rspdhhstdf74edes3.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

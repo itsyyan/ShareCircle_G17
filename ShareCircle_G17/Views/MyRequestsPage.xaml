@@ -1,0 +1,230 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    x:Class="ShareCircle_G17.Views.MyRequestsPage"
+    NavigationPage.HasNavigationBar="False"
+    BackgroundColor="#5B2EFF">
+
+    <Grid>
+        <!-- Background Layer -->
+        <BoxView>
+            <BoxView.Background>
+                <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                    <GradientStop Color="#5B2EFF" Offset="0.0" />
+                    <GradientStop Color="#EDE7FF" Offset="1.0" />
+                </LinearGradientBrush>
+            </BoxView.Background>
+        </BoxView>
+
+        <Grid RowDefinitions="Auto,*" Padding="0">
+
+            <!-- Custom Header -->
+            <Grid Grid.Row="0" HeightRequest="80" Padding="16,10,16,0" ColumnSpacing="12" VerticalOptions="Start">
+                <!-- Header background removed to let page gradient show through -->
+                
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+
+                <!-- Back Button -->
+                <Frame
+                    Grid.Column="0"
+                    HeightRequest="40"
+                    WidthRequest="40"
+                    CornerRadius="20"
+                    Padding="0"
+                    HasShadow="False"
+                    BackgroundColor="#B3FFFFFF"
+                    VerticalOptions="Center">
+                    <Frame.GestureRecognizers>
+                        <TapGestureRecognizer Tapped="OnBackClicked" />
+                    </Frame.GestureRecognizers>
+                    <Grid>
+                        <Label
+                            Text="&#x2039;"
+                            FontSize="24"
+                            TextColor="#5B2EFF"
+                            HorizontalOptions="Center"
+                            VerticalOptions="Center"
+                            HorizontalTextAlignment="Center"
+                            VerticalTextAlignment="Center"
+                            Margin="0,-5,0,0" />
+                    </Grid>
+                </Frame>
+
+                <!-- Title -->
+                <Label
+                    Grid.Column="1"
+                    Text="My Requests"
+                    FontSize="20"
+                    FontAttributes="Bold"
+                    TextColor="White"
+                    VerticalOptions="Center" />
+
+                <Frame
+                    Grid.Column="2"
+                    Padding="0"
+                    HasShadow="False"
+                    BackgroundColor="Transparent"
+                    VerticalOptions="Center" />
+            </Grid>
+
+            <!-- Content -->
+            <ScrollView Grid.Row="1" Padding="0,10,0,0">
+                <VerticalStackLayout Spacing="0">
+
+                    <!-- Empty State -->
+                    <VerticalStackLayout
+                        x:Name="EmptyStateLayout"
+                        Padding="30,60"
+                        Spacing="20"
+                        IsVisible="False">
+
+                        <Label
+                            Text="📝"
+                            FontSize="80"
+                            HorizontalOptions="Center" />
+
+                        <Label
+                            Text="No Requests Yet"
+                            FontSize="24"
+                            FontAttributes="Bold"
+                            TextColor="White"
+                            HorizontalOptions="Center" />
+
+                        <Label
+                            Text="Browse the home feed to find items you need and send requests to donors."
+                            FontSize="14"
+                            TextColor="White"
+                            Opacity="0.9"
+                            HorizontalOptions="Center"
+                            HorizontalTextAlignment="Center"
+                            LineBreakMode="WordWrap" />
+
+                        <Button
+                            Text="Go to Home"
+                            TextColor="#5B2EFF"
+                            BackgroundColor="White"
+                            CornerRadius="12"
+                            HeightRequest="48"
+                            FontAttributes="Bold"
+                            Margin="0,20,0,0"
+                            Clicked="OnBrowseHomeClicked" />
+
+                    </VerticalStackLayout>
+
+                    <!-- Requests List -->
+                    <CollectionView
+                        x:Name="RequestsCollectionView"
+                        SelectionMode="None"
+                        IsVisible="True"
+                        BackgroundColor="Transparent">
+                        <CollectionView.ItemsLayout>
+                            <LinearItemsLayout Orientation="Vertical" ItemSpacing="0" />
+                        </CollectionView.ItemsLayout>
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate>
+                                <Border
+                                    StrokeThickness="0"
+                                    StrokeShape="RoundRectangle 16"
+                                    BackgroundColor="White"
+                                    Margin="16,8"
+                                    Padding="0">
+                                    <Border.Shadow>
+                                        <Shadow Brush="#1A000000" Offset="0,4" Radius="12" Opacity="0.4" />
+                                    </Border.Shadow>
+                                    
+                                    <VerticalStackLayout Spacing="0">
+                                        
+                                        <!-- Card Header: Donor & Status -->
+                                        <Grid Padding="16,12" ColumnDefinitions="Auto,*,Auto" BackgroundColor="#FAFAFA">
+                                            <HorizontalStackLayout Grid.Column="0" Spacing="8" VerticalOptions="Center">
+                                                <Border StrokeShape="RoundRectangle 12" StrokeThickness="0" HeightRequest="24" WidthRequest="24" Padding="0">
+                                                    <Image Source="{Binding DonorImageUrl}" 
+                                                           Aspect="AspectFill"
+                                                           HorizontalOptions="Fill" VerticalOptions="Fill" />
+                                                </Border>
+                                                <Label Text="{Binding DonorName}" 
+                                                       FontSize="13" FontAttributes="Bold" TextColor="#374151" VerticalOptions="Center" />
+                                            </HorizontalStackLayout>
+                                            
+                                            <Border Grid.Column="2" 
+                                                    StrokeThickness="0" 
+                                                    StrokeShape="RoundRectangle 6" 
+                                                    BackgroundColor="{Binding StatusBackgroundColor}" 
+                                                    Padding="8,2" 
+                                                    VerticalOptions="Center">
+                                                <Label Text="{Binding Status}" 
+                                                       FontSize="11" FontAttributes="Bold" TextColor="{Binding StatusTextColor}" />
+                                            </Border>
+                                        </Grid>
+                                        
+                                        <!-- Divider -->
+                                        <BoxView HeightRequest="1" Color="#F3F4F6" />
+                                        
+                                        <!-- Card Body: Item Info -->
+                                        <Grid Padding="16" ColumnDefinitions="70,*" ColumnSpacing="12">
+                                            <!-- Image -->
+                                            <Border Grid.Column="0" 
+                                                    WidthRequest="70" HeightRequest="70" 
+                                                    StrokeShape="RoundRectangle 10" 
+                                                    StrokeThickness="1" Stroke="#F3F4F6"
+                                                    BackgroundColor="#F9FAFB"
+                                                    VerticalOptions="Start">
+                                                <Image Source="{Binding ItemImageUrl}" Aspect="AspectFill" />
+                                            </Border>
+                                            
+                                            <!-- Details -->
+                                            <VerticalStackLayout Grid.Column="1" Spacing="6" VerticalOptions="Center">
+                                                <Label Text="{Binding ItemTitle}" 
+                                                       FontSize="15" FontAttributes="Bold" TextColor="#111827" 
+                                                       MaxLines="2" LineBreakMode="TailTruncation" />
+                                                
+                                                <HorizontalStackLayout Spacing="4">
+                                                    <Label Text="Requested on" FontSize="12" TextColor="#9CA3AF" />
+                                                    <Label Text="{Binding RequestedAt, StringFormat='{0:MMM dd, yyyy}'}" 
+                                                           FontSize="12" TextColor="#6B7280" />
+                                                </HorizontalStackLayout>
+                                            </VerticalStackLayout>
+                                        </Grid>
+                                        
+                                        <!-- Card Footer: Actions -->
+                                        <Grid Padding="16,0,16,16" ColumnDefinitions="Auto,*" ColumnSpacing="12">
+                                            <!-- Cancel Button (Auto width) -->
+                                            <Button Grid.Column="0"
+                                                    Text="Cancel"
+                                                    FontSize="13" FontAttributes="Bold"
+                                                    TextColor="#DC2626" BackgroundColor="#FEF2F2"
+                                                    CornerRadius="10" HeightRequest="40" Padding="16,0"
+                                                    Clicked="OnCancelRequestClicked"
+                                                    CommandParameter="{Binding .}"
+                                                    IsVisible="{Binding CanCancel}" />
+                                            
+                                            <!-- View Details (Fills remaining space) -->
+                                            <Button Grid.Column="1"
+                                                    Text="View Details"
+                                                    FontSize="13" FontAttributes="Bold"
+                                                    TextColor="#5B2EFF" BackgroundColor="#F5F3FF"
+                                                    CornerRadius="10" HeightRequest="40"
+                                                    Clicked="OnViewDetailsClicked"
+                                                    CommandParameter="{Binding .}" />
+                                        </Grid>
+                                        
+                                    </VerticalStackLayout>
+                                </Border>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+
+                </VerticalStackLayout>
+            </ScrollView>
+
+        </Grid>
+    </Grid>
+
+</ContentPage>
+
+

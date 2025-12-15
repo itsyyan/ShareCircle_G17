@@ -1,0 +1,160 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    x:Class="ShareCircle_G17.Views.RequestDetailsPage"
+    NavigationPage.HasNavigationBar="False"
+    BackgroundColor="Transparent">
+
+    <ContentPage.Background>
+        <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+            <GradientStop Color="#5B2EFF" Offset="0.0" />
+            <GradientStop Color="#EDE7FF" Offset="1.0" />
+        </LinearGradientBrush>
+    </ContentPage.Background>
+
+    <Grid RowDefinitions="Auto,*,Auto" Padding="16,20,16,0">
+
+        <!-- Header -->
+        <Grid Grid.Row="0" HeightRequest="64" ColumnSpacing="12" VerticalOptions="Start">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+
+            <Frame
+                Grid.Column="0"
+                HeightRequest="40"
+                WidthRequest="40"
+                CornerRadius="20"
+                Padding="0"
+                HasShadow="False"
+                BackgroundColor="#B3FFFFFF"
+                VerticalOptions="Center">
+                <Frame.GestureRecognizers>
+                    <TapGestureRecognizer Tapped="OnBackClicked" />
+                </Frame.GestureRecognizers>
+                <Grid>
+                    <Label
+                        Text="&#x2039;"
+                        FontSize="20"
+                        TextColor="#5B2EFF"
+                        HorizontalOptions="Center"
+                        VerticalOptions="Center"
+                        HorizontalTextAlignment="Center"
+                        VerticalTextAlignment="Center"
+                        Margin="0,-2,0,0" />
+                </Grid>
+            </Frame>
+
+            <Label
+                Grid.Column="1"
+                Text="Request Details"
+                FontSize="20"
+                FontAttributes="Bold"
+                TextColor="White"
+                VerticalOptions="Center" />
+        </Grid>
+
+        <!-- Body -->
+        <ScrollView Grid.Row="1" Padding="0,12,0,12">
+            <VerticalStackLayout Spacing="18">
+
+                <!-- Main card -->
+                <Frame BackgroundColor="White"
+                       CornerRadius="20"
+                       Padding="0"
+                       HasShadow="False"
+                       BorderColor="#E5E7EB">
+                    <VerticalStackLayout Spacing="0">
+
+                        <!-- Requester info -->
+                        <Grid Padding="20,16,20,12" ColumnDefinitions="Auto,*" ColumnSpacing="10">
+                            <Frame
+                                Grid.Column="0"
+                                HeightRequest="40"
+                                WidthRequest="40"
+                                CornerRadius="20"
+                                Padding="0"
+                                HasShadow="False"
+                                BackgroundColor="#E5E7EB"
+                                IsClippedToBounds="True">
+                                <Image x:Name="RequesterImage"
+                                       Aspect="AspectFill"
+                                       IsVisible="False" />
+                                <Label
+                                    x:Name="RequesterInitialLabel"
+                                    Text="R"
+                                    FontSize="16"
+                                    FontAttributes="Bold"
+                                    TextColor="#5B2EFF"
+                                    HorizontalOptions="Center"
+                                    VerticalOptions="Center" />
+                            </Frame>
+                            <VerticalStackLayout Grid.Column="1" Spacing="2" VerticalOptions="Center">
+                                <Label x:Name="RequesterLabel"
+                                       Text="Requester"
+                                       FontSize="14"
+                                       FontAttributes="Bold"
+                                       TextColor="#1F2937" />
+                                <Label x:Name="RequestedAtLabel"
+                                       Text="Requested time"
+                                       FontSize="12"
+                                       TextColor="#6B7280" />
+                            </VerticalStackLayout>
+                        </Grid>
+
+                        <!-- Image -->
+                        <Frame Padding="0" CornerRadius="0" HasShadow="False">
+                            <Image x:Name="ItemImage" HeightRequest="240" Aspect="AspectFill" />
+                        </Frame>
+
+                        <!-- Details -->
+                        <VerticalStackLayout Padding="20,16,20,20" Spacing="12">
+                            <Label x:Name="TitleLabel"
+                                   Text="Item title"
+                                   FontSize="20"
+                                   FontAttributes="Bold"
+                                   TextColor="#111827"
+                                   LineBreakMode="WordWrap" />
+
+                            <Label x:Name="StatusLabel"
+                                   Text="Pending"
+                                   FontSize="13"
+                                   TextColor="#0F766E" />
+
+                            <Label x:Name="DescriptionLabel"
+                                   Text="Description"
+                                   FontSize="14"
+                                   TextColor="#4B5563"
+                                   LineBreakMode="WordWrap" />
+
+                            <!-- Actions -->
+                            <Grid ColumnDefinitions="*,*" ColumnSpacing="12" Margin="0,4,0,0">
+                                <Button Text="Reject"
+                                        x:Name="RejectButton"
+                                        Grid.Column="0"
+                                        HeightRequest="48"
+                                        CornerRadius="14"
+                                        BackgroundColor="#FEE2E2"
+                                        TextColor="#DC2626"
+                                        FontAttributes="Bold"
+                                        Clicked="OnRejectClicked" />
+                                <Button Text="Accept"
+                                        x:Name="AcceptButton"
+                                        Grid.Column="1"
+                                        HeightRequest="48"
+                                        CornerRadius="14"
+                                        BackgroundColor="#5B2EFF"
+                                        TextColor="White"
+                                        FontAttributes="Bold"
+                                        Clicked="OnAcceptClicked" />
+                            </Grid>
+                        </VerticalStackLayout>
+                    </VerticalStackLayout>
+                </Frame>
+            </VerticalStackLayout>
+        </ScrollView>
+    </Grid>
+
+</ContentPage>

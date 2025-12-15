@@ -1,0 +1,470 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:maps="clr-namespace:Microsoft.Maui.Controls.Maps;assembly=Microsoft.Maui.Controls.Maps"
+    x:Class="ShareCircle_G17.Views.ExploreMapPage"
+    NavigationPage.HasNavigationBar="False"
+    BackgroundColor="White">
+
+    <Grid>
+        <!-- Main content (Map, Header, Post Preview) -->
+        <Grid>
+            <!-- Map -->
+            <maps:Map
+                x:Name="ExploreMap"
+                MapType="Street"
+                IsShowingUser="True"
+                IsScrollEnabled="True"
+                IsZoomEnabled="True" />
+
+            <!-- Header Overlay -->
+            <Grid VerticalOptions="Start" Padding="16,10,16,0">
+                <Border
+                    BackgroundColor="#FFFFFFEE"
+                    Stroke="Transparent"
+                    Padding="12,8"
+                    HorizontalOptions="Center"
+                    VerticalOptions="Start"
+                    Margin="0,10,0,0">
+                    <Border.StrokeShape>
+                        <RoundRectangle CornerRadius="16" />
+                    </Border.StrokeShape>
+                    <Border.Shadow>
+                        <Shadow Brush="Black" Offset="0,2" Radius="8" Opacity="0.1" />
+                    </Border.Shadow>
+                    <VerticalStackLayout Spacing="2" HorizontalOptions="Center">
+                        <Label
+                            Text="Explore Nearby"
+                            FontSize="20"
+                            FontAttributes="Bold"
+                            TextColor="#5B2EFF"
+                            HorizontalOptions="Center" />
+                        <HorizontalStackLayout Spacing="4" HorizontalOptions="Center">
+                            <Label
+                                Text="📍"
+                                FontSize="12" />
+                            <Label
+                                x:Name="CurrentCityLabel"
+                                Text="Locating..."
+                                FontSize="13"
+                                TextColor="#6B7280"
+                                HorizontalOptions="Center" />
+                            <Label
+                                x:Name="PostCountLabel"
+                                Text=""
+                                FontSize="12"
+                                TextColor="#9CA3AF"
+                                HorizontalOptions="Center" />
+                        </HorizontalStackLayout>
+                    </VerticalStackLayout>
+                </Border>
+
+                <!-- Refresh Button (Simplified) -->
+                <Border
+                    x:Name="RefreshButton"
+                    HorizontalOptions="End"
+                    VerticalOptions="Start"
+                    Margin="0,60,0,0"
+                    WidthRequest="36"
+                    HeightRequest="36"
+                    BackgroundColor="#F3F4F6"
+                    Stroke="#E5E7EB"
+                    StrokeThickness="1">
+                    <Border.StrokeShape>
+                        <RoundRectangle CornerRadius="8" />
+                    </Border.StrokeShape>
+                    <Border.GestureRecognizers>
+                        <TapGestureRecognizer Tapped="OnRefreshTapped" />
+                    </Border.GestureRecognizers>
+                    <Label
+                        Text="🔄"
+                        FontSize="16"
+                        TextColor="#6B7280"
+                        HorizontalOptions="Center"
+                        VerticalOptions="Center" />
+                </Border>
+            </Grid>
+
+            <!-- Selected Post Preview Card (Bottom) - Dialog Style -->
+            <Grid
+                x:Name="PostPreviewCard"
+                VerticalOptions="End"
+                Margin="16,0,16,100"
+                IsVisible="False"
+                TranslationY="200">
+
+                <!-- Dialog Arrow/Pointer (pointing up) -->
+                <Polygon
+                    Points="0,12 12,0 24,0 36,12"
+                    Fill="White"
+                    HorizontalOptions="Center"
+                    VerticalOptions="Start"
+                    Margin="0,-11,0,0"
+                    Stroke="#5B2EFF"
+                    StrokeThickness="2" />
+
+                <!-- Main Card -->
+                <Border
+                    BackgroundColor="White"
+                    Stroke="#5B2EFF"
+                    StrokeThickness="2"
+                    Padding="12"
+                    Margin="0,0,0,0">
+                    <Border.StrokeShape>
+                        <RoundRectangle CornerRadius="20" />
+                    </Border.StrokeShape>
+                    <Border.Shadow>
+                        <Shadow Brush="#5B2EFF" Offset="0,6" Radius="16" Opacity="0.25" />
+                    </Border.Shadow>
+                    <Border.GestureRecognizers>
+                        <TapGestureRecognizer Tapped="OnPreviewCardTapped" />
+                    </Border.GestureRecognizers>
+
+                    <Grid ColumnDefinitions="90,*" RowDefinitions="Auto" HeightRequest="100">
+                        <!-- Image with Purple Border -->
+                        <Border
+                            Grid.Column="0"
+                            Stroke="#5B2EFF"
+                            StrokeThickness="3"
+                            BackgroundColor="#F3F4F6"
+                            WidthRequest="80"
+                            HeightRequest="80"
+                            HorizontalOptions="Center"
+                            VerticalOptions="Center">
+                            <Border.StrokeShape>
+                                <RoundRectangle CornerRadius="12" />
+                            </Border.StrokeShape>
+                            <Border.Shadow>
+                                <Shadow Brush="#5B2EFF" Offset="0,2" Radius="6" Opacity="0.2" />
+                            </Border.Shadow>
+                            <Image
+                                x:Name="PostImage"
+                                Aspect="AspectFill"
+                                WidthRequest="74"
+                                HeightRequest="74">
+                                <Image.Clip>
+                                    <RoundRectangleGeometry Rect="0,0,74,74" CornerRadius="9" />
+                                </Image.Clip>
+                            </Image>
+                        </Border>
+
+                        <!-- Content -->
+                        <VerticalStackLayout Grid.Column="1" Padding="12,8,8,8" Spacing="6" VerticalOptions="Center">
+                            <Label
+                                x:Name="PostTitle"
+                                Text="Item Title"
+                                FontSize="17"
+                                FontAttributes="Bold"
+                                TextColor="#111827"
+                                LineBreakMode="TailTruncation" />
+
+                            <!-- Distance with icon -->
+                            <HorizontalStackLayout Spacing="4">
+                                <Label
+                                    Text="📍"
+                                    FontSize="11" />
+                                <Label
+                                    x:Name="PostDistance"
+                                    Text="0.5 km away"
+                                    FontSize="13"
+                                    FontAttributes="Bold"
+                                    TextColor="#5B2EFF" />
+                            </HorizontalStackLayout>
+
+                            <Label
+                                x:Name="PostDescription"
+                                Text="Description..."
+                                FontSize="12"
+                                TextColor="#6B7280"
+                                LineBreakMode="TailTruncation"
+                                MaxLines="2" />
+                        </VerticalStackLayout>
+
+                        <!-- Close Button -->
+                        <Border
+                            Grid.Column="1"
+                            HorizontalOptions="End"
+                            VerticalOptions="Start"
+                            WidthRequest="28"
+                            HeightRequest="28"
+                            Margin="0,-4,-4,0"
+                            BackgroundColor="#F3F4F6"
+                            Stroke="#E5E7EB"
+                            StrokeThickness="1">
+                            <Border.StrokeShape>
+                                <RoundRectangle CornerRadius="14" />
+                            </Border.StrokeShape>
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer Tapped="OnClosePreviewClicked" />
+                            </Border.GestureRecognizers>
+                            <Label
+                                Text="✕"
+                                FontSize="14"
+                                TextColor="#6B7280"
+                                HorizontalOptions="Center"
+                                VerticalOptions="Center" />
+                        </Border>
+                    </Grid>
+                </Border>
+            </Grid>
+            <!-- Loading Indicator -->
+            <ActivityIndicator
+                x:Name="LoadingIndicator"
+                IsRunning="True"
+                Color="#5B2EFF"
+                VerticalOptions="Center"
+                HorizontalOptions="Center"
+                IsVisible="False" />
+        </Grid>
+
+        <!-- Multiple Posts Selection Overlay -->
+        <Grid
+            x:Name="MultiPostOverlay"
+            IsVisible="False"
+            BackgroundColor="#80000000">
+            <Grid.GestureRecognizers>
+                <TapGestureRecognizer Tapped="OnMultiPostOverlayTapped" />
+            </Grid.GestureRecognizers>
+
+            <!-- Selection Card -->
+            <Border
+                VerticalOptions="Center"
+                HorizontalOptions="Center"
+                Margin="24"
+                MaximumHeightRequest="400"
+                BackgroundColor="White"
+                Stroke="#5B2EFF"
+                StrokeThickness="2"
+                Padding="0">
+                <Border.StrokeShape>
+                    <RoundRectangle CornerRadius="20" />
+                </Border.StrokeShape>
+                <Border.Shadow>
+                    <Shadow Brush="#5B2EFF" Offset="0,8" Radius="20" Opacity="0.3" />
+                </Border.Shadow>
+
+                <Grid RowDefinitions="Auto,*,Auto">
+                    <!-- Header -->
+                    <Grid Grid.Row="0" Padding="16,16,16,12" ColumnDefinitions="*,Auto">
+                        <VerticalStackLayout Grid.Column="0" Spacing="4">
+                            <Label
+                                Text="Multiple Items Here"
+                                FontSize="18"
+                                FontAttributes="Bold"
+                                TextColor="#111827" />
+                            <Label
+                                x:Name="MultiPostCountLabel"
+                                Text="2 items at this location"
+                                FontSize="13"
+                                TextColor="#6B7280" />
+                        </VerticalStackLayout>
+                        <Border
+                            Grid.Column="1"
+                            WidthRequest="32"
+                            HeightRequest="32"
+                            BackgroundColor="#F3F4F6"
+                            Stroke="#E5E7EB"
+                            StrokeThickness="1">
+                            <Border.StrokeShape>
+                                <RoundRectangle CornerRadius="16" />
+                            </Border.StrokeShape>
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer Tapped="OnCloseMultiPostClicked" />
+                            </Border.GestureRecognizers>
+                            <Label
+                                Text="✕"
+                                FontSize="16"
+                                TextColor="#6B7280"
+                                HorizontalOptions="Center"
+                                VerticalOptions="Center" />
+                        </Border>
+                    </Grid>
+
+                    <!-- Separator -->
+                    <BoxView Grid.Row="0" HeightRequest="1" Color="#E5E7EB" VerticalOptions="End" />
+
+                    <!-- Posts List -->
+                    <CollectionView
+                        x:Name="MultiPostList"
+                        Grid.Row="1"
+                        Margin="8,8,8,8"
+                        SelectionMode="None">
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate>
+                                <Border
+                                    Margin="4"
+                                    Padding="10"
+                                    BackgroundColor="#FAFAFF"
+                                    Stroke="#E5E7EB"
+                                    StrokeThickness="1">
+                                    <Border.StrokeShape>
+                                        <RoundRectangle CornerRadius="12" />
+                                    </Border.StrokeShape>
+                                    <Border.GestureRecognizers>
+                                        <TapGestureRecognizer Tapped="OnMultiPostItemTapped" />
+                                    </Border.GestureRecognizers>
+
+                                    <Grid ColumnDefinitions="60,*,Auto" ColumnSpacing="12">
+                                        <!-- Thumbnail -->
+                                        <Border
+                                            Grid.Column="0"
+                                            Stroke="#5B2EFF"
+                                            StrokeThickness="2"
+                                            WidthRequest="54"
+                                            HeightRequest="54"
+                                            BackgroundColor="#F3F4F6">
+                                            <Border.StrokeShape>
+                                                <RoundRectangle CornerRadius="8" />
+                                            </Border.StrokeShape>
+                                            <Image
+                                                Source="{Binding DisplayImageUrl}"
+                                                Aspect="AspectFill"
+                                                WidthRequest="50"
+                                                HeightRequest="50">
+                                                <Image.Clip>
+                                                    <RoundRectangleGeometry Rect="0,0,50,50" CornerRadius="6" />
+                                                </Image.Clip>
+                                            </Image>
+                                        </Border>
+
+                                        <!-- Info -->
+                                        <VerticalStackLayout Grid.Column="1" VerticalOptions="Center" Spacing="4">
+                                            <Label
+                                                Text="{Binding Title}"
+                                                FontSize="15"
+                                                FontAttributes="Bold"
+                                                TextColor="#111827"
+                                                LineBreakMode="TailTruncation"
+                                                MaxLines="1" />
+                                            <Label
+                                                Text="{Binding Category}"
+                                                FontSize="12"
+                                                TextColor="#5B2EFF" />
+                                        </VerticalStackLayout>
+
+                                        <!-- Arrow -->
+                                        <Label
+                                            Grid.Column="2"
+                                            Text="›"
+                                            FontSize="24"
+                                            TextColor="#9CA3AF"
+                                            VerticalOptions="Center" />
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+                </Grid>
+            </Border>
+        </Grid>
+
+        <!-- Floating bottom navigation -->
+        <Grid Padding="16,0,16,16" VerticalOptions="End">
+            <Frame
+                BackgroundColor="#5B2EFF"
+                CornerRadius="24"
+                Padding="16,12"
+                HasShadow="True">
+                <Frame.Shadow>
+                    <Shadow Brush="#40000000" Radius="20" Offset="0,-5" Opacity="0.8" />
+                </Frame.Shadow>
+                <Grid ColumnDefinitions="*,*,Auto,*,*" ColumnSpacing="8" VerticalOptions="Center">
+                    <!-- Home -->
+                    <VerticalStackLayout
+                        Grid.Column="0"
+                        HorizontalOptions="Center"
+                        VerticalOptions="Center"
+                        Spacing="4">
+                        <VerticalStackLayout.GestureRecognizers>
+                            <TapGestureRecognizer Tapped="OnHomeNavTapped" NumberOfTapsRequired="1" />
+                        </VerticalStackLayout.GestureRecognizers>
+                        <Image
+                            Source="home.png"
+                            WidthRequest="24"
+                            HeightRequest="24"
+                            Aspect="AspectFit" />
+                        <Label Text="Home" FontSize="11" TextColor="White" HorizontalOptions="Center" />
+                    </VerticalStackLayout>
+
+                    <!-- Explore -->
+                    <VerticalStackLayout
+                        Grid.Column="1"
+                        HorizontalOptions="Center"
+                        VerticalOptions="Center"
+                        Spacing="4">
+                        <VerticalStackLayout.GestureRecognizers>
+                            <TapGestureRecognizer Tapped="OnExploreNavTapped" NumberOfTapsRequired="1" />
+                        </VerticalStackLayout.GestureRecognizers>
+                        <Image
+                            Source="https://img.icons8.com/ios/50/ffffff/compass--v1.png"
+                            WidthRequest="24"
+                            HeightRequest="24"
+                            Aspect="AspectFit" />
+                        <Label Text="Explore" FontSize="11" TextColor="White" HorizontalOptions="Center" FontAttributes="Bold" />
+                    </VerticalStackLayout>
+
+                    <!-- Add/Donate button (center) -->
+                    <VerticalStackLayout
+                        Grid.Column="2"
+                        HorizontalOptions="Center"
+                        VerticalOptions="Center"
+                        Spacing="4">
+                        <Frame
+                            HeightRequest="62"
+                            WidthRequest="62"
+                            CornerRadius="31"
+                            BackgroundColor="White"
+                            HasShadow="True"
+                            Padding="0">
+                            <Frame.GestureRecognizers>
+                                <TapGestureRecognizer Tapped="OnDonateNavTapped" NumberOfTapsRequired="1" />
+                            </Frame.GestureRecognizers>
+                            <VerticalStackLayout HorizontalOptions="Center" VerticalOptions="Center">
+                                <Image
+                                    Source="add_2.png"
+                                    WidthRequest="22"
+                                    HeightRequest="22"
+                                    Aspect="AspectFit" />
+                            </VerticalStackLayout>
+                        </Frame>
+                    </VerticalStackLayout>
+
+                    <!-- Notification -->
+                    <VerticalStackLayout
+                        Grid.Column="3"
+                        HorizontalOptions="Center"
+                        VerticalOptions="Center"
+                        Spacing="4">
+                        <VerticalStackLayout.GestureRecognizers>
+                            <TapGestureRecognizer Tapped="OnNotificationNavTapped" NumberOfTapsRequired="1" />
+                        </VerticalStackLayout.GestureRecognizers>
+                        <Image
+                            Source="https://img.icons8.com/ios/50/ffffff/appointment-reminders--v1.png"
+                            WidthRequest="24"
+                            HeightRequest="24"
+                            Aspect="AspectFit" />
+                        <Label Text="Notify" FontSize="11" TextColor="White" HorizontalOptions="Center" />
+                    </VerticalStackLayout>
+
+                    <!-- Profile -->
+                    <VerticalStackLayout
+                        Grid.Column="4"
+                        HorizontalOptions="Center"
+                        VerticalOptions="Center"
+                        Spacing="4">
+                        <VerticalStackLayout.GestureRecognizers>
+                            <TapGestureRecognizer Tapped="OnProfileNavTapped" NumberOfTapsRequired="1" />
+                        </VerticalStackLayout.GestureRecognizers>
+                        <Image
+                            Source="face.png"
+                            WidthRequest="24"
+                            HeightRequest="24"
+                            Aspect="AspectFit" />
+                        <Label Text="Profile" FontSize="11" TextColor="White" HorizontalOptions="Center" />
+                    </VerticalStackLayout>
+                </Grid>
+            </Frame>
+        </Grid>
+    </Grid>
+</ContentPage>

@@ -1,0 +1,207 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    x:Class="ShareCircle_G17.Views.MyAddressesPage"
+    NavigationPage.HasNavigationBar="False"
+    BackgroundColor="White">
+
+    <Grid RowDefinitions="Auto,*">
+
+        <!-- Header -->
+        <Grid Grid.Row="0" HeightRequest="80" Padding="16,10,16,0" ColumnSpacing="12" VerticalOptions="Start">
+            <Grid.Background>
+                <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                    <GradientStop Color="#5B2EFF" Offset="0.0" />
+                    <GradientStop Color="#7C5CFF" Offset="1.0" />
+                </LinearGradientBrush>
+            </Grid.Background>
+            
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+
+            <!-- Back Button -->
+            <Frame
+                Grid.Column="0"
+                HeightRequest="40"
+                WidthRequest="40"
+                CornerRadius="20"
+                Padding="0"
+                HasShadow="False"
+                BackgroundColor="#B3FFFFFF"
+                VerticalOptions="Center">
+                <Frame.GestureRecognizers>
+                    <TapGestureRecognizer Tapped="OnBackClicked" />
+                </Frame.GestureRecognizers>
+                <Grid>
+                    <Label
+                        Text="&#x2039;"
+                        FontSize="24"
+                        TextColor="#5B2EFF"
+                        HorizontalOptions="Center"
+                        VerticalOptions="Center"
+                        HorizontalTextAlignment="Center"
+                        VerticalTextAlignment="Center"
+                        Margin="0,-5,0,0" />
+                </Grid>
+            </Frame>
+
+            <!-- Title -->
+            <Label
+                Grid.Column="1"
+                Text="My Addresses"
+                FontSize="20"
+                FontAttributes="Bold"
+                TextColor="White"
+                VerticalOptions="Center" />
+
+            <Frame
+                Grid.Column="2"
+                Padding="0"
+                HasShadow="False"
+                BackgroundColor="Transparent"
+                VerticalOptions="Center" />
+        </Grid>
+
+        <!-- Content -->
+        <ScrollView Grid.Row="1" BackgroundColor="White">
+            <VerticalStackLayout Spacing="14" Padding="20,20,20,30">
+
+                <!-- Empty State -->
+                <VerticalStackLayout
+                    x:Name="EmptyStateLayout"
+                    Spacing="20"
+                    Padding="30,60"
+                    VerticalOptions="Start"
+                    HorizontalOptions="Fill"
+                    IsVisible="False">
+
+                    <Frame
+                        HeightRequest="100"
+                        WidthRequest="100"
+                        CornerRadius="50"
+                        Padding="0"
+                        HasShadow="False"
+                        BackgroundColor="#B3FFFFFF"
+                        HorizontalOptions="Center">
+                        <Label
+                            Text="📍"
+                            FontSize="48"
+                            HorizontalOptions="Center"
+                            VerticalOptions="Center" />
+                    </Frame>
+
+                    <Label
+                        Text="No Addresses"
+                        FontSize="22"
+                        FontAttributes="Bold"
+                        TextColor="#111827"
+                        HorizontalOptions="Center" />
+
+                    <Label
+                        Text="Add an address to make donating and requesting easier."
+                        FontSize="14"
+                        TextColor="#6B7280"
+                        HorizontalOptions="Center"
+                        HorizontalTextAlignment="Center" />
+
+                    <Button
+                        Text="+ Add Address"
+                        BackgroundColor="#5B2EFF"
+                        TextColor="White"
+                        FontAttributes="Bold"
+                        CornerRadius="16"
+                        Padding="24,12"
+                        Margin="0,10,0,0"
+                        HorizontalOptions="Center"
+                        Clicked="OnAddAddressClicked" />
+                </VerticalStackLayout>
+
+                <CollectionView
+                    x:Name="AddressesCollectionView"
+                    ItemsSource="{Binding Addresses}"
+                    SelectionMode="None">
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate>
+                            <Frame Margin="0,6" BackgroundColor="White" CornerRadius="16" HasShadow="True" Padding="14" BorderColor="#E5E7EB">
+                                <Frame.Triggers>
+                                    <DataTrigger TargetType="Frame" Binding="{Binding IsDefault}" Value="True">
+                                        <Setter Property="BorderColor" Value="#5B2EFF" />
+                                    </DataTrigger>
+                                </Frame.Triggers>
+                                <Frame.GestureRecognizers>
+                                    <TapGestureRecognizer Tapped="OnAddressTapped" CommandParameter="{Binding AddressId}" />
+                                </Frame.GestureRecognizers>
+                                <Grid ColumnDefinitions="Auto,*,Auto" RowDefinitions="Auto,Auto,Auto" ColumnSpacing="12" RowSpacing="4">
+                                    <!-- Accent bar -->
+                                    <BoxView Grid.RowSpan="3" Grid.Column="0" WidthRequest="4" CornerRadius="2" Color="#5B2EFF" VerticalOptions="Fill" />
+
+                                    <!-- Name + Default Tag -->
+                                    <HorizontalStackLayout Grid.Column="1" Grid.Row="0" Spacing="8" VerticalOptions="Center">
+                                        <Label Text="{Binding FullName}" FontSize="15" FontAttributes="Bold" TextColor="#111827" />
+                                        <Frame IsVisible="{Binding IsDefault}"
+                                               Padding="8,4"
+                                               BackgroundColor="#EDE9FE"
+                                               CornerRadius="10"
+                                               HasShadow="False"
+                                               BorderColor="#DDD6FE">
+                                            <Label Text="Default" FontSize="11" TextColor="#4F46E5" />
+                                        </Frame>
+                                    </HorizontalStackLayout>
+
+                                    <!-- Phone -->
+                                    <Label 
+                                        Grid.Column="1" 
+                                        Grid.Row="1" 
+                                        Text="{Binding PhoneNumber}" 
+                                        FontSize="13" 
+                                        TextColor="#6B7280" />
+
+                                    <!-- Address (Fixed duplication) -->
+                                    <VerticalStackLayout Grid.Column="1" Grid.Row="2" Spacing="0">
+                                        <Label
+                                            Text="{Binding Street}"
+                                            FontSize="13"
+                                            TextColor="#4B5563"
+                                            LineBreakMode="WordWrap" />
+                                    </VerticalStackLayout>
+
+                                    <Button
+                                        Grid.Column="2"
+                                        Grid.Row="0"
+                                        Grid.RowSpan="3"
+                                        Text="Delete"
+                                        FontSize="12"
+                                        HeightRequest="32"
+                                        Padding="10,0"
+                                        BackgroundColor="#FEE2E2"
+                                        TextColor="#B91C1C"
+                                        CornerRadius="10"
+                                        CommandParameter="{Binding AddressId}"
+                                        Clicked="OnDeleteAddressClicked"
+                                        VerticalOptions="Start" />
+                                </Grid>
+                            </Frame>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+
+                <Button
+                    x:Name="FooterAddButton"
+                    Text="+ Add New"
+                    FontSize="14"
+                    HeightRequest="44"
+                    WidthRequest="220"
+                    Padding="0"
+                    BackgroundColor="#5B2EFF"
+                    TextColor="White"
+                    CornerRadius="14"
+                    HorizontalOptions="Center"
+                    Clicked="OnAddAddressClicked" />
+            </VerticalStackLayout>
+        </ScrollView>
+    </Grid>
+</ContentPage>

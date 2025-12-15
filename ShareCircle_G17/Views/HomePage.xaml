@@ -2,12 +2,21 @@
 <ContentPage
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:converters="clr-namespace:ShareCircle_G17.Converters"
+    xmlns:controls="clr-namespace:ShareCircle_G17.Controls"
     x:Class="ShareCircle_G17.Views.HomePage"
     NavigationPage.HasNavigationBar="False"
     BackgroundColor="Transparent"
     Padding="0">
 
-    <!-- Gradient Background (matches LoginPage) -->
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <converters:BoolToHeartIconConverter x:Key="BoolToHeartIconConverter" />
+            <converters:BoolToHeartTextConverter x:Key="BoolToHeartTextConverter" />
+            <converters:BoolToHeartColorConverter x:Key="BoolToHeartColorConverter" />
+        </ResourceDictionary>
+    </ContentPage.Resources>
+
     <ContentPage.Background>
         <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
             <GradientStop Color="#5B2EFF" Offset="0.0" />
@@ -15,22 +24,19 @@
         </LinearGradientBrush>
     </ContentPage.Background>
 
-    <!-- Top-level grid keeps header pinned to the top -->
-    <Grid Padding="40,20,40,30">
+    <Grid Padding="16,20,16,0">
         <Grid.RowDefinitions>
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" /> <!-- Header -->
+            <RowDefinition Height="*" />    <!-- Content (masonry + sticky overlay + floating nav) -->
         </Grid.RowDefinitions>
 
-        <!-- Header: centered horizontally (via symmetric padding) and sits at the top.
-             Column widths: Auto, Auto, * (flex spacer), Auto -> creates space-between behavior -->
+        <!-- Header -->
         <Grid
             Grid.Row="0"
             HeightRequest="72"
             ColumnSpacing="12"
             VerticalOptions="Start"
             HorizontalOptions="Fill">
-
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto" />
                 <ColumnDefinition Width="Auto" />
@@ -38,489 +44,463 @@
                 <ColumnDefinition Width="Auto" />
             </Grid.ColumnDefinitions>
 
-            <!-- Round profile picture -->
-            <Frame
+            <Border
                 Grid.Column="0"
                 HeightRequest="46"
                 WidthRequest="46"
-                CornerRadius="28"
+                StrokeShape="RoundRectangle 23"
                 Padding="0"
-                HasShadow="False"
-                BackgroundColor="White"
-                VerticalOptions="Center"
-                IsClippedToBounds="True">
-                <Image Source="https://t4.ftcdn.net/jpg/04/31/64/75/360_F_431647519_usrbQ8Z983hTYe8zgA7t1XVc5fEtqcpa.jpg" Aspect="AspectFill" />
-            </Frame>
+                BackgroundColor="#EEF0F4"
+                Stroke="#E2E8F0"
+                VerticalOptions="Center">
+                <Border.GestureRecognizers>
+                    <TapGestureRecognizer Tapped="OnAvatarTapped" />
+                </Border.GestureRecognizers>
+                <Grid>
+                    <Image
+                        x:Name="UserAvatarImage"
+                        Aspect="AspectFill"
+                        IsVisible="False" />
+                    <Label
+                        x:Name="UserInitialLabel"
+                        Text="U"
+                        FontSize="18"
+                        FontAttributes="Bold"
+                        TextColor="#5B2EFF"
+                        HorizontalOptions="Center"
+                        VerticalOptions="Center" />
+                </Grid>
+            </Border>
 
-            <!-- App name -->
             <Label
                 Grid.Column="1"
                 Text="ShareCircle"
                 FontSize="18"
                 FontAttributes="Bold"
                 VerticalOptions="Center"
-                TextColor="White"
-                Margin="0,0,0,0" />
+                TextColor="White" />
 
-            <!-- Location text (will be pushed toward the right by the '*' column) -->
-            <Label
+            <Border
                 Grid.Column="2"
-                Text="Sibu, Sarawak"
-                FontSize="14"
+                Grid.ColumnSpan="2"
+                HorizontalOptions="End"
                 VerticalOptions="Center"
-                TextColor="White"
-				Margin="40,0,0,0"
-                HorizontalOptions="Start" />
-			
-
-            <!-- Location icon -->
-            <Image
-                Grid.Column="3"
-                Source="https://uxwing.com/wp-content/themes/uxwing/download/location-travel-map/location-pointer-white-icon.png"
-                WidthRequest="24"
-                HeightRequest="24"
-                Aspect="AspectFit"
-                VerticalOptions="Center" />
+                Padding="14,8"
+                StrokeThickness="0"
+                StrokeShape="RoundRectangle 14">
+                <Border.Background>
+                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                        <GradientStop Color="#7B4DFF" Offset="0" />
+                        <GradientStop Color="#5B2EFF" Offset="1" />
+                    </LinearGradientBrush>
+                </Border.Background>
+                <Border.Shadow>
+                    <Shadow Brush="#26000000" Radius="10" Offset="0,3" />
+                </Border.Shadow>
+                <HorizontalStackLayout Spacing="8" VerticalOptions="Center" Padding="4,0">
+                    <Image
+                        Source="https://img.icons8.com/ios-filled/50/ffffff/near-me.png"
+                        WidthRequest="16"
+                        HeightRequest="16"
+                        Aspect="AspectFit"
+                        VerticalOptions="Center" />
+                    <Label
+                        Text="{Binding LocationDisplay}"
+                        FontSize="14"
+                        FontAttributes="Bold"
+                        VerticalOptions="Center"
+                        TextColor="White" />
+                    <ActivityIndicator
+                        IsRunning="{Binding IsLocationRefreshing}"
+                        IsVisible="{Binding IsLocationRefreshing}"
+                        Color="White"
+                        HeightRequest="20"
+                        WidthRequest="20"
+                        VerticalOptions="Center" />
+                </HorizontalStackLayout>
+                <Border.GestureRecognizers>
+                    <TapGestureRecognizer Command="{Binding RefreshLocationCommand}" />
+                </Border.GestureRecognizers>
+            </Border>
         </Grid>
 
-        <!-- Page content below header -->
-        <ScrollView Grid.Row="1">
-            <VerticalStackLayout
-                Spacing="20"
-                Padding="0"
-                HorizontalOptions="Fill"
-                VerticalOptions="Start">
+        <!-- Content row with masonry and sticky filter overlay -->
+        <Grid Grid.Row="1">
+            <RefreshView RefreshColor="Transparent"
+                         Refreshing="OnPullRefreshing">
+                <CollectionView
+                    x:Name="MasonryCollection"
+                    ItemsSource="{Binding MasonryItems}"
+                    ItemsLayout="VerticalGrid, 2"
+                    SelectionMode="None"
+                    Margin="0"
+                    BackgroundColor="Transparent">
+                    <CollectionView.Header>
+                        <VerticalStackLayout x:Name="HeaderScrollableArea" Spacing="12" Padding="0,0,0,8">
+                            <HorizontalStackLayout
+                                Spacing="6"
+                                HorizontalOptions="Center"
+                                VerticalOptions="Start">
+                                <Label
+                                    Text="Hello,"
+                                    FontSize="30"
+                                    TextColor="White"
+                                    VerticalOptions="Center" />
+                                <Label
+                                    Text="{Binding UserName}"
+                                    FontSize="30"
+                                    FontAttributes="Bold"
+                                    TextColor="White"
+                                    VerticalOptions="Center" />
+                            </HorizontalStackLayout>
 
-                <!-- Greeting: centered horizontally with sample placeholder name -->
-                <HorizontalStackLayout
-                    Spacing="6"
-                    HorizontalOptions="Center"
-                    VerticalOptions="Start"
-                    Margin="0,16,0,0">
-                    <Label
-                        Text="Hello,"
-                        FontSize="30"
-                        TextColor="White"
-                        VerticalOptions="Center" />
-                    <Label
-                        Text="Yan"
-                        FontSize="30"
-                        FontAttributes="Bold"
-                        TextColor="White"
-                        VerticalOptions="Center" />
-                </HorizontalStackLayout>
+                        <Border
+                            Background="#66FFFFFF"
+                            StrokeShape="RoundRectangle 12"
+                            StrokeThickness="0"
+                            Padding="26,20,26,20"
+                            Margin="5,8,5,0"
+                            HorizontalOptions="Fill">
+                            <Grid ColumnSpacing="12" VerticalOptions="Center">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="1" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
 
-                <!-- Glassy rectangle box -->
-                <Frame
-                    Background="#80FFFFFF"
-                    BorderColor="White"
-                    CornerRadius="12"
-                    Padding="26,20,26,20"
-                    Margin="5,8,5,0"
-                    HorizontalOptions="Fill">
-                    <Grid ColumnSpacing="12" VerticalOptions="Center">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="1" />
-                            <ColumnDefinition Width="Auto" />
-                        </Grid.ColumnDefinitions>
-
-                        <!-- Left side: stacked texts -->
-                        <VerticalStackLayout Grid.Column="0" Spacing="2" VerticalOptions="Center">
-                            <Label
-                                Text="Total"
-                                FontSize="15"
-                                TextColor="White"
-                                Opacity="0.9" />
-                            <Label
-                                Text="Donations"
-                                FontSize="25"
-                                FontAttributes="Bold"
-                                TextColor="White" />
-                        </VerticalStackLayout>
-
-                        <!-- Middle divider -->
-                        <BoxView
-                            Grid.Column="1"
-                            Color="white"
-                            WidthRequest="1"
-                            Opacity="0.4"
-                            VerticalOptions="Fill" />
-
-                        <!-- Right side: number + heart (now using SVG image) -->
-                        <HorizontalStackLayout
-                            Grid.Column="2"
-                            Spacing="10"
-                            VerticalOptions="Center"
-                            HorizontalOptions="Center">
-                            <Label
-                                Text="{Binding TotalDonations}"
-                                FontSize="35"
-                                FontAttributes="Bold"
-                                TextColor="White"
-                                VerticalOptions="Center" />
-                            <Image
-                                Source="heart_check.png"
-                                WidthRequest="40"
-                                HeightRequest="40"
-                                Aspect="AspectFit"
-                                VerticalOptions="Center" />
-                        </HorizontalStackLayout>
-                    </Grid>
-                </Frame>
-
-                <!-- Action buttons: 3 square rounded buttons centered -->
-                <HorizontalStackLayout
-                    Spacing="16"
-                    HorizontalOptions="Center"
-                    Margin="0,18,0,0">
-
-                    <!-- Donate button (now tappable -> navigates to DonationPage) -->
-                    <Frame
-                        Background="#5B2EFF"
-                        BorderColor="#5B2EFF"
-                        CornerRadius="16"
-                        Padding="12"
-                        HeightRequest="96"
-                        WidthRequest="96"
-                        HasShadow="False"
-                        VerticalOptions="Center"
-                        HorizontalOptions="Center">
-                        <Frame.GestureRecognizers>
-                            <TapGestureRecognizer Tapped="OnDonateNavTapped" NumberOfTapsRequired="1" />
-                        </Frame.GestureRecognizers>
-                        <VerticalStackLayout Spacing="8" HorizontalOptions="Center" VerticalOptions="Center">
-                            <Image
-                                Source="https://img.icons8.com/android/512/FFFFFF/plus.png"
-                                WidthRequest="30"
-                                HeightRequest="30"
-                                Aspect="AspectFit" />
-                            <Label
-                                Text="Donate"
-                                FontSize="14"
-                                TextColor="White"
-                                HorizontalTextAlignment="Center" />
-                        </VerticalStackLayout>
-                    </Frame>
-
-                    <!-- Request button -->
-                    <Frame
-                        Background="#FFFFFF"
-                        BorderColor="White"
-                        CornerRadius="16"
-                        Padding="12"
-                        HeightRequest="96"
-                        WidthRequest="96"
-                        HasShadow="False"
-                        VerticalOptions="Center"
-                        HorizontalOptions="Center">
-                        <VerticalStackLayout Spacing="8" HorizontalOptions="Center" VerticalOptions="Center">
-                            <Image
-                                Source="gv.png"
-                                WidthRequest="30"
-                                HeightRequest="30"
-                                Aspect="AspectFit" />
-                            <Label
-                                Text="Request"
-                                FontSize="11"
-                                TextColor="black"
-                                HorizontalTextAlignment="Center" />
-                        </VerticalStackLayout>
-                    </Frame>
-
-                    <!-- Community button -->
-                    <Frame
-                        Background="#FFFFFF"
-                        BorderColor="White"
-                        CornerRadius="16"
-                        Padding="12"
-                        HeightRequest="96"
-                        WidthRequest="96"
-                        HasShadow="False"
-                        VerticalOptions="Center"
-                        HorizontalOptions="Center">
-                        <Frame.GestureRecognizers>
-                            <TapGestureRecognizer Tapped="OnCommunityNavTapped" NumberOfTapsRequired="1" />
-                        </Frame.GestureRecognizers>
-                        <VerticalStackLayout Spacing="8" HorizontalOptions="Center" VerticalOptions="Center">
-                            <Image
-                                Source="comm.png"
-                                WidthRequest="30"
-                                HeightRequest="30"
-                                Aspect="AspectFit" />
-                            <Label
-                                Text="Community"
-                                FontSize="11"
-                                TextColor="black"
-                                HorizontalTextAlignment="Center" />
-                        </VerticalStackLayout>
-                    </Frame>
-
-                </HorizontalStackLayout>
-
-                <!-- White rounded box with Foods and three square buttons -->
-                <Frame
-                    Background="White"
-                    CornerRadius="12"
-                    Padding="16"
-                    Margin="5,18,5,0"
-                    BorderColor="#EFEFEF"
-                    HasShadow="False"
-                    HorizontalOptions="Fill">
-                    <VerticalStackLayout Spacing="12" HorizontalOptions="Fill">
-                        <!-- Header -->
-                        <Label
-                            Text="Foods"
-                            FontSize="16"
-                            FontAttributes="Bold"
-                            TextColor="#222222"
-                            HorizontalOptions="Start" />
-
-                        <!-- Three square white buttons -->
-                        <HorizontalStackLayout
-                            Spacing="16"
-                            HorizontalOptions="Fill"
-                            VerticalOptions="Start">
-                            <!-- Fruits -->
-                            <Frame
-                                Background="White"
-                                BorderColor="#D3D3D3"
-                                CornerRadius="12"
-                                Padding="12"
-                                HeightRequest="84"
-                                WidthRequest="84"
-                                HasShadow="False"
-                                HorizontalOptions="Start">
-                                <VerticalStackLayout Spacing="8" HorizontalOptions="Center" VerticalOptions="Center">
-                                    <Image
-                                        Source="fruit.png"
-                                        WidthRequest="26"
-                                        HeightRequest="26"
-                                        Aspect="AspectFit" />
+                                <VerticalStackLayout Grid.Column="0" Spacing="2" VerticalOptions="Center">
                                     <Label
-                                        Text="Fruits"
-                                        FontSize="12"
-                                        TextColor="#222222"
-                                        HorizontalTextAlignment="Center" />
-                                </VerticalStackLayout>
-                            </Frame>
-
-                            <!-- Pastries -->
-                            <Frame
-                                Background="White"
-                                BorderColor="#D3D3D3"
-                                CornerRadius="12"
-                                Padding="12"
-                                HeightRequest="84"
-                                WidthRequest="84"
-                                HasShadow="False"
-                                HorizontalOptions="Center">
-                                <VerticalStackLayout Spacing="8" HorizontalOptions="Center" VerticalOptions="Center">
-                                    <Image
-                                        Source="bread.png"
-                                        WidthRequest="26"
-                                        HeightRequest="26"
-                                        Aspect="AspectFit" />
+                                        Text="Total"
+                                        FontSize="15"
+                                        TextColor="White"
+                                        Opacity="0.9" />
                                     <Label
-                                        Text="pastries"
-                                        FontSize="12"
-                                        TextColor="#222222"
-                                        HorizontalTextAlignment="Center" />
+                                        Text="Donations"
+                                        FontSize="25"
+                                        FontAttributes="Bold"
+                                        TextColor="White" />
                                 </VerticalStackLayout>
-                            </Frame>
 
-                            <!-- Packaged Food -->
-                            <Frame
-                                Background="White"
-                                BorderColor="#D3D3D3"
-                                CornerRadius="12"
-                                Padding="12"
-                                HeightRequest="84"
-                                WidthRequest="84"
-                                HasShadow="False"
-                                HorizontalOptions="End">
-                                <VerticalStackLayout Spacing="8" HorizontalOptions="Center" VerticalOptions="Center">
-                                    <Image
-                                        Source="dine.png"
-                                        WidthRequest="26"
-                                        HeightRequest="26"
-                                        Aspect="AspectFit" />
+                                <BoxView
+                                    Grid.Column="1"
+                                    Color="white"
+                                    WidthRequest="1"
+                                    Opacity="0.4"
+                                    VerticalOptions="Fill" />
+
+                                <HorizontalStackLayout
+                                    Grid.Column="2"
+                                    Spacing="10"
+                                    VerticalOptions="Center"
+                                    HorizontalOptions="Center">
                                     <Label
-                                        Text="Packaged"
-                                        FontSize="12"
-                                        TextColor="#222222"
-                                        HorizontalTextAlignment="Center" />
-                                </VerticalStackLayout>
-                            </Frame>
-                        </HorizontalStackLayout>
-
-                        <!-- New section header aligned with Foods -->
-                        <Label
-                            Text="Item"
-                            FontSize="16"
-                            FontAttributes="Bold"
-                            TextColor="#222222"
-                            HorizontalOptions="Start"
-                            Margin="0,8,0,0" />
-
-                        <!-- Three square buttons for Cloths, Toys, Books -->
-                        <HorizontalStackLayout
-                            Spacing="16"
-                            HorizontalOptions="Fill"
-                            VerticalOptions="Start">
-                            <!-- Cloths -->
-                            <Frame
-                                Background="White"
-                                BorderColor="#D3D3D3"
-                                CornerRadius="12"
-                                Padding="12"
-                                HeightRequest="84"
-                                WidthRequest="84"
-                                HasShadow="False"
-                                HorizontalOptions="Start">
-                                <VerticalStackLayout Spacing="8" HorizontalOptions="Center" VerticalOptions="Center">
+                                        Text="{Binding TotalDonations}"
+                                        FontSize="35"
+                                        FontAttributes="Bold"
+                                        TextColor="White"
+                                        VerticalOptions="Center" />
                                     <Image
-                                        Source="apparel.png"
-                                        WidthRequest="26"
-                                        HeightRequest="26"
-                                        Aspect="AspectFit" />
-                                    <Label
-                                        Text="Cloths"
-                                        FontSize="12"
-                                        TextColor="#222222"
-                                        HorizontalTextAlignment="Center" />
-                                </VerticalStackLayout>
-                            </Frame>
+                                        Source="heart_check.png"
+                                        WidthRequest="40"
+                                        HeightRequest="40"
+                                        Aspect="AspectFit"
+                                        VerticalOptions="Center" />
+                                </HorizontalStackLayout>
+                            </Grid>
+                        </Border>
 
-                            <!-- Toys -->
-                            <Frame
-                                Background="White"
-                                BorderColor="#D3D3D3"
-                                CornerRadius="12"
-                                Padding="12"
-                                HeightRequest="84"
-                                WidthRequest="84"
-                                HasShadow="False"
-                                HorizontalOptions="Center">
-                                <VerticalStackLayout Spacing="8" HorizontalOptions="Center" VerticalOptions="Center">
-                                    <Image
-                                        Source="toys.png"
-                                        WidthRequest="26"
-                                        HeightRequest="26"
-                                        Aspect="AspectFit" />
-                                    <Label
-                                        Text="Toys"
-                                        FontSize="12"
-                                        TextColor="#222222"
-                                        HorizontalTextAlignment="Center" />
-                                </VerticalStackLayout>
-                            </Frame>
+                        <!-- Single-row combined filter (compact pill style) -->
+                        <Grid HorizontalOptions="{Binding FilterAlignment}" Margin="0,8,0,0">
+                            <CollectionView x:Name="UnifiedFilterCollection"
+                                            ItemsSource="{Binding UnifiedFilterItems}"
+                                            HeightRequest="42"
+                                            SelectionMode="None"
+                                            HorizontalScrollBarVisibility="Never">
+                                <CollectionView.ItemsLayout>
+                                    <LinearItemsLayout Orientation="Horizontal" ItemSpacing="6" />
+                                </CollectionView.ItemsLayout>
+                                <CollectionView.ItemTemplate>
+                                    <DataTemplate>
+                                        <Border StrokeThickness="0"
+                                                StrokeShape="RoundRectangle 16"
+                                                BackgroundColor="{Binding BackgroundColor}"
+                                                Padding="{Binding Padding}"
+                                                HeightRequest="38"
+                                                Opacity="0"
+                                                Loaded="OnFilterItemLoaded">
+                                            <Border.GestureRecognizers>
+                                                <TapGestureRecognizer Tapped="OnUnifiedFilterTapped" CommandParameter="{Binding .}" />
+                                            </Border.GestureRecognizers>
+                                            <HorizontalStackLayout Spacing="5" VerticalOptions="Center">
+                                                <!-- Icon (only for subcategories) -->
+                                                <Image Source="{Binding Icon}"
+                                                       WidthRequest="16"
+                                                       HeightRequest="16"
+                                                       Aspect="AspectFit"
+                                                       VerticalOptions="Center"
+                                                       IsVisible="{Binding HasIcon}" />
+                                                <!-- Label -->
+                                                <Label Text="{Binding DisplayName}"
+                                                       FontSize="{Binding FontSize}"
+                                                       FontAttributes="{Binding FontAttributes}"
+                                                       TextColor="{Binding TextColor}"
+                                                       VerticalOptions="Center" />
+                                                <!-- Expand/Collapse Icon (only for Food/Items) -->
+                                                <Label Text="{Binding ExpandIcon}"
+                                                       FontSize="11"
+                                                       TextColor="#9CA3AF"
+                                                       VerticalOptions="Center"
+                                                       Margin="1,0,0,0"
+                                                       IsVisible="{Binding HasExpandIcon}" />
+                                            </HorizontalStackLayout>
+                                        </Border>
+                                    </DataTemplate>
+                                </CollectionView.ItemTemplate>
+                            </CollectionView>
+                        </Grid>
 
-                            <!-- Books -->
-                            <Frame
-                                Background="White"
-                                BorderColor="#D3D3D3"
-                                CornerRadius="12"
-                                Padding="12"
-                                HeightRequest="84"
-                                WidthRequest="84"
-                                HasShadow="False"
-                                HorizontalOptions="End">
-                                <VerticalStackLayout Spacing="8" HorizontalOptions="Center" VerticalOptions="Center">
-                                    <Image
-                                        Source="book_2.png"
-                                        WidthRequest="26"
-                                        HeightRequest="26"
-                                        Aspect="AspectFit" />
-                                    <Label
-                                        Text="Books"
-                                        FontSize="12"
-                                        TextColor="#222222"
-                                        HorizontalTextAlignment="Center" />
-                                </VerticalStackLayout>
-                            </Frame>
-                        </HorizontalStackLayout>
+                        <!-- Loading dots below filter -->
+                        <Grid IsVisible="{Binding ShowLoading}" HorizontalOptions="Center" VerticalOptions="Center" Margin="0,8,0,0">
+                            <HorizontalStackLayout Spacing="10" VerticalOptions="Center" HorizontalOptions="Center">
+                                <Border x:Name="Dot1" HeightRequest="10" WidthRequest="10" StrokeShape="RoundRectangle 5" Padding="0" BackgroundColor="White" StrokeThickness="0" />
+                                <Border x:Name="Dot2" HeightRequest="10" WidthRequest="10" StrokeShape="RoundRectangle 5" Padding="0" BackgroundColor="White" StrokeThickness="0" />
+                                <Border x:Name="Dot3" HeightRequest="10" WidthRequest="10" StrokeShape="RoundRectangle 5" Padding="0" BackgroundColor="White" StrokeThickness="0" />
+                            </HorizontalStackLayout>
+                        </Grid>
                     </VerticalStackLayout>
-                </Frame>
+                </CollectionView.Header>
 
-                <!-- Navigation bar below the big white box -->
-                <Frame
-                    BackgroundColor="#5B2EFF"
-                    CornerRadius="24"
-                    Padding="12"
-                    Margin="5,12,5,24"
-                    HasShadow="True"
-                    HorizontalOptions="Fill">
-                    <Grid ColumnSpacing="12" VerticalOptions="Center">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="Auto" />
-                            <ColumnDefinition Width="*" />
-                        </Grid.ColumnDefinitions>
+                <CollectionView.ItemTemplate>
+                    <DataTemplate>
+                        <Border
+                            Margin="4,6,4,6"
+                            Padding="0"
+                            BackgroundColor="White"
+                            Stroke="#E5E7EB"
+                            StrokeShape="RoundRectangle 16"
+                            HeightRequest="300">
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer Tapped="OnCardTapped" CommandParameter="{Binding SourceDonation.PostId}" />
+                            </Border.GestureRecognizers>
+                            <Grid RowDefinitions="3*,1*" RowSpacing="0">
+                                <!-- Image Section (75% - 3*) -->
+                                <Border
+                                    Grid.Row="0"
+                                    StrokeThickness="0"
+                                    StrokeShape="RoundRectangle 16,16,0,0"
+                                    Background="#F3F4F6">
+                                    <Grid>
+                                        <Image
+                                            Source="{Binding Image}"
+                                            Aspect="AspectFill"
+                                            IsVisible="{Binding HasImage}"
+                                            HorizontalOptions="Fill"
+                                            VerticalOptions="Fill" />
 
-                        <!-- Home button -->
-                        <VerticalStackLayout
-                            Grid.Column="0"
-                            HorizontalOptions="Center"
-                            VerticalOptions="Center"
-                            Spacing="4">
-                            <VerticalStackLayout.GestureRecognizers>
-                                <TapGestureRecognizer Tapped="OnHomeNavTapped" NumberOfTapsRequired="1" />
-                            </VerticalStackLayout.GestureRecognizers>
-                           <Image
-                                        Source="home.png"
-                                        WidthRequest="26"
-                                        HeightRequest="26"
-                                        Aspect="AspectFit" />
-                            <Label Text="Home" FontSize="12" TextColor="White" HorizontalOptions="Center" />
-                        </VerticalStackLayout>
+                                        <!-- Time badge overlay -->
+                                        <Border
+                                            Padding="10,5"
+                                            StrokeShape="RoundRectangle 12"
+                                            StrokeThickness="0"
+                                            BackgroundColor="#CC000000"
+                                            VerticalOptions="Start"
+                                            HorizontalOptions="Start"
+                                            Margin="10">
+                                            <Label
+                                                Text="{Binding TimeAgo}"
+                                                FontSize="11"
+                                                FontAttributes="Bold"
+                                                TextColor="White" />
+                                        </Border>
+                                    </Grid>
+                                </Border>
 
-                        <!-- Donate (center) - visually distinct -->
-                        <VerticalStackLayout
-                            Grid.Column="1"
-                            HorizontalOptions="Center"
-                            VerticalOptions="Center"
-                            Spacing="4">
-                            <Frame
-                                HeightRequest="54"
-                                WidthRequest="54"
-                                CornerRadius="62"
-                                BackgroundColor="White"
-                                HasShadow="True">
-                                <Frame.GestureRecognizers>
-                                    <TapGestureRecognizer Tapped="OnDonateNavTapped" NumberOfTapsRequired="1" />
-                                </Frame.GestureRecognizers>
-                                <VerticalStackLayout HorizontalOptions="Center" VerticalOptions="Center">
-                                    <Image
-                                        Source="add_2.png"
-                                        WidthRequest="17"
-                                        HeightRequest="17"
-                                        Aspect="AspectFit" />
-                                </VerticalStackLayout>
-                            </Frame>
-                            
-                        </VerticalStackLayout>
+                                <!-- Info Section (25% - 1*) -->
+                                <Grid Grid.Row="1" Padding="12,12,12,14" RowDefinitions="Auto,Auto" RowSpacing="10">
+                                    <!-- Title -->
+                                    <Label
+                                        Grid.Row="0"
+                                        Text="{Binding Title}"
+                                        FontSize="14"
+                                        FontAttributes="Bold"
+                                        TextColor="#111827"
+                                        LineBreakMode="TailTruncation"
+                                        MaxLines="2" />
 
-                        <!-- Profile button -->
-                        <VerticalStackLayout
-                            Grid.Column="2"
-                            HorizontalOptions="Center"
-                            VerticalOptions="Center"
-                            Spacing="4">
-                            <VerticalStackLayout.GestureRecognizers>
-                                <TapGestureRecognizer Tapped="OnProfileNavTapped" NumberOfTapsRequired="1" />
-                            </VerticalStackLayout.GestureRecognizers>
-                            <Image
-                                        Source="face.png"
-                                        WidthRequest="26"
-                                        HeightRequest="26"
-                                        Aspect="AspectFit" />
-                            <Label Text="Profile" FontSize="12" TextColor="White" HorizontalOptions="Center" />
-                        </VerticalStackLayout>
-                    </Grid>
-                </Frame>
+                                    <!-- User info -->
+                                    <Grid Grid.Row="1" ColumnDefinitions="Auto,*,Auto" ColumnSpacing="6" Margin="0,0,0,2">
+                                        <!-- User avatar -->
+                                        <Border
+                                            Grid.Column="0"
+                                            HeightRequest="22"
+                                            WidthRequest="22"
+                                            StrokeShape="RoundRectangle 11"
+                                            StrokeThickness="0"
+                                            Padding="0"
+                                            BackgroundColor="#F3F4F6"
+                                            VerticalOptions="Center">
+                                            <Grid>
+                                                <Image
+                                                    Source="{Binding UserImageUrl}"
+                                                    Aspect="AspectFill"
+                                                    IsVisible="{Binding HasUserImage}"
+                                                    HorizontalOptions="Fill"
+                                                    VerticalOptions="Fill" />
+                                                <Label
+                                                    Text="{Binding UserInitial}"
+                                                    FontSize="10"
+                                                    FontAttributes="Bold"
+                                                    TextColor="#5B2EFF"
+                                                    HorizontalOptions="Center"
+                                                    VerticalOptions="Center"
+                                                    IsVisible="{Binding ShowInitial}" />
+                                            </Grid>
+                                        </Border>
 
-            </VerticalStackLayout>
-        </ScrollView>
+                                        <!-- Username -->
+                                        <Label
+                                            Grid.Column="1"
+                                            Text="{Binding Username}"
+                                            FontSize="11"
+                                            TextColor="#4B5563"
+                                            LineBreakMode="TailTruncation"
+                                            MaxLines="1"
+                                            VerticalOptions="Center" />
+
+                                        <!-- Heart icon (right corner) -->
+                                        <Label
+                                            Grid.Column="2"
+                                            Text="{Binding IsSaved, Converter={StaticResource BoolToHeartTextConverter}}"
+                                            FontSize="14"
+                                            TextColor="{Binding IsSaved, Converter={StaticResource BoolToHeartColorConverter}}"
+                                            HorizontalOptions="End"
+                                            VerticalOptions="Center">
+                                            <Label.GestureRecognizers>
+                                                <TapGestureRecognizer Tapped="OnMasonrySaveTapped" CommandParameter="{Binding .}" />
+                                            </Label.GestureRecognizers>
+                                        </Label>
+                                    </Grid>
+                                </Grid>
+                            </Grid>
+                        </Border>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+
+                <CollectionView.Footer>
+                    <Grid HeightRequest="90" BackgroundColor="Transparent" />
+                </CollectionView.Footer>
+            </CollectionView>
+            </RefreshView>
+
+        </Grid>
+
+        <!-- Floating bottom navigation -->
+        <Grid Grid.Row="1" Padding="0,0,0,16" VerticalOptions="End" Margin="-16,0,-16,0">
+            <Frame
+                BackgroundColor="#5B2EFF"
+                CornerRadius="24"
+                Padding="16,12"
+                HasShadow="True"
+                Margin="16,0,16,0">
+                <Frame.Shadow>
+                    <Shadow Brush="#40000000" Radius="20" Offset="0,-5" Opacity="0.8" />
+                </Frame.Shadow>
+                <Grid ColumnDefinitions="*,*,Auto,*,*" ColumnSpacing="8" VerticalOptions="Center">
+                    <!-- Home -->
+                    <VerticalStackLayout
+                        Grid.Column="0"
+                        HorizontalOptions="Center"
+                        VerticalOptions="Center"
+                        Spacing="4">
+                        <VerticalStackLayout.GestureRecognizers>
+                            <TapGestureRecognizer Tapped="OnHomeNavTapped" NumberOfTapsRequired="1" />
+                        </VerticalStackLayout.GestureRecognizers>
+                        <Image
+                            Source="home.png"
+                            WidthRequest="24"
+                            HeightRequest="24"
+                            Aspect="AspectFit" />
+                        <Label Text="Home" FontSize="11" TextColor="White" HorizontalOptions="Center" FontAttributes="Bold" />
+                    </VerticalStackLayout>
+
+                    <!-- Explore -->
+                    <VerticalStackLayout
+                        Grid.Column="1"
+                        HorizontalOptions="Center"
+                        VerticalOptions="Center"
+                        Spacing="4">
+                        <VerticalStackLayout.GestureRecognizers>
+                            <TapGestureRecognizer Tapped="OnExploreNavTapped" NumberOfTapsRequired="1" />
+                        </VerticalStackLayout.GestureRecognizers>
+                        <Image
+                            Source="https://img.icons8.com/ios/50/ffffff/compass--v1.png"
+                            WidthRequest="24"
+                            HeightRequest="24"
+                            Aspect="AspectFit" />
+                        <Label Text="Explore" FontSize="11" TextColor="White" HorizontalOptions="Center" />
+                    </VerticalStackLayout>
+
+                    <!-- Add/Donate button (center) -->
+                    <VerticalStackLayout
+                        Grid.Column="2"
+                        HorizontalOptions="Center"
+                        VerticalOptions="Center"
+                        Spacing="4">
+                        <Frame
+                            HeightRequest="62"
+                            WidthRequest="62"
+                            CornerRadius="31"
+                            BackgroundColor="White"
+                            HasShadow="True"
+                            Padding="0">
+                            <Frame.GestureRecognizers>
+                                <TapGestureRecognizer Tapped="OnDonateNavTapped" NumberOfTapsRequired="1" />
+                            </Frame.GestureRecognizers>
+                            <VerticalStackLayout HorizontalOptions="Center" VerticalOptions="Center">
+                                <Image
+                                    Source="add_2.png"
+                                    WidthRequest="22"
+                                    HeightRequest="22"
+                                    Aspect="AspectFit" />
+                            </VerticalStackLayout>
+                        </Frame>
+                    </VerticalStackLayout>
+
+                    <!-- Notification -->
+                    <VerticalStackLayout
+                        Grid.Column="3"
+                        HorizontalOptions="Center"
+                        VerticalOptions="Center"
+                        Spacing="4">
+                        <VerticalStackLayout.GestureRecognizers>
+                            <TapGestureRecognizer Tapped="OnNotificationNavTapped" NumberOfTapsRequired="1" />
+                        </VerticalStackLayout.GestureRecognizers>
+                        <Image
+                            Source="https://img.icons8.com/ios/50/ffffff/appointment-reminders--v1.png"
+                            WidthRequest="24"
+                            HeightRequest="24"
+                            Aspect="AspectFit" />
+                        <Label Text="Notify" FontSize="11" TextColor="White" HorizontalOptions="Center" />
+                    </VerticalStackLayout>
+
+                    <!-- Profile -->
+                    <VerticalStackLayout
+                        Grid.Column="4"
+                        HorizontalOptions="Center"
+                        VerticalOptions="Center"
+                        Spacing="4">
+                        <VerticalStackLayout.GestureRecognizers>
+                            <TapGestureRecognizer Tapped="OnProfileNavTapped" NumberOfTapsRequired="1" />
+                        </VerticalStackLayout.GestureRecognizers>
+                        <Image
+                            Source="face.png"
+                            WidthRequest="24"
+                            HeightRequest="24"
+                            Aspect="AspectFit" />
+                        <Label Text="Profile" FontSize="11" TextColor="White" HorizontalOptions="Center" />
+                    </VerticalStackLayout>
+                </Grid>
+            </Frame>
+        </Grid>
     </Grid>
 </ContentPage>

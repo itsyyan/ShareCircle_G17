@@ -7,20 +7,27 @@
     xmlns:local="clr-namespace:ShareCircle_G17"
     Shell.NavBarIsVisible="False"
     Title="ShareCircle_G17">
-    
-    
 
+    <!-- Start with SplashPage -->
     <ShellContent
         ContentTemplate="{DataTemplate local:SplashPage}"
-        Route="SplashPage" 
-        
-        />
+        Route="SplashPage" />
 
+    <!-- LoginPage as root content -->
     <ShellContent
-    ContentTemplate="{DataTemplate views:HomePage}"
-    Route="HomePage" 
-    
-    />
+        ContentTemplate="{DataTemplate views:LoginPage}"
+        Route="LoginPage" />
 
+    <!-- HomePage as root content -->
+    <ShellContent
+        ContentTemplate="{DataTemplate views:HomePage}"
+        Route="HomePage" />
+
+    <!-- Notifications -->
+    <ShellContent
+        ContentTemplate="{DataTemplate views:NotificationsSettingsPage}"
+        Route="NotificationsSettingsPage" />
+
+    <!-- Other pages are registered as routes in AppShell.xaml.cs -->
 
 </Shell>

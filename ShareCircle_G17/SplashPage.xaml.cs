@@ -26,13 +26,21 @@ namespace ShareCircle_G17
                 // Optional fade-out before navigation
                 await this.FadeTo(0, 800, Easing.CubicOut);
 
-                // Use Shell: set the Shell as MainPage, then navigate to the registered SignUpPage route
-                Application.Current.MainPage = new AppShell();
-                await Shell.Current.GoToAsync(nameof(SignUpPage));
+                // Navigate to LoginPage; AppShell handles remember-me redirect
+                await Shell.Current.GoToAsync(nameof(LoginPage));
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine($"Splash error: {ex.Message}");
+                System.Diagnostics.Debug.WriteLine($"Splash navigation error: {ex.Message}");
+                // Fallback: go to HomePage if SignUpPage fails
+                try
+                {
+                    await Shell.Current.GoToAsync("//HomePage");
+                }
+                catch (Exception fallbackEx)
+                {
+                    System.Diagnostics.Debug.WriteLine($"Fallback navigation failed: {fallbackEx.Message}");
+                }
             }
         }
     }

@@ -1,0 +1,354 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:maps="clr-namespace:Microsoft.Maui.Controls.Maps;assembly=Microsoft.Maui.Controls.Maps"
+    x:Class="ShareCircle_G17.Views.AddressMapPage"
+    NavigationPage.HasNavigationBar="False"
+    BackgroundColor="White">
+
+    <Grid>
+        <!-- Main Content -->
+        <Grid RowDefinitions="Auto,*,Auto">
+            <!-- Header -->
+            <Grid Grid.Row="0" HeightRequest="80" Padding="16,10,16,0" ColumnSpacing="12" VerticalOptions="Start">
+                <Grid.Background>
+                    <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                        <GradientStop Color="#5B2EFF" Offset="0.0" />
+                        <GradientStop Color="#7C5CFF" Offset="1.0" />
+                    </LinearGradientBrush>
+                </Grid.Background>
+                
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+
+                <!-- Back Button -->
+                <Frame
+                    Grid.Column="0"
+                    HeightRequest="40"
+                    WidthRequest="40"
+                    CornerRadius="20"
+                    Padding="0"
+                    HasShadow="False"
+                    BackgroundColor="#B3FFFFFF"
+                    VerticalOptions="Center">
+                    <Frame.GestureRecognizers>
+                        <TapGestureRecognizer Tapped="OnBackClicked" />
+                    </Frame.GestureRecognizers>
+                    <Grid>
+                        <Label
+                            Text="&#x2039;"
+                            FontSize="24"
+                            TextColor="#5B2EFF"
+                            HorizontalOptions="Center"
+                            VerticalOptions="Center"
+                            HorizontalTextAlignment="Center"
+                            VerticalTextAlignment="Center"
+                            Margin="0,-5,0,0" />
+                    </Grid>
+                </Frame>
+
+                <!-- Title -->
+                <Label
+                    Grid.Column="1"
+                    Text="Confirm Location"
+                    FontSize="20"
+                    FontAttributes="Bold"
+                    TextColor="White"
+                    VerticalOptions="Center" />
+
+                <Frame
+                    Grid.Column="2"
+                    Padding="0"
+                    HasShadow="False"
+                    BackgroundColor="Transparent"
+                    VerticalOptions="Center" />
+            </Grid>
+
+            <!-- Map Container -->
+            <Grid Grid.Row="1">
+                <!-- Map -->
+                <maps:Map
+                    x:Name="LocationMap"
+                    MapType="Street"
+                    IsShowingUser="False"
+                    IsScrollEnabled="True"
+                    IsZoomEnabled="True" />
+
+                <!-- Center Pin Marker (Fixed position) -->
+                <Image
+                    x:Name="CenterPin"
+                    WidthRequest="40"
+                    HeightRequest="40"
+                    HorizontalOptions="Center"
+                    VerticalOptions="Center"
+                    Margin="0,0,0,20">
+                    <Image.Source>
+                        <FontImageSource
+                            FontFamily="Arial"
+                            Glyph="&#x1F4CD;"
+                            Size="36"
+                            Color="#5B2EFF" />
+                    </Image.Source>
+                </Image>
+
+                <!-- My Location Button -->
+                <Button
+                    x:Name="MyLocationButton"
+                    WidthRequest="50"
+                    HeightRequest="50"
+                    CornerRadius="25"
+                    BackgroundColor="White"
+                    HorizontalOptions="End"
+                    VerticalOptions="Start"
+                    Margin="0,16,16,0"
+                    Clicked="OnMyLocationClicked"
+                    Shadow="{Shadow Brush='#40000000', Offset='0,2', Radius='4'}">
+                    <Button.ImageSource>
+                        <FontImageSource
+                            FontFamily="Arial"
+                            Glyph="&#x27A4;"
+                            Size="20"
+                            Color="#5B2EFF" />
+                    </Button.ImageSource>
+                </Button>
+            </Grid>
+
+            <!-- Bottom Address Panel -->
+            <VerticalStackLayout Grid.Row="2" BackgroundColor="White" Padding="16" Spacing="16">
+                <!-- Address Section -->
+                <VerticalStackLayout Spacing="8">
+                    <Label
+                        Text="Address"
+                        FontSize="13"
+                        TextColor="#6B7280" />
+                    <Border
+                        Stroke="#E5E7EB"
+                        StrokeThickness="1"
+                        BackgroundColor="White"
+                        Padding="0">
+                        <Border.StrokeShape>
+                            <RoundRectangle CornerRadius="8" />
+                        </Border.StrokeShape>
+                        <Grid ColumnDefinitions="*,Auto" HeightRequest="48" Padding="12,0">
+                            <Label
+                                x:Name="AddressLabel"
+                                Text="Loading address..."
+                                FontSize="15"
+                                TextColor="#111827"
+                                VerticalOptions="Center"
+                                LineBreakMode="TailTruncation" />
+                            <Label
+                                Grid.Column="1"
+                                Text="&#x203A;"
+                                FontSize="20"
+                                TextColor="#9CA3AF"
+                                VerticalOptions="Center" />
+                            <Grid.GestureRecognizers>
+                                <TapGestureRecognizer Tapped="OnEditAddressTapped" />
+                            </Grid.GestureRecognizers>
+                        </Grid>
+                    </Border>
+                </VerticalStackLayout>
+
+                <!-- Region Section -->
+                <VerticalStackLayout Spacing="8">
+                    <Label
+                        Text="Region"
+                        FontSize="13"
+                        TextColor="#6B7280" />
+                    <Border
+                        Stroke="#E5E7EB"
+                        StrokeThickness="1"
+                        BackgroundColor="White"
+                        Padding="0">
+                        <Border.StrokeShape>
+                            <RoundRectangle CornerRadius="8" />
+                        </Border.StrokeShape>
+                        <Grid ColumnDefinitions="*,Auto" HeightRequest="48" Padding="12,0">
+                            <Label
+                                x:Name="RegionLabel"
+                                Text="Loading region..."
+                                FontSize="15"
+                                TextColor="#111827"
+                                VerticalOptions="Center"
+                                LineBreakMode="TailTruncation" />
+                            <Label
+                                Grid.Column="1"
+                                Text="&#x25BC;"
+                                FontSize="12"
+                                TextColor="#9CA3AF"
+                                VerticalOptions="Center" />
+                            <Grid.GestureRecognizers>
+                                <TapGestureRecognizer Tapped="OnRegionTapped" />
+                            </Grid.GestureRecognizers>
+                        </Grid>
+                    </Border>
+                </VerticalStackLayout>
+
+                <!-- Save Button -->
+                <Button
+                    x:Name="SaveButton"
+                    Text="Save"
+                    HeightRequest="50"
+                    CornerRadius="25"
+                    BackgroundColor="#5B2EFF"
+                    TextColor="White"
+                    FontSize="16"
+                    FontAttributes="Bold"
+                    Clicked="OnSaveClicked" />
+            </VerticalStackLayout>
+        </Grid>
+
+        <!-- Region Selection Popup Overlay -->
+        <Grid
+            x:Name="RegionPopupOverlay"
+            IsVisible="False"
+            BackgroundColor="#80000000">
+            <Grid.GestureRecognizers>
+                <TapGestureRecognizer Tapped="OnCloseRegionPopup" />
+            </Grid.GestureRecognizers>
+
+            <!-- Bottom Sheet -->
+            <Border
+                VerticalOptions="End"
+                BackgroundColor="White"
+                StrokeThickness="0"
+                Padding="0">
+                <Border.StrokeShape>
+                    <RoundRectangle CornerRadius="20,20,0,0" />
+                </Border.StrokeShape>
+                <Border.GestureRecognizers>
+                    <TapGestureRecognizer />
+                </Border.GestureRecognizers>
+                <Grid RowDefinitions="Auto,Auto,*" HeightRequest="550">
+                    <!-- Header -->
+                    <Grid Padding="16,16,16,12" ColumnDefinitions="Auto,*,Auto">
+                        <!-- Back Button (visible when not on state selection) -->
+                        <ImageButton
+                            x:Name="PopupBackButton"
+                            WidthRequest="32"
+                            HeightRequest="32"
+                            BackgroundColor="Transparent"
+                            IsVisible="False"
+                            Clicked="OnPopupBackClicked">
+                            <ImageButton.Source>
+                                <FontImageSource
+                                    FontFamily="Arial"
+                                    Glyph="&#x2190;"
+                                    Size="20"
+                                    Color="#111827" />
+                            </ImageButton.Source>
+                        </ImageButton>
+
+                        <Label
+                            x:Name="PopupTitleLabel"
+                            Grid.Column="1"
+                            Text="Select State"
+                            FontSize="18"
+                            FontAttributes="Bold"
+                            TextColor="#111827"
+                            HorizontalOptions="Center"
+                            VerticalOptions="Center" />
+
+                        <ImageButton
+                            Grid.Column="2"
+                            WidthRequest="32"
+                            HeightRequest="32"
+                            BackgroundColor="Transparent"
+                            Clicked="OnCloseRegionPopup">
+                            <ImageButton.Source>
+                                <FontImageSource
+                                    FontFamily="Arial"
+                                    Glyph="&#x2715;"
+                                    Size="18"
+                                    Color="#6B7280" />
+                            </ImageButton.Source>
+                        </ImageButton>
+                    </Grid>
+
+                    <!-- Tabs -->
+                    <Grid Grid.Row="1" Padding="16,0,16,12" ColumnDefinitions="*,*,*" ColumnSpacing="8">
+                        <!-- State Tab -->
+                        <VerticalStackLayout Spacing="4">
+                            <Label
+                                x:Name="TabStateLabel"
+                                Text="State"
+                                FontSize="14"
+                                TextColor="#6B7280"
+                                HorizontalOptions="Center" />
+                            <BoxView
+                                x:Name="TabStateUnderline"
+                                HeightRequest="2"
+                                BackgroundColor="Transparent"
+                                HorizontalOptions="Fill" />
+                            <VerticalStackLayout.GestureRecognizers>
+                                <TapGestureRecognizer Tapped="OnStateTabTapped" />
+                            </VerticalStackLayout.GestureRecognizers>
+                        </VerticalStackLayout>
+
+                        <!-- City Tab -->
+                        <VerticalStackLayout Grid.Column="1" Spacing="4">
+                            <Label
+                                x:Name="TabCityLabel"
+                                Text="City"
+                                FontSize="14"
+                                TextColor="#6B7280"
+                                HorizontalOptions="Center" />
+                            <BoxView
+                                x:Name="TabCityUnderline"
+                                HeightRequest="2"
+                                BackgroundColor="Transparent"
+                                HorizontalOptions="Fill" />
+                            <VerticalStackLayout.GestureRecognizers>
+                                <TapGestureRecognizer Tapped="OnCityTabTapped" />
+                            </VerticalStackLayout.GestureRecognizers>
+                        </VerticalStackLayout>
+
+                        <!-- Postal Tab -->
+                        <VerticalStackLayout Grid.Column="2" Spacing="4">
+                            <Label
+                                x:Name="TabPostalLabel"
+                                Text="Postal"
+                                FontSize="14"
+                                TextColor="#6B7280"
+                                HorizontalOptions="Center" />
+                            <BoxView
+                                x:Name="TabPostalUnderline"
+                                HeightRequest="2"
+                                BackgroundColor="Transparent"
+                                HorizontalOptions="Fill" />
+                            <VerticalStackLayout.GestureRecognizers>
+                                <TapGestureRecognizer Tapped="OnPostalTabTapped" />
+                            </VerticalStackLayout.GestureRecognizers>
+                        </VerticalStackLayout>
+                    </Grid>
+
+                    <!-- Content Area -->
+                    <Grid Grid.Row="2">
+                        <!-- List -->
+                        <ScrollView x:Name="ListScrollView">
+                            <VerticalStackLayout x:Name="SelectionListContainer" Spacing="0" Padding="0,0,0,20">
+                                <!-- Items added programmatically -->
+                            </VerticalStackLayout>
+                        </ScrollView>
+
+                        <!-- Alphabet Index (for city selection) -->
+                        <VerticalStackLayout
+                            x:Name="AlphabetIndex"
+                            IsVisible="False"
+                            HorizontalOptions="End"
+                            VerticalOptions="Center"
+                            Spacing="2"
+                            Padding="8,0">
+                            <!-- Letters added programmatically -->
+                        </VerticalStackLayout>
+                    </Grid>
+                </Grid>
+            </Border>
+        </Grid>
+    </Grid>
+</ContentPage>

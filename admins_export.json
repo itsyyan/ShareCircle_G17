@@ -1,0 +1,10 @@
+{
+  "admins": {
+    "admin": {
+      "password": "admin123"
+    },
+    "nwchang": {
+      "password": "admin1234"
+    }
+  }
+}

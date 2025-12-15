@@ -1,0 +1,272 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    x:Class="ShareCircle_G17.Views.SavedItemsPage"
+    NavigationPage.HasNavigationBar="False"
+    BackgroundColor="Transparent">
+
+    <ContentPage.Background>
+        <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+            <GradientStop Color="#5B2EFF" Offset="0.0" />
+            <GradientStop Color="#EDE7FF" Offset="1.0" />
+        </LinearGradientBrush>
+    </ContentPage.Background>
+
+    <Grid RowDefinitions="Auto,*" Padding="16,20,16,0">
+
+        <!-- Header -->
+        <Grid
+            Grid.Row="0"
+            HeightRequest="64"
+            ColumnSpacing="12"
+            VerticalOptions="Start">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+
+            <!-- Back Button -->
+            <Frame
+                Grid.Column="0"
+                HeightRequest="40"
+                WidthRequest="40"
+                CornerRadius="20"
+                Padding="0"
+                HasShadow="False"
+                BackgroundColor="#B3FFFFFF"
+                VerticalOptions="Center">
+                <Frame.GestureRecognizers>
+                    <TapGestureRecognizer Tapped="OnBackClicked" />
+                </Frame.GestureRecognizers>
+                <Label
+                    Text="&#x2039;"
+                    FontSize="24"
+                    TextColor="#5B2EFF"
+                    HorizontalOptions="Center"
+                    VerticalOptions="Center"
+                    Margin="0,-5,0,0" />
+            </Frame>
+
+            <!-- Title -->
+            <Label
+                Grid.Column="1"
+                Text="Saved Items"
+                FontSize="20"
+                FontAttributes="Bold"
+                TextColor="White"
+                VerticalOptions="Center" />
+        </Grid>
+
+        <!-- Content -->
+        <RefreshView
+            Grid.Row="1"
+            x:Name="RefreshView"
+            Refreshing="OnRefreshing"
+            RefreshColor="White">
+
+            <Grid>
+                <!-- Loading Dots -->
+                <VerticalStackLayout
+                    x:Name="LoadingDotsGrid"
+                    IsVisible="False"
+                    HorizontalOptions="Center"
+                    VerticalOptions="Start"
+                    Spacing="16"
+                    Padding="0,60,0,0">
+                    <HorizontalStackLayout Spacing="10" HorizontalOptions="Center">
+                        <Frame x:Name="Dot1" HeightRequest="12" WidthRequest="12" CornerRadius="6" Padding="0" HasShadow="False" BackgroundColor="White" />
+                        <Frame x:Name="Dot2" HeightRequest="12" WidthRequest="12" CornerRadius="6" Padding="0" HasShadow="False" BackgroundColor="White" />
+                        <Frame x:Name="Dot3" HeightRequest="12" WidthRequest="12" CornerRadius="6" Padding="0" HasShadow="False" BackgroundColor="White" />
+                    </HorizontalStackLayout>
+                    <Label
+                        Text="Loading..."
+                        FontSize="14"
+                        TextColor="White"
+                        Opacity="0.85"
+                        HorizontalOptions="Center" />
+                </VerticalStackLayout>
+
+                 
+                <VerticalStackLayout
+                    x:Name="EmptyStateLayout"
+                    Spacing="20"
+                    Padding="30,60"
+                    VerticalOptions="Start"
+                    HorizontalOptions="Fill"
+                    IsVisible="False">
+
+                    <Frame
+                        HeightRequest="100"
+                        WidthRequest="100"
+                        CornerRadius="50"
+                        Padding="0"
+                        HasShadow="False"
+                        BackgroundColor="#B3FFFFFF"
+                        HorizontalOptions="Center">
+                        <Label
+                            Text="&#x2764;"
+                            FontSize="48"
+                            HorizontalOptions="Center"
+                            VerticalOptions="Center" />
+                    </Frame>
+
+                    <Label
+                        Text="No Saved Items"
+                        FontSize="22"
+                        FontAttributes="Bold"
+                        TextColor="White"
+                        HorizontalOptions="Center" />
+
+                    <Label
+                        Text="Save items you're interested in to view them here!"
+                        FontSize="14"
+                        TextColor="White"
+                        Opacity="0.9"
+                        HorizontalOptions="Center"
+                        HorizontalTextAlignment="Center" />
+
+                    <Button
+                        Text="Browse Items"
+                        TextColor="#5B2EFF"
+                        BackgroundColor="White"
+                        CornerRadius="14"
+                        HeightRequest="50"
+                        WidthRequest="180"
+                        FontAttributes="Bold"
+                        Margin="0,10,0,0"
+                        Clicked="OnBrowseItemsClicked" />
+
+                </VerticalStackLayout>
+
+                <!-- Saved Items Grid -->
+                <CollectionView
+                    x:Name="SavedItemsCollectionView"
+                    SelectionMode="None"
+                    ItemsLayout="VerticalGrid, 2"
+                    BackgroundColor="Transparent">
+
+                    <CollectionView.Header>
+                        <Grid HeightRequest="8" />
+                    </CollectionView.Header>
+
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate>
+                            <Frame
+                                Margin="4,6,4,6"
+                                Padding="0"
+                                BackgroundColor="White"
+                                BorderColor="#E5E7EB"
+                                CornerRadius="16"
+                                HasShadow="False"
+                                HeightRequest="300">
+                                <Frame.GestureRecognizers>
+                                    <TapGestureRecognizer Tapped="OnItemTapped" CommandParameter="{Binding .}" />
+                                </Frame.GestureRecognizers>
+                                <Grid RowDefinitions="3*,1*" RowSpacing="0">
+                                    <!-- Image Section (75% - 3*) -->
+                                    <Border
+                                        Grid.Row="0"
+                                        StrokeThickness="0"
+                                        StrokeShape="RoundRectangle 16,16,0,0"
+                                        Background="#F3F4F6">
+                                        <Grid>
+                                            <Image
+                                                Source="{Binding Image}"
+                                                Aspect="AspectFill"
+                                                IsVisible="{Binding HasImage}"
+                                                HorizontalOptions="Fill"
+                                                VerticalOptions="Fill" />
+
+                                            <!-- Time badge overlay -->
+                                            <Frame
+                                                Padding="10,5"
+                                                CornerRadius="12"
+                                                BackgroundColor="#CC000000"
+                                                HasShadow="False"
+                                                VerticalOptions="Start"
+                                                HorizontalOptions="Start"
+                                                Margin="10">
+                                                <Label
+                                                    Text="{Binding TimeAgo}"
+                                                    FontSize="11"
+                                                    FontAttributes="Bold"
+                                                    TextColor="White" />
+                                            </Frame>
+                                        </Grid>
+                                    </Border>
+
+                                    <!-- Info Section (25% - 1*) -->
+                                    <Grid Grid.Row="1" Padding="12,12,12,14" RowDefinitions="Auto,Auto" RowSpacing="10">
+                                        <!-- Title -->
+                                        <Label
+                                            Grid.Row="0"
+                                            Text="{Binding Title}"
+                                            FontSize="14"
+                                            FontAttributes="Bold"
+                                            TextColor="#111827"
+                                            LineBreakMode="TailTruncation"
+                                            MaxLines="2" />
+
+                                        <!-- User info -->
+                                        <Grid Grid.Row="1" ColumnDefinitions="Auto,*,Auto" ColumnSpacing="6" Margin="0,0,0,2">
+                                            <!-- User avatar -->
+                                            <Frame
+                                                Grid.Column="0"
+                                                HeightRequest="22"
+                                                WidthRequest="22"
+                                                CornerRadius="11"
+                                                Padding="0"
+                                                BackgroundColor="#F3F4F6"
+                                                HasShadow="False"
+                                                IsClippedToBounds="True"
+                                                VerticalOptions="Center">
+                                                <Label
+                                                    Text="{Binding UserInitial}"
+                                                    FontSize="10"
+                                                    FontAttributes="Bold"
+                                                    TextColor="#5B2EFF"
+                                                    HorizontalOptions="Center"
+                                                    VerticalOptions="Center" />
+                                            </Frame>
+
+                                            <!-- Username -->
+                                            <Label
+                                                Grid.Column="1"
+                                                Text="{Binding Username}"
+                                                FontSize="11"
+                                                TextColor="#4B5563"
+                                                LineBreakMode="TailTruncation"
+                                                MaxLines="1"
+                                                VerticalOptions="Center" />
+
+                                            <!-- Heart icon (saved) -->
+                                            <Label
+                                                Grid.Column="2"
+                                                Text="&#x2764;"
+                                                FontSize="14"
+                                                TextColor="#EF4444"
+                                                HorizontalOptions="End"
+                                                VerticalOptions="Center">
+                                                <Label.GestureRecognizers>
+                                                    <TapGestureRecognizer Tapped="OnUnsaveTapped" CommandParameter="{Binding .}" />
+                                                </Label.GestureRecognizers>
+                                            </Label>
+                                        </Grid>
+                                    </Grid>
+                                </Grid>
+                            </Frame>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+
+                    <CollectionView.Footer>
+                        <Grid HeightRequest="20" BackgroundColor="Transparent" />
+                    </CollectionView.Footer>
+                </CollectionView>
+            </Grid>
+
+        </RefreshView>
+
+    </Grid>
+
+</ContentPage>

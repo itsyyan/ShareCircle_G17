@@ -1,0 +1,307 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:maps="clr-namespace:Microsoft.Maui.Controls.Maps;assembly=Microsoft.Maui.Controls.Maps"
+    x:Class="ShareCircle_G17.Views.AddAddressPage"
+    NavigationPage.HasNavigationBar="False"
+    BackgroundColor="White">
+
+    <Grid RowDefinitions="Auto,*,Auto">
+        <!-- Header -->
+        <Grid Grid.Row="0" HeightRequest="80" Padding="16,10,16,0" ColumnSpacing="12" VerticalOptions="Start">
+            <Grid.Background>
+                <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                    <GradientStop Color="#5B2EFF" Offset="0.0" />
+                    <GradientStop Color="#7C5CFF" Offset="1.0" />
+                </LinearGradientBrush>
+            </Grid.Background>
+            
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+
+            <!-- Back Button -->
+            <Frame
+                Grid.Column="0"
+                HeightRequest="40"
+                WidthRequest="40"
+                CornerRadius="20"
+                Padding="0"
+                HasShadow="False"
+                BackgroundColor="#B3FFFFFF"
+                VerticalOptions="Center">
+                <Frame.GestureRecognizers>
+                    <TapGestureRecognizer Tapped="OnBackClicked" />
+                </Frame.GestureRecognizers>
+                <Grid>
+                    <Label
+                        Text="&#x2039;"
+                        FontSize="24"
+                        TextColor="#5B2EFF"
+                        HorizontalOptions="Center"
+                        VerticalOptions="Center"
+                        HorizontalTextAlignment="Center"
+                        VerticalTextAlignment="Center"
+                        Margin="0,-5,0,0" />
+                </Grid>
+            </Frame>
+
+            <!-- Title -->
+            <Label
+                Grid.Column="1"
+                Text="Add New Address"
+                FontSize="20"
+                FontAttributes="Bold"
+                TextColor="White"
+                VerticalOptions="Center" />
+
+            <Frame
+                Grid.Column="2"
+                Padding="0"
+                HasShadow="False"
+                BackgroundColor="Transparent"
+                VerticalOptions="Center" />
+        </Grid>
+
+        <!-- Content -->
+        <ScrollView Grid.Row="1">
+            <VerticalStackLayout Spacing="0" Padding="16,8,16,16">
+
+                <!-- Name Section -->
+                <Label
+                    Text="Name"
+                    FontSize="14"
+                    TextColor="#111827"
+                    Margin="0,0,0,8" />
+                <Border
+                    x:Name="NameBorder"
+                    Stroke="#E5E7EB"
+                    StrokeThickness="1"
+                    BackgroundColor="White"
+                    Padding="0">
+                    <Border.StrokeShape>
+                        <RoundRectangle CornerRadius="8" />
+                    </Border.StrokeShape>
+                    <Entry
+                        x:Name="NameEntry"
+                        Placeholder="First and Last Name"
+                        PlaceholderColor="#9CA3AF"
+                        BackgroundColor="Transparent"
+                        TextColor="#111827"
+                        FontSize="15"
+                        HeightRequest="48"
+                        Margin="12,0"
+                        Focused="OnEntryFocused"
+                        Unfocused="OnEntryUnfocused" />
+                </Border>
+                <Label
+                    x:Name="NameValidationLabel"
+                    Text="Enter your full name"
+                    FontSize="12"
+                    TextColor="#EF4444"
+                    Margin="0,4,0,0"
+                    IsVisible="False" />
+
+                <!-- Phone Number Section -->
+                <Label
+                    Text="Phone Number"
+                    FontSize="14"
+                    TextColor="#111827"
+                    Margin="0,16,0,8" />
+                <Border
+                    x:Name="PhoneBorder"
+                    Stroke="#E5E7EB"
+                    StrokeThickness="1"
+                    BackgroundColor="White"
+                    Padding="0">
+                    <Border.StrokeShape>
+                        <RoundRectangle CornerRadius="8" />
+                    </Border.StrokeShape>
+                    <Grid ColumnDefinitions="Auto,*" HeightRequest="48">
+                        <HorizontalStackLayout VerticalOptions="Center" Padding="12,0">
+                            <Label
+                                Text="MY"
+                                FontSize="15"
+                                TextColor="#111827"
+                                VerticalOptions="Center" />
+                            <Label
+                                Text=" +60"
+                                FontSize="15"
+                                TextColor="#111827"
+                                VerticalOptions="Center" />
+                        </HorizontalStackLayout>
+                        <Entry
+                            Grid.Column="1"
+                            x:Name="PhoneEntry"
+                            Placeholder="Enter a valid phone number"
+                            PlaceholderColor="#9CA3AF"
+                            BackgroundColor="Transparent"
+                            TextColor="#111827"
+                            Keyboard="Telephone"
+                            FontSize="15"
+                            Margin="0,0,12,0"
+                            Focused="OnEntryFocused"
+                            Unfocused="OnEntryUnfocused" />
+                    </Grid>
+                </Border>
+                <Label
+                    x:Name="PhoneValidationLabel"
+                    Text="Enter a valid phone number"
+                    FontSize="12"
+                    TextColor="#EF4444"
+                    Margin="0,4,0,0"
+                    IsVisible="False" />
+
+                <!-- Address Section -->
+                <Label
+                    Text="Address"
+                    FontSize="14"
+                    TextColor="#111827"
+                    Margin="0,16,0,8" />
+                <Border
+                    Stroke="#E5E7EB"
+                    StrokeThickness="1"
+                    BackgroundColor="White"
+                    Padding="0">
+                    <Border.StrokeShape>
+                        <RoundRectangle CornerRadius="8" />
+                    </Border.StrokeShape>
+                    <Grid ColumnDefinitions="*,Auto" HeightRequest="48" Padding="12,0">
+                        <Label
+                            x:Name="AddressSelectLabel"
+                            Text="Select Address"
+                            FontSize="15"
+                            TextColor="#9CA3AF"
+                            VerticalOptions="Center" />
+                        <Label
+                            Grid.Column="1"
+                            Text="&#x203A;"
+                            FontSize="20"
+                            TextColor="#9CA3AF"
+                            VerticalOptions="Center" />
+                        <Grid.GestureRecognizers>
+                            <TapGestureRecognizer Tapped="OnSelectAddressTapped" />
+                        </Grid.GestureRecognizers>
+                    </Grid>
+                </Border>
+
+                <!-- Location Preview Card -->
+                <Border
+                    Stroke="#E5E7EB"
+                    StrokeThickness="1"
+                    BackgroundColor="White"
+                    Padding="0"
+                    Margin="0,12,0,0">
+                    <Border.StrokeShape>
+                        <RoundRectangle CornerRadius="12" />
+                    </Border.StrokeShape>
+                    <Border.GestureRecognizers>
+                        <TapGestureRecognizer Tapped="OnMapPreviewTapped" />
+                    </Border.GestureRecognizers>
+                    <Grid RowDefinitions="Auto" Padding="0">
+                        <!-- Mini Map Preview / Header -->
+                        <Grid HeightRequest="180" BackgroundColor="#F3F4F6">
+                            <maps:Map
+                                x:Name="PreviewMap"
+                                MapType="Street"
+                                IsScrollEnabled="False"
+                                IsZoomEnabled="False"
+                                HorizontalOptions="Fill"
+                                VerticalOptions="Fill" />
+                                
+                             <!-- Overlay to catch taps and show hint -->
+                             <BoxView BackgroundColor="Transparent" />
+                             
+                        </Grid>
+                    </Grid>
+                </Border>
+
+                <!-- Address Details Section -->
+                <Label
+                    Text="Address Details"
+                    FontSize="14"
+                    TextColor="#111827"
+                    Margin="0,16,0,8" />
+                <Border
+                    Stroke="#E5E7EB"
+                    StrokeThickness="1"
+                    BackgroundColor="White"
+                    Padding="0">
+                    <Border.StrokeShape>
+                        <RoundRectangle CornerRadius="8" />
+                    </Border.StrokeShape>
+                    <Entry
+                        x:Name="AddressDetailsEntry"
+                        Placeholder="Enter other details (optional)"
+                        PlaceholderColor="#9CA3AF"
+                        BackgroundColor="Transparent"
+                        TextColor="#111827"
+                        FontSize="15"
+                        HeightRequest="48"
+                        Margin="12,0" />
+                </Border>
+
+                <!-- Set as Default Section -->
+                <Border
+                    Margin="0,20,0,0"
+                    StrokeThickness="0"
+                    BackgroundColor="#F9FAFB">
+                    <Border.StrokeShape>
+                        <RoundRectangle CornerRadius="8" />
+                    </Border.StrokeShape>
+                    <Grid ColumnDefinitions="*,Auto" Padding="12">
+                        <Label
+                            Text="Set as Default"
+                            FontSize="14"
+                            TextColor="#111827"
+                            VerticalOptions="Center" />
+                        <Switch
+                            x:Name="DefaultSwitch"
+                            Grid.Column="1"
+                            OnColor="#111827" />
+                    </Grid>
+                </Border>
+
+            </VerticalStackLayout>
+        </ScrollView>
+
+        <!-- Bottom Section -->
+        <VerticalStackLayout Grid.Row="2" Padding="16,12" BackgroundColor="White" Spacing="12">
+            <!-- Privacy Policy -->
+            <HorizontalStackLayout HorizontalOptions="Center" Spacing="4">
+                <Label
+                    Text="By clicking &quot;Save&quot; you confirm you have read the"
+                    FontSize="12"
+                    TextColor="#6B7280" />
+                <Label
+                    Text="Privacy Policy"
+                    FontSize="12"
+                    TextColor="#5B2EFF"
+                    TextDecorations="Underline">
+                    <Label.GestureRecognizers>
+                        <TapGestureRecognizer Tapped="OnPrivacyPolicyTapped" />
+                    </Label.GestureRecognizers>
+                </Label>
+                <Label
+                    Text="."
+                    FontSize="12"
+                    TextColor="#6B7280" />
+            </HorizontalStackLayout>
+
+            <!-- Save Button -->
+            <Button
+                x:Name="SaveButton"
+                Text="Save"
+                HeightRequest="50"
+                CornerRadius="25"
+                BackgroundColor="#5B2EFF"
+                TextColor="White"
+                FontSize="16"
+                FontAttributes="Bold"
+                Clicked="OnSaveClicked" />
+        </VerticalStackLayout>
+    </Grid>
+</ContentPage>

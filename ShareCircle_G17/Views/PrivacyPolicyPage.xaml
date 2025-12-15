@@ -1,0 +1,312 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    x:Class="ShareCircle_G17.Views.PrivacyPolicyPage"
+    NavigationPage.HasNavigationBar="False"
+    BackgroundColor="#F5F7FB">
+
+    <Grid RowDefinitions="Auto,*">
+        <!-- Header -->
+        <Grid Grid.Row="0" HeightRequest="80" Padding="16,10,16,0" ColumnSpacing="12" VerticalOptions="Start">
+            <Grid.Background>
+                <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                    <GradientStop Color="#5B2EFF" Offset="0.0" />
+                    <GradientStop Color="#7C5CFF" Offset="1.0" />
+                </LinearGradientBrush>
+            </Grid.Background>
+            
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+
+            <!-- Back Button -->
+            <Frame
+                Grid.Column="0"
+                HeightRequest="40"
+                WidthRequest="40"
+                CornerRadius="20"
+                Padding="0"
+                HasShadow="False"
+                BackgroundColor="#B3FFFFFF"
+                VerticalOptions="Center">
+                <Frame.GestureRecognizers>
+                    <TapGestureRecognizer Tapped="OnBackClicked" />
+                </Frame.GestureRecognizers>
+                <Grid>
+                    <Label
+                        Text="&#x2039;"
+                        FontSize="24"
+                        TextColor="#5B2EFF"
+                        HorizontalOptions="Center"
+                        VerticalOptions="Center"
+                        HorizontalTextAlignment="Center"
+                        VerticalTextAlignment="Center"
+                        Margin="0,-5,0,0" />
+                </Grid>
+            </Frame>
+
+            <!-- Title -->
+            <Label
+                Grid.Column="1"
+                Text="Privacy Policy"
+                FontSize="20"
+                FontAttributes="Bold"
+                TextColor="White"
+                VerticalOptions="Center" />
+
+            <Frame
+                Grid.Column="2"
+                Padding="0"
+                HasShadow="False"
+                BackgroundColor="Transparent"
+                VerticalOptions="Center" />
+        </Grid>
+
+        <!-- Content -->
+        <ScrollView Grid.Row="1" Padding="20">
+            <VerticalStackLayout Spacing="20">
+
+                <!-- Last Updated -->
+                <Label
+                    Text="Last Updated: December 2025"
+                    FontSize="12"
+                    TextColor="#6B7280"
+                    HorizontalOptions="End" />
+
+                <!-- Introduction -->
+                <Frame BackgroundColor="White" CornerRadius="14" HasShadow="True" Padding="16" BorderColor="#E5E7EB">
+                    <VerticalStackLayout Spacing="12">
+                        <Label
+                            Text="Introduction"
+                            FontSize="18"
+                            FontAttributes="Bold"
+                            TextColor="#5B2EFF" />
+                        <Label
+                            Text="Welcome to ShareCircle. We are committed to protecting your privacy and ensuring the security of your personal information. This Privacy Policy explains how we collect, use, store, and protect your data when you use our donation sharing platform."
+                            FontSize="14"
+                            TextColor="#374151"
+                            LineHeight="1.5" />
+                    </VerticalStackLayout>
+                </Frame>
+
+                <!-- Information We Collect -->
+                <Frame BackgroundColor="White" CornerRadius="14" HasShadow="True" Padding="16" BorderColor="#E5E7EB">
+                    <VerticalStackLayout Spacing="12">
+                        <Label
+                            Text="Information We Collect"
+                            FontSize="18"
+                            FontAttributes="Bold"
+                            TextColor="#5B2EFF" />
+
+                        <Label
+                            Text="Account Information"
+                            FontSize="15"
+                            FontAttributes="Bold"
+                            TextColor="#111827" />
+                        <Label
+                            Text="&#x2022; Username and display name&#x000A;&#x2022; Email address&#x000A;&#x2022; Phone number (optional)&#x000A;&#x2022; Profile photo (optional)&#x000A;&#x2022; Account creation date"
+                            FontSize="14"
+                            TextColor="#374151"
+                            LineHeight="1.6" />
+
+                        <Label
+                            Text="Donation Information"
+                            FontSize="15"
+                            FontAttributes="Bold"
+                            TextColor="#111827"
+                            Margin="0,8,0,0" />
+                        <Label
+                            Text="&#x2022; Item titles and descriptions&#x000A;&#x2022; Item categories (Food: fruits, bread, packaged; Items: clothes, toys, books)&#x000A;&#x2022; Item photos&#x000A;&#x2022; Drop-off locations&#x000A;&#x2022; Contact email for donations"
+                            FontSize="14"
+                            TextColor="#374151"
+                            LineHeight="1.6" />
+
+                        <Label
+                            Text="Location Data"
+                            FontSize="15"
+                            FontAttributes="Bold"
+                            TextColor="#111827"
+                            Margin="0,8,0,0" />
+                        <Label
+                            Text="&#x2022; Saved addresses (label, street, city, postal code, country)&#x000A;&#x2022; GPS coordinates for donation pickup locations&#x000A;&#x2022; Current location (when using Explore Map feature)"
+                            FontSize="14"
+                            TextColor="#374151"
+                            LineHeight="1.6" />
+
+                        <Label
+                            Text="Request &amp; Notification Data"
+                            FontSize="15"
+                            FontAttributes="Bold"
+                            TextColor="#111827"
+                            Margin="0,8,0,0" />
+                        <Label
+                            Text="&#x2022; Donation requests you send or receive&#x000A;&#x2022; Request messages and status&#x000A;&#x2022; In-app notifications"
+                            FontSize="14"
+                            TextColor="#374151"
+                            LineHeight="1.6" />
+                    </VerticalStackLayout>
+                </Frame>
+
+                <!-- How We Use Your Information -->
+                <Frame BackgroundColor="White" CornerRadius="14" HasShadow="True" Padding="16" BorderColor="#E5E7EB">
+                    <VerticalStackLayout Spacing="12">
+                        <Label
+                            Text="How We Use Your Information"
+                            FontSize="18"
+                            FontAttributes="Bold"
+                            TextColor="#5B2EFF" />
+                        <Label
+                            Text="&#x2022; To create and manage your account&#x000A;&#x2022; To display your donations to other users&#x000A;&#x2022; To show nearby donations on the Explore Map&#x000A;&#x2022; To facilitate donation requests between users&#x000A;&#x2022; To send you notifications about your donations and requests&#x000A;&#x2022; To save your favorite items&#x000A;&#x2022; To improve our services and user experience&#x000A;&#x2022; To ensure platform safety and prevent misuse"
+                            FontSize="14"
+                            TextColor="#374151"
+                            LineHeight="1.6" />
+                    </VerticalStackLayout>
+                </Frame>
+
+                <!-- Data Storage -->
+                <Frame BackgroundColor="White" CornerRadius="14" HasShadow="True" Padding="16" BorderColor="#E5E7EB">
+                    <VerticalStackLayout Spacing="12">
+                        <Label
+                            Text="Data Storage &amp; Security"
+                            FontSize="18"
+                            FontAttributes="Bold"
+                            TextColor="#5B2EFF" />
+                        <Label
+                            Text="&#x2022; Your data is stored securely using Firebase services&#x000A;&#x2022; Local data is stored using SQLite for offline access&#x000A;&#x2022; Passwords are securely hashed and salted&#x000A;&#x2022; We use secure HTTPS connections for all data transfers&#x000A;&#x2022; Data synchronization between local and cloud storage is encrypted"
+                            FontSize="14"
+                            TextColor="#374151"
+                            LineHeight="1.6" />
+                    </VerticalStackLayout>
+                </Frame>
+
+                <!-- Third-Party Services -->
+                <Frame BackgroundColor="White" CornerRadius="14" HasShadow="True" Padding="16" BorderColor="#E5E7EB">
+                    <VerticalStackLayout Spacing="12">
+                        <Label
+                            Text="Third-Party Services"
+                            FontSize="18"
+                            FontAttributes="Bold"
+                            TextColor="#5B2EFF" />
+                        <Label
+                            Text="ShareCircle uses the following third-party services:"
+                            FontSize="14"
+                            TextColor="#374151" />
+                        <Label
+                            Text="&#x2022; Firebase Authentication - For secure user login&#x000A;&#x2022; Firebase Realtime Database - For cloud data storage&#x000A;&#x2022; Google Maps - For location services and map display"
+                            FontSize="14"
+                            TextColor="#374151"
+                            LineHeight="1.6" />
+                        <Label
+                            Text="These services have their own privacy policies, and we encourage you to review them."
+                            FontSize="14"
+                            TextColor="#6B7280"
+                            FontAttributes="Italic"
+                            Margin="0,8,0,0" />
+                    </VerticalStackLayout>
+                </Frame>
+
+                <!-- Your Rights -->
+                <Frame BackgroundColor="White" CornerRadius="14" HasShadow="True" Padding="16" BorderColor="#E5E7EB">
+                    <VerticalStackLayout Spacing="12">
+                        <Label
+                            Text="Your Rights"
+                            FontSize="18"
+                            FontAttributes="Bold"
+                            TextColor="#5B2EFF" />
+                        <Label
+                            Text="You have the right to:"
+                            FontSize="14"
+                            TextColor="#374151" />
+                        <Label
+                            Text="&#x2022; Access your personal data&#x000A;&#x2022; Update or correct your information via Edit Profile&#x000A;&#x2022; Delete your donations and saved items&#x000A;&#x2022; Change your password at any time&#x000A;&#x2022; Manage your addresses&#x000A;&#x2022; Clear cached data from your device&#x000A;&#x2022; Request account deletion by contacting us"
+                            FontSize="14"
+                            TextColor="#374151"
+                            LineHeight="1.6" />
+                    </VerticalStackLayout>
+                </Frame>
+
+                <!-- Data Sharing -->
+                <Frame BackgroundColor="White" CornerRadius="14" HasShadow="True" Padding="16" BorderColor="#E5E7EB">
+                    <VerticalStackLayout Spacing="12">
+                        <Label
+                            Text="Data Sharing"
+                            FontSize="18"
+                            FontAttributes="Bold"
+                            TextColor="#5B2EFF" />
+                        <Label
+                            Text="We do NOT sell your personal information to third parties."
+                            FontSize="14"
+                            FontAttributes="Bold"
+                            TextColor="#DC2626" />
+                        <Label
+                            Text="Information visible to other users:"
+                            FontSize="14"
+                            TextColor="#374151"
+                            Margin="0,8,0,0" />
+                        <Label
+                            Text="&#x2022; Your username and profile photo&#x000A;&#x2022; Your donation listings (title, description, photos, location)&#x000A;&#x2022; Your contact email (only when you create a donation)"
+                            FontSize="14"
+                            TextColor="#374151"
+                            LineHeight="1.6" />
+                    </VerticalStackLayout>
+                </Frame>
+
+                <!-- Children's Privacy -->
+                <Frame BackgroundColor="White" CornerRadius="14" HasShadow="True" Padding="16" BorderColor="#E5E7EB">
+                    <VerticalStackLayout Spacing="12">
+                        <Label
+                            Text="Children's Privacy"
+                            FontSize="18"
+                            FontAttributes="Bold"
+                            TextColor="#5B2EFF" />
+                        <Label
+                            Text="ShareCircle is not intended for children under 13 years of age. We do not knowingly collect personal information from children under 13. If you believe we have collected information from a child under 13, please contact us immediately."
+                            FontSize="14"
+                            TextColor="#374151"
+                            LineHeight="1.5" />
+                    </VerticalStackLayout>
+                </Frame>
+
+                <!-- Contact Us -->
+                <Frame BackgroundColor="White" CornerRadius="14" HasShadow="True" Padding="16" BorderColor="#E5E7EB">
+                    <VerticalStackLayout Spacing="12">
+                        <Label
+                            Text="Contact Us"
+                            FontSize="18"
+                            FontAttributes="Bold"
+                            TextColor="#5B2EFF" />
+                        <Label
+                            Text="If you have any questions about this Privacy Policy or our data practices, please contact us at:"
+                            FontSize="14"
+                            TextColor="#374151" />
+                        <Label
+                            Text="Email: sharecircleapp@gmail.com"
+                            FontSize="14"
+                            TextColor="#5B2EFF"
+                            FontAttributes="Bold" />
+                    </VerticalStackLayout>
+                </Frame>
+
+                <!-- Policy Changes -->
+                <Frame BackgroundColor="White" CornerRadius="14" HasShadow="True" Padding="16" BorderColor="#E5E7EB" Margin="0,0,0,20">
+                    <VerticalStackLayout Spacing="12">
+                        <Label
+                            Text="Changes to This Policy"
+                            FontSize="18"
+                            FontAttributes="Bold"
+                            TextColor="#5B2EFF" />
+                        <Label
+                            Text="We may update this Privacy Policy from time to time. We will notify you of any significant changes through the app. Your continued use of ShareCircle after changes indicates your acceptance of the updated policy."
+                            FontSize="14"
+                            TextColor="#374151"
+                            LineHeight="1.5" />
+                    </VerticalStackLayout>
+                </Frame>
+
+            </VerticalStackLayout>
+        </ScrollView>
+    </Grid>
+</ContentPage>

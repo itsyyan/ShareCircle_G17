@@ -1,0 +1,397 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:conv="clr-namespace:ShareCircle_G17.Converters"
+    x:Class="ShareCircle_G17.Views.ProductDetailsPage"
+    NavigationPage.HasNavigationBar="False"
+    BackgroundColor="Transparent"
+    Padding="0">
+
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <conv:BoolToHeartIconConverter x:Key="BoolToHeartIconConverter" />
+        </ResourceDictionary>
+    </ContentPage.Resources>
+
+    <!-- Gradient Background -->
+    <ContentPage.Background>
+        <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+            <GradientStop Color="#5B2EFF" Offset="0.0" />
+            <GradientStop Color="#EDE7FF" Offset="1.0" />
+        </LinearGradientBrush>
+    </ContentPage.Background>
+
+    <Grid RowDefinitions="Auto,*,Auto" Padding="0">
+
+        <!-- Header -->
+        <Grid Grid.Row="0" HeightRequest="80" Padding="16,10,16,0" ColumnSpacing="12" VerticalOptions="Start">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+
+            <!-- Back Button -->
+            <Frame
+                Grid.Column="0"
+                HeightRequest="40"
+                WidthRequest="40"
+                CornerRadius="20"
+                Padding="0"
+                HasShadow="False"
+                BackgroundColor="#B3FFFFFF"
+                VerticalOptions="Center">
+                <Frame.GestureRecognizers>
+                    <TapGestureRecognizer Tapped="OnBackClicked" />
+                </Frame.GestureRecognizers>
+                <Grid>
+                    <Label
+                        Text="&#x2039;"
+                        FontSize="24"
+                        TextColor="#5B2EFF"
+                        HorizontalOptions="Center"
+                        VerticalOptions="Center"
+                        HorizontalTextAlignment="Center"
+                        VerticalTextAlignment="Center"
+                        Margin="0,-5,0,0" />
+                </Grid>
+            </Frame>
+
+            <!-- Title -->
+            <Label
+                Grid.Column="1"
+                Text="Product Details"
+                FontSize="20"
+                FontAttributes="Bold"
+                TextColor="White"
+                VerticalOptions="Center" />
+
+            <Frame
+                Grid.Column="2"
+                Padding="0"
+                HasShadow="False"
+                BackgroundColor="Transparent"
+                VerticalOptions="Center" />
+        </Grid>
+
+        <!-- Content -->
+        <ScrollView Grid.Row="1" Padding="20,40,20,40" IsVisible="{Binding IsContentVisible}">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
+
+                <VerticalStackLayout
+                    Grid.Row="0"
+                    Spacing="24"
+                    HorizontalOptions="Center"
+                    VerticalOptions="Start"
+                    MaximumWidthRequest="800">
+
+                    <!-- Main Card -->
+                    <Frame
+                        BackgroundColor="White"
+                        CornerRadius="20"
+                        Padding="0"
+                        HasShadow="False"
+                        BorderColor="#E5E7EB"
+                        HorizontalOptions="FillAndExpand"
+                        Margin="0,0,0,4">
+
+                        <VerticalStackLayout Spacing="0">
+
+                            <!-- User Info Section -->
+                            <Grid Padding="20,16,20,12" ColumnDefinitions="Auto,*" ColumnSpacing="10">
+                                <!-- Profile Picture -->
+                                <Frame
+                                    Grid.Column="0"
+                                    HeightRequest="36"
+                                    WidthRequest="36"
+                                    CornerRadius="18"
+                                    Padding="0"
+                                    HasShadow="False"
+                                    BackgroundColor="LightGray"
+                                    IsClippedToBounds="True">
+                                    <Grid>
+                                        <!-- User Avatar Image -->
+                                        <Image
+                                            x:Name="UserAvatarImage"
+                                            Aspect="AspectFill"
+                                            IsVisible="False"
+                                            HorizontalOptions="Fill"
+                                            VerticalOptions="Fill" />
+                                        <!-- Fallback Initial Label -->
+                                        <Label
+                                            x:Name="UserInitialLabel"
+                                            Text="T"
+                                            FontSize="16"
+                                            FontAttributes="Bold"
+                                            TextColor="White"
+                                            HorizontalOptions="Center"
+                                            VerticalOptions="Center" />
+                                    </Grid>
+                                </Frame>
+
+                                <!-- Username -->
+                                <Label
+                                    Grid.Column="1"
+                                    x:Name="UsernameLabel"
+                                    Text="Tony"
+                                    FontSize="14"
+                                    FontAttributes="Bold"
+                                    TextColor="#1F2937"
+                                    VerticalOptions="Center" />
+                            </Grid>
+
+                            <!-- Image carousel -->
+                            <VerticalStackLayout Spacing="8" Padding="0,0,0,10">
+                                <CarouselView
+                                    x:Name="ImageCarousel"
+                                    ItemsSource="{Binding ImageSources}"
+                                    HeightRequest="260"
+                                    PeekAreaInsets="30"
+                                    IndicatorView="ImageIndicators"
+                                    HorizontalOptions="FillAndExpand">
+                                    <CarouselView.ItemsLayout>
+                                        <LinearItemsLayout
+                                            Orientation="Horizontal"
+                                            ItemSpacing="12"
+                                            SnapPointsType="MandatorySingle"
+                                            SnapPointsAlignment="Center" />
+                                    </CarouselView.ItemsLayout>
+                                    <CarouselView.ItemTemplate>
+                                        <DataTemplate>
+                                            <Image
+                                                Source="{Binding .}"
+                                                Aspect="AspectFill"
+                                                HorizontalOptions="FillAndExpand"
+                                                VerticalOptions="FillAndExpand" />
+                                        </DataTemplate>
+                                    </CarouselView.ItemTemplate>
+                                </CarouselView>
+                                <IndicatorView
+                                    x:Name="ImageIndicators"
+                                    HorizontalOptions="Center"
+                                    IndicatorColor="#E5E7EB"
+                                    SelectedIndicatorColor="#5B2EFF"
+                                    IndicatorSize="8" />
+                            </VerticalStackLayout>
+
+                            <!-- Description Section -->
+                            <VerticalStackLayout Padding="20,20,20,20" Spacing="14">
+                                <Label
+                                    x:Name="TitleLabel"
+                                    Text="Product title"
+                                    FontSize="20"
+                                    FontAttributes="Bold"
+                                    TextColor="#111827"
+                                    LineBreakMode="WordWrap" />
+
+                                <Label
+                                    x:Name="DescriptionLabel"
+                                    Text="Product description goes here."
+                                    FontSize="14"
+                                    TextColor="#4B5563"
+                                    LineBreakMode="WordWrap" />
+
+                                <!-- Pickup Info Section -->
+                                <VerticalStackLayout Spacing="10" x:Name="PickupInfoSection">
+                                    <Label
+                                        Text="Pickup Information"
+                                        FontSize="16"
+                                        FontAttributes="Bold"
+                                        TextColor="#1F2937" />
+
+                                    <Label
+                                        x:Name="AddressHiddenLabel"
+                                        Text="Contact details will be shown after your request is accepted."
+                                        FontSize="13"
+                                        TextColor="#6B7280"
+                                        IsVisible="{Binding HideAddressMessage}" />
+
+                                    <!-- Contact Info Card (visible after request accepted) -->
+                                    <Frame
+                                        x:Name="ContactInfoFrame"
+                                        BackgroundColor="#F0FDF4"
+                                        CornerRadius="16"
+                                        Padding="16"
+                                        HasShadow="False"
+                                        BorderColor="#BBF7D0"
+                                        IsVisible="{Binding ShowAddress}">
+                                        <VerticalStackLayout Spacing="12">
+                                            <!-- Donor Name -->
+                                            <Grid ColumnDefinitions="Auto,*" ColumnSpacing="10">
+                                                <Image
+                                                    Source="https://img.icons8.com/ios-filled/24/16A34A/user.png"
+                                                    WidthRequest="20"
+                                                    HeightRequest="20"
+                                                    VerticalOptions="Center" />
+                                                <VerticalStackLayout Grid.Column="1" Spacing="2">
+                                                    <Label
+                                                        Text="Contact Name"
+                                                        FontSize="11"
+                                                        TextColor="#6B7280" />
+                                                    <Label
+                                                        x:Name="DonorNameLabel"
+                                                        Text="Donor Name"
+                                                        FontSize="14"
+                                                        FontAttributes="Bold"
+                                                        TextColor="#111827" />
+                                                </VerticalStackLayout>
+                                            </Grid>
+
+                                            <!-- Phone Number -->
+                                            <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="10">
+                                                <Image
+                                                    Source="https://img.icons8.com/ios-filled/24/16A34A/phone.png"
+                                                    WidthRequest="20"
+                                                    HeightRequest="20"
+                                                    VerticalOptions="Center" />
+                                                <VerticalStackLayout Grid.Column="1" Spacing="2">
+                                                    <Label
+                                                        Text="Phone Number"
+                                                        FontSize="11"
+                                                        TextColor="#6B7280" />
+                                                    <Label
+                                                        x:Name="DonorPhoneLabel"
+                                                        Text="Not provided"
+                                                        FontSize="14"
+                                                        FontAttributes="Bold"
+                                                        TextColor="#111827" />
+                                                </VerticalStackLayout>
+                                                <ImageButton
+                                                    Grid.Column="2"
+                                                    WidthRequest="36"
+                                                    HeightRequest="36"
+                                                    BackgroundColor="#DCFCE7"
+                                                    CornerRadius="18"
+                                                    Padding="8"
+                                                    Clicked="OnWhatsAppClicked"
+                                                    Source="https://img.icons8.com/color/48/whatsapp--v1.png" />
+                                            </Grid>
+
+                                            <!-- Divider -->
+                                            <BoxView HeightRequest="1" Color="#D1FAE5" Margin="0,4" />
+
+                                            <!-- Address -->
+                                            <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="10">
+                                                <Image
+                                                    Source="https://img.icons8.com/ios-filled/24/16A34A/marker.png"
+                                                    WidthRequest="20"
+                                                    HeightRequest="20"
+                                                    VerticalOptions="Start"
+                                                    Margin="0,2,0,0" />
+                                                <VerticalStackLayout Grid.Column="1" Spacing="2">
+                                                    <Label
+                                                        Text="Pickup Address"
+                                                        FontSize="11"
+                                                        TextColor="#6B7280" />
+                                                    <Label
+                                                        x:Name="AddressLabel"
+                                                        Text="Address line"
+                                                        FontSize="14"
+                                                        TextColor="#111827"
+                                                        LineBreakMode="WordWrap" />
+                                                </VerticalStackLayout>
+                                                <ImageButton
+                                                    Grid.Column="2"
+                                                    WidthRequest="36"
+                                                    HeightRequest="36"
+                                                    BackgroundColor="#DCFCE7"
+                                                    CornerRadius="18"
+                                                    Padding="8"
+                                                    VerticalOptions="Start"
+                                                    Clicked="OnAddressTapped">
+                                                    <ImageButton.Source>
+                                                        <FontImageSource
+                                                            FontFamily="Arial"
+                                                            Glyph="&#x2192;"
+                                                            Size="16"
+                                                            Color="#16A34A" />
+                                                    </ImageButton.Source>
+                                                </ImageButton>
+                                            </Grid>
+                                        </VerticalStackLayout>
+                                    </Frame>
+                                </VerticalStackLayout>
+
+                                <Grid ColumnDefinitions="*,Auto" Padding="0,8,0,0">
+                                    <Label
+                                        Grid.Column="0"
+                                        Text=""
+                                        FontSize="1"
+                                        IsVisible="False" />
+                                    <Label
+                                        Grid.Column="1"
+                                        x:Name="MetaLabel"
+                                        Text="Posted on"
+                                        FontSize="12"
+                                        TextColor="#6B7280"
+                                        HorizontalOptions="End" />
+                                </Grid>
+
+                            </VerticalStackLayout>
+
+                        </VerticalStackLayout>
+
+                    </Frame>
+
+                </VerticalStackLayout>
+            </Grid>
+        </ScrollView>
+
+        <!-- Loading Indicator -->
+        <Grid Grid.Row="1" IsVisible="{Binding IsLoading}" HorizontalOptions="Center" VerticalOptions="Center">
+            <HorizontalStackLayout Spacing="10" VerticalOptions="Center" HorizontalOptions="Center">
+                <Border x:Name="Dot1" HeightRequest="12" WidthRequest="12" StrokeShape="RoundRectangle 6" Padding="0" BackgroundColor="White" StrokeThickness="0" />
+                <Border x:Name="Dot2" HeightRequest="12" WidthRequest="12" StrokeShape="RoundRectangle 6" Padding="0" BackgroundColor="White" StrokeThickness="0" />
+                <Border x:Name="Dot3" HeightRequest="12" WidthRequest="12" StrokeShape="RoundRectangle 6" Padding="0" BackgroundColor="White" StrokeThickness="0" />
+            </HorizontalStackLayout>
+        </Grid>
+
+        <!-- Fixed bottom action bar -->
+        <Grid
+            Grid.Row="2"
+            IsVisible="{Binding ShowActionButtons}"
+            Padding="20,12,20,24"
+            ColumnDefinitions="Auto,*"
+            ColumnSpacing="14"
+            BackgroundColor="White"
+            VerticalOptions="End"
+            RowSpacing="0">
+            <Grid.Shadow>
+                <Shadow Brush="#1A000000" Offset="0,-2" Radius="8" />
+            </Grid.Shadow>
+
+            <ImageButton
+                x:Name="SaveButton"
+                WidthRequest="48"
+                HeightRequest="48"
+                BackgroundColor="#F3F4F6"
+                CornerRadius="24"
+                Padding="12"
+                HorizontalOptions="Start"
+                VerticalOptions="Center"
+                Clicked="OnSaveClicked"
+                Source="{Binding IsSaved, Converter={StaticResource BoolToHeartIconConverter}}" />
+
+            <Button
+                Grid.Column="1"
+                x:Name="RequestButton"
+                Text="Request"
+                FontSize="16"
+                FontAttributes="Bold"
+                TextColor="White"
+                BackgroundColor="#5B2EFF"
+                CornerRadius="16"
+                Padding="18,14"
+                HorizontalOptions="FillAndExpand"
+                VerticalOptions="Center"
+                Clicked="OnRequestClicked"
+                ImageSource="https://img.icons8.com/ios-glyphs/30/ffffff/filled-sent.png"
+                ContentLayout="Left,10" />
+        </Grid>
+
+    </Grid>
+</ContentPage>

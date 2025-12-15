@@ -1,0 +1,233 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    x:Class="ShareCircle_G17.Views.AboutPage"
+    NavigationPage.HasNavigationBar="False"
+    BackgroundColor="#F5F7FB">
+
+    <Grid RowDefinitions="Auto,*">
+        <!-- Header -->
+        <Grid Grid.Row="0" HeightRequest="80" Padding="16,10,16,0" ColumnSpacing="12" VerticalOptions="Start">
+            <Grid.Background>
+                <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                    <GradientStop Color="#5B2EFF" Offset="0.0" />
+                    <GradientStop Color="#7C5CFF" Offset="1.0" />
+                </LinearGradientBrush>
+            </Grid.Background>
+            
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+
+            <!-- Back Button -->
+            <Frame
+                Grid.Column="0"
+                HeightRequest="40"
+                WidthRequest="40"
+                CornerRadius="20"
+                Padding="0"
+                HasShadow="False"
+                BackgroundColor="#B3FFFFFF"
+                VerticalOptions="Center">
+                <Frame.GestureRecognizers>
+                    <TapGestureRecognizer Tapped="OnBackClicked" />
+                </Frame.GestureRecognizers>
+                <Grid>
+                    <Label
+                        Text="&#x2039;"
+                        FontSize="24"
+                        TextColor="#5B2EFF"
+                        HorizontalOptions="Center"
+                        VerticalOptions="Center"
+                        HorizontalTextAlignment="Center"
+                        VerticalTextAlignment="Center"
+                        Margin="0,-5,0,0" />
+                </Grid>
+            </Frame>
+
+            <!-- Title -->
+            <Label
+                Grid.Column="1"
+                Text="About ShareCircle"
+                FontSize="20"
+                FontAttributes="Bold"
+                TextColor="White"
+                VerticalOptions="Center" />
+
+            <Frame
+                Grid.Column="2"
+                Padding="0"
+                HasShadow="False"
+                BackgroundColor="Transparent"
+                VerticalOptions="Center" />
+        </Grid>
+
+        <!-- Content -->
+        <ScrollView Grid.Row="1" Padding="20">
+            <VerticalStackLayout Spacing="20">
+
+                <!-- App Logo and Version -->
+                <Frame BackgroundColor="White" CornerRadius="20" HasShadow="True" Padding="30" BorderColor="#E5E7EB">
+                    <VerticalStackLayout Spacing="16" HorizontalOptions="Center">
+                        <Border
+                            WidthRequest="100"
+                            HeightRequest="100"
+                            StrokeShape="RoundRectangle 20"
+                            BackgroundColor="#5B2EFF"
+                            StrokeThickness="0"
+                            HorizontalOptions="Center">
+                            <Label
+                                Text="SC"
+                                FontSize="40"
+                                FontAttributes="Bold"
+                                TextColor="White"
+                                HorizontalOptions="Center"
+                                VerticalOptions="Center" />
+                        </Border>
+                        <Label
+                            Text="ShareCircle"
+                            FontSize="28"
+                            FontAttributes="Bold"
+                            TextColor="#5B2EFF"
+                            HorizontalOptions="Center" />
+                        <Label
+                            Text="Version 1.0.0"
+                            FontSize="14"
+                            TextColor="#6B7280"
+                            HorizontalOptions="Center" />
+                    </VerticalStackLayout>
+                </Frame>
+
+                <!-- Mission -->
+                <Frame BackgroundColor="White" CornerRadius="14" HasShadow="True" Padding="16" BorderColor="#E5E7EB">
+                    <VerticalStackLayout Spacing="12">
+                        <Label
+                            Text="Our Mission"
+                            FontSize="18"
+                            FontAttributes="Bold"
+                            TextColor="#5B2EFF" />
+                        <Label
+                            Text="ShareCircle is built on the belief that sharing creates stronger communities. Our mission is to reduce waste and help those in need by connecting people who have items to donate with people who can use them."
+                            FontSize="14"
+                            TextColor="#374151"
+                            LineHeight="1.5" />
+                    </VerticalStackLayout>
+                </Frame>
+
+                <!-- What We Do -->
+                <Frame BackgroundColor="White" CornerRadius="14" HasShadow="True" Padding="16" BorderColor="#E5E7EB">
+                    <VerticalStackLayout Spacing="12">
+                        <Label
+                            Text="What We Do"
+                            FontSize="18"
+                            FontAttributes="Bold"
+                            TextColor="#5B2EFF" />
+                        <Label
+                            Text="ShareCircle is a donation sharing platform that makes it easy to:"
+                            FontSize="14"
+                            TextColor="#374151" />
+                        <Label
+                            Text="&#x2022; Donate food items (fruits, bread, packaged goods)&#x000A;&#x2022; Share household items (clothes, toys, books)&#x000A;&#x2022; Find donations near you with our Explore Map&#x000A;&#x2022; Request items from generous donors&#x000A;&#x2022; Connect with your local community"
+                            FontSize="14"
+                            TextColor="#374151"
+                            LineHeight="1.6" />
+                    </VerticalStackLayout>
+                </Frame>
+
+                
+                <!-- Categories -->
+                <Frame BackgroundColor="White" CornerRadius="14" HasShadow="True" Padding="16" BorderColor="#E5E7EB">
+                    <VerticalStackLayout Spacing="12">
+                        <Label
+                            Text="Donation Categories"
+                            FontSize="18"
+                            FontAttributes="Bold"
+                            TextColor="#5B2EFF" />
+
+                        <Label
+                            Text="Food"
+                            FontSize="15"
+                            FontAttributes="Bold"
+                            TextColor="#16A34A" />
+                        <Label
+                            Text="&#x2022; Fruits - Fresh fruits and vegetables&#x000A;&#x2022; Bread - Bakery items and bread products&#x000A;&#x2022; Packaged - Canned goods, snacks, dry foods"
+                            FontSize="14"
+                            TextColor="#374151"
+                            LineHeight="1.6" />
+
+                        <Label
+                            Text="Items"
+                            FontSize="15"
+                            FontAttributes="Bold"
+                            TextColor="#2563EB"
+                            Margin="0,8,0,0" />
+                        <Label
+                            Text="&#x2022; Clothes - Clothing for all ages&#x000A;&#x2022; Toys - Games and toys for children&#x000A;&#x2022; Books - Books, magazines, educational materials"
+                            FontSize="14"
+                            TextColor="#374151"
+                            LineHeight="1.6" />
+                    </VerticalStackLayout>
+                </Frame>
+
+                <!-- Impact -->
+                <Frame BackgroundColor="#5B2EFF" CornerRadius="14" HasShadow="True" Padding="20" BorderColor="Transparent">
+                    <VerticalStackLayout Spacing="12" HorizontalOptions="Center">
+                        <Label
+                            Text="Making a Difference"
+                            FontSize="18"
+                            FontAttributes="Bold"
+                            TextColor="White"
+                            HorizontalOptions="Center" />
+                        <Label
+                            Text="Every donation counts! Together, we can reduce waste and help those in need. Join our growing community of generous donors and grateful recipients."
+                            FontSize="14"
+                            TextColor="#E5E7EB"
+                            HorizontalTextAlignment="Center"
+                            LineHeight="1.5" />
+                    </VerticalStackLayout>
+                </Frame>
+
+                <!-- Technology -->
+                <Frame BackgroundColor="White" CornerRadius="14" HasShadow="True" Padding="16" BorderColor="#E5E7EB">
+                    <VerticalStackLayout Spacing="12">
+                        <Label
+                            Text="Built With"
+                            FontSize="18"
+                            FontAttributes="Bold"
+                            TextColor="#5B2EFF" />
+                        <Label
+                            Text="&#x2022; .NET MAUI - Cross-platform mobile development&#x000A;&#x2022; Firebase - Secure authentication and cloud database&#x000A;&#x2022; SQLite - Offline data storage&#x000A;&#x2022; Google Maps - Location services"
+                            FontSize="14"
+                            TextColor="#374151"
+                            LineHeight="1.6" />
+                    </VerticalStackLayout>
+                </Frame>
+
+                <!-- Contact -->
+                <Frame BackgroundColor="White" CornerRadius="14" HasShadow="True" Padding="16" BorderColor="#E5E7EB" Margin="0,0,0,20">
+                    <VerticalStackLayout Spacing="12">
+                        <Label
+                            Text="Contact Us"
+                            FontSize="18"
+                            FontAttributes="Bold"
+                            TextColor="#5B2EFF" />
+                        <Label
+                            Text="Have questions, feedback, or suggestions? We'd love to hear from you!"
+                            FontSize="14"
+                            TextColor="#374151" />
+                        <Label
+                            Text="Email: sharecircleapp@gmail.com"
+                            FontSize="14"
+                            TextColor="#5B2EFF"
+                            FontAttributes="Bold" />
+
+                    </VerticalStackLayout>
+                </Frame>
+
+            </VerticalStackLayout>
+        </ScrollView>
+    </Grid>
+</ContentPage>

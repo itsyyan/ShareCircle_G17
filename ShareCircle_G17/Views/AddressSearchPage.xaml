@@ -1,0 +1,195 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    x:Class="ShareCircle_G17.Views.AddressSearchPage"
+    NavigationPage.HasNavigationBar="False"
+    BackgroundColor="White">
+
+    <Grid RowDefinitions="Auto,*">
+        <!-- Header with Search Box -->
+        <Grid Grid.Row="0" Padding="16,14,16,14" ColumnDefinitions="Auto,*" ColumnSpacing="12">
+            <Grid.Background>
+                <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                    <GradientStop Color="#5B2EFF" Offset="0.0" />
+                    <GradientStop Color="#7C5CFF" Offset="1.0" />
+                </LinearGradientBrush>
+            </Grid.Background>
+
+            <!-- Back Button -->
+            <Frame
+                Grid.Column="0"
+                HeightRequest="40"
+                WidthRequest="40"
+                CornerRadius="20"
+                Padding="0"
+                HasShadow="False"
+                BackgroundColor="#B3FFFFFF"
+                VerticalOptions="Center">
+                <Frame.GestureRecognizers>
+                    <TapGestureRecognizer Tapped="OnBackClicked" />
+                </Frame.GestureRecognizers>
+                <Grid>
+                    <Label
+                        Text="&#x2039;"
+                        FontSize="24"
+                        TextColor="#5B2EFF"
+                        HorizontalOptions="Center"
+                        VerticalOptions="Center"
+                        HorizontalTextAlignment="Center"
+                        VerticalTextAlignment="Center"
+                        Margin="0,-5,0,0" />
+                </Grid>
+            </Frame>
+
+            <!-- Search Entry -->
+            <Border
+                Grid.Column="1"
+                StrokeThickness="0"
+                BackgroundColor="White"
+                Padding="0">
+                <Border.StrokeShape>
+                    <RoundRectangle CornerRadius="22" />
+                </Border.StrokeShape>
+                <Grid ColumnDefinitions="Auto,*,Auto" HeightRequest="44">
+                    <Image
+                        WidthRequest="18"
+                        HeightRequest="18"
+                        Margin="14,0,8,0"
+                        VerticalOptions="Center">
+                        <Image.Source>
+                            <FontImageSource
+                                FontFamily="Arial"
+                                Glyph="&#x1F50D;"
+                                Size="16"
+                                Color="#9CA3AF" />
+                        </Image.Source>
+                    </Image>
+                    <Entry
+                        Grid.Column="1"
+                        x:Name="SearchEntry"
+                        Placeholder="Search address..."
+                        PlaceholderColor="#9CA3AF"
+                        BackgroundColor="Transparent"
+                        TextColor="#111827"
+                        FontSize="15"
+                        TextChanged="OnSearchTextChanged"
+                        Completed="OnSearchCompleted" />
+                    
+                    <!-- Clear Button (High-end style) -->
+                    <Frame
+                        Grid.Column="2"
+                        x:Name="ClearButton"
+                        WidthRequest="20"
+                        HeightRequest="20"
+                        CornerRadius="10"
+                        Padding="0"
+                        BackgroundColor="#E5E7EB"
+                        IsVisible="False"
+                        VerticalOptions="Center"
+                        Margin="0,0,12,0"
+                        HasShadow="False">
+                        <Frame.GestureRecognizers>
+                            <TapGestureRecognizer Tapped="OnClearClicked" />
+                        </Frame.GestureRecognizers>
+                        <Label
+                            Text="&#x2715;"
+                            TextColor="White"
+                            FontSize="10"
+                            HorizontalOptions="Center"
+                            VerticalOptions="Center"
+                            FontAttributes="Bold" />
+                    </Frame>
+                </Grid>
+            </Border>
+        </Grid>
+
+        <!-- Content -->
+        <ScrollView Grid.Row="1">
+            <VerticalStackLayout Spacing="0" Padding="0">
+
+                <!-- Nearby Label -->
+                <Label
+                    x:Name="NearbyLabel"
+                    Text="Nearby Addresses"
+                    FontSize="13"
+                    FontAttributes="Bold"
+                    TextColor="#5B2EFF"
+                    Padding="20,16,20,8" />
+
+                <!-- Loading Indicator -->
+                <ActivityIndicator
+                    x:Name="LoadingIndicator"
+                    IsRunning="False"
+                    IsVisible="False"
+                    Color="#5B2EFF"
+                    HeightRequest="40"
+                    VerticalOptions="Center"
+                    HorizontalOptions="Center" />
+
+                <!-- Search Results -->
+                <CollectionView
+                    x:Name="ResultsCollectionView"
+                    ItemsSource="{Binding}"
+                    SelectionMode="Single"
+                    SelectionChanged="OnResultSelected">
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate>
+                            <Grid Padding="20,12" ColumnDefinitions="Auto,*" ColumnSpacing="16">
+                                <!-- Location Icon -->
+                                <Border
+                                    WidthRequest="40"
+                                    HeightRequest="40"
+                                    BackgroundColor="#F3E8FF"
+                                    StrokeThickness="0"
+                                    VerticalOptions="Center">
+                                    <Border.StrokeShape>
+                                        <RoundRectangle CornerRadius="20" />
+                                    </Border.StrokeShape>
+                                    <Label
+                                        Text="&#x1F4CD;"
+                                        FontSize="18"
+                                        TextColor="#5B2EFF"
+                                        HorizontalOptions="Center"
+                                        VerticalOptions="Center" />
+                                </Border>
+
+                                <!-- Address Text -->
+                                <VerticalStackLayout Grid.Column="1" Spacing="2" VerticalOptions="Center">
+                                    <Label
+                                        Text="{Binding PrimaryText}"
+                                        FontSize="15"
+                                        FontAttributes="Bold"
+                                        TextColor="#111827"
+                                        LineBreakMode="TailTruncation"
+                                        MaxLines="1" />
+                                    <Label
+                                        Text="{Binding SecondaryText}"
+                                        FontSize="13"
+                                        TextColor="#6B7280"
+                                        LineBreakMode="TailTruncation"
+                                        MaxLines="1" />
+                                </VerticalStackLayout>
+
+                                <Grid.GestureRecognizers>
+                                    <TapGestureRecognizer Tapped="OnAddressTapped" CommandParameter="{Binding}" />
+                                </Grid.GestureRecognizers>
+                            </Grid>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+
+                <!-- No Results Message -->
+                <Label
+                    x:Name="NoResultsLabel"
+                    Text="No addresses found. Try a different search term."
+                    FontSize="14"
+                    TextColor="#6B7280"
+                    HorizontalOptions="Center"
+                    Padding="16,40"
+                    IsVisible="False" />
+
+            </VerticalStackLayout>
+        </ScrollView>
+    </Grid>
+</ContentPage>

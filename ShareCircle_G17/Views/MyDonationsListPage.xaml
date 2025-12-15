@@ -1,0 +1,364 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    x:Class="ShareCircle_G17.Views.MyDonationsListPage"
+    NavigationPage.HasNavigationBar="False"
+    BackgroundColor="#5B2EFF">
+
+    <Grid>
+        <!-- Background Layer - covers entire page including overscroll areas -->
+        <BoxView>
+            <BoxView.Background>
+                <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                    <GradientStop Color="#5B2EFF" Offset="0.0" />
+                    <GradientStop Color="#EDE7FF" Offset="1.0" />
+                </LinearGradientBrush>
+            </BoxView.Background>
+        </BoxView>
+
+        <!-- Content Layer -->
+        <Grid RowDefinitions="Auto,Auto,*" Padding="16,20,16,0">
+
+            <!-- Header -->
+            <Grid Grid.Row="0" HeightRequest="72" ColumnSpacing="12" VerticalOptions="Start">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+
+                <!-- Back Button -->
+                <Frame
+                    Grid.Column="0"
+                    HeightRequest="40"
+                    WidthRequest="40"
+                    CornerRadius="20"
+                    Padding="0"
+                    HasShadow="False"
+                    BackgroundColor="#B3FFFFFF"
+                    VerticalOptions="Center">
+                    <Frame.GestureRecognizers>
+                        <TapGestureRecognizer Tapped="OnBackClicked" />
+                    </Frame.GestureRecognizers>
+                    <Grid>
+                        <Label
+                            Text="&#x2039;"
+                            FontSize="24"
+                            TextColor="#5B2EFF"
+                            HorizontalOptions="Center"
+                            VerticalOptions="Center"
+                            HorizontalTextAlignment="Center"
+                            VerticalTextAlignment="Center"
+                            Margin="0,-5,0,0" />
+                    </Grid>
+                </Frame>
+
+                <!-- Title -->
+                <Label
+                    Grid.Column="1"
+                    Text="My Donations"
+                    FontSize="20"
+                    FontAttributes="Bold"
+                    TextColor="White"
+                    VerticalOptions="Center" />
+
+                <!-- Count badge removed: count now shown in filter labels -->
+                <Frame
+                    Grid.Column="2"
+                    Padding="0"
+                    HasShadow="False"
+                    BackgroundColor="Transparent"
+                    VerticalOptions="Center" />
+            </Grid>
+
+            <!-- Filter Tabs -->
+            <Grid Grid.Row="1" ColumnDefinitions="*,*" ColumnSpacing="10" Margin="0,0,0,10">
+                <Frame
+                    x:Name="FilterAvailable"
+                    Grid.Column="0"
+                    Padding="16,8"
+                    CornerRadius="20"
+                    HasShadow="False"
+                    BackgroundColor="#33FFFFFF"
+                    HorizontalOptions="Fill"
+                    BorderColor="Transparent">
+                    <Frame.GestureRecognizers>
+                        <TapGestureRecognizer Tapped="OnFilterAvailableTapped" />
+                    </Frame.GestureRecognizers>
+                    <Label
+                        x:Name="FilterAvailableLabel"
+                        Text="Available"
+                        FontSize="14"
+                        TextColor="White"
+                        HorizontalTextAlignment="Center"
+                        HorizontalOptions="Center" />
+                </Frame>
+
+                <Frame
+                    x:Name="FilterCompleted"
+                    Grid.Column="1"
+                    Padding="16,8"
+                    CornerRadius="20"
+                    HasShadow="False"
+                    BackgroundColor="#33FFFFFF"
+                    HorizontalOptions="Fill"
+                    BorderColor="Transparent">
+                    <Frame.GestureRecognizers>
+                        <TapGestureRecognizer Tapped="OnFilterCompletedTapped" />
+                    </Frame.GestureRecognizers>
+                    <Label
+                        x:Name="FilterCompletedLabel"
+                        Text="Completed"
+                        FontSize="14"
+                        TextColor="White"
+                        HorizontalTextAlignment="Center"
+                        HorizontalOptions="Center" />
+                </Frame>
+            </Grid>
+
+            <!-- Content -->
+            <Grid Grid.Row="2">
+
+                <!-- Loading Dots (shown exclusively when loading) -->
+                <VerticalStackLayout
+                    x:Name="LoadingDotsGrid"
+                    IsVisible="False"
+                    HorizontalOptions="Center"
+                    VerticalOptions="Start"
+                    Spacing="16"
+                    Padding="0,60,0,0">
+                    <HorizontalStackLayout Spacing="10" HorizontalOptions="Center">
+                        <Frame x:Name="Dot1" HeightRequest="12" WidthRequest="12" CornerRadius="6" Padding="0" HasShadow="False" BackgroundColor="White" />
+                        <Frame x:Name="Dot2" HeightRequest="12" WidthRequest="12" CornerRadius="6" Padding="0" HasShadow="False" BackgroundColor="White" />
+                        <Frame x:Name="Dot3" HeightRequest="12" WidthRequest="12" CornerRadius="6" Padding="0" HasShadow="False" BackgroundColor="White" />
+                    </HorizontalStackLayout>
+                    <Label
+                        Text="Loading..."
+                        FontSize="14"
+                        TextColor="White"
+                        Opacity="0.8"
+                        HorizontalOptions="Center" />
+                </VerticalStackLayout>
+
+                <!-- Empty State -->
+                <VerticalStackLayout
+                    x:Name="EmptyStateLayout"
+                    Spacing="20"
+                    Padding="30,60"
+                    VerticalOptions="Start"
+                    HorizontalOptions="Fill"
+                    IsVisible="False">
+
+                    <Frame
+                        HeightRequest="100"
+                        WidthRequest="100"
+                        CornerRadius="50"
+                        Padding="0"
+                        HasShadow="False"
+                        BackgroundColor="#B3FFFFFF"
+                        HorizontalOptions="Center">
+                        <Label
+                            Text="📦"
+                            FontSize="48"
+                            HorizontalOptions="Center"
+                            VerticalOptions="Center" />
+                    </Frame>
+
+                    <Label
+                        Text="No Donations Yet"
+                        FontSize="22"
+                        FontAttributes="Bold"
+                        TextColor="White"
+                        HorizontalOptions="Center" />
+
+                    <Label
+                        Text="Start sharing items with your community!"
+                        FontSize="15"
+                        TextColor="White"
+                        Opacity="0.9"
+                        HorizontalOptions="Center"
+                        HorizontalTextAlignment="Center" />
+
+                    <Button
+                        Text="+ Create Donation"
+                        BackgroundColor="White"
+                        TextColor="#5B2EFF"
+                        FontAttributes="Bold"
+                        CornerRadius="16"
+                        Padding="24,12"
+                        Margin="0,10,0,0"
+                        HorizontalOptions="Center"
+                        Clicked="OnCreateDonationClicked" />
+                </VerticalStackLayout>
+
+                <!-- Donations List -->
+                <CollectionView
+                    x:Name="DonationsCollectionView"
+                    SelectionMode="None"
+                    Margin="0,6,0,0"
+                    BackgroundColor="Transparent">
+
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate>
+                            <Frame
+                                Margin="0,0,0,16"
+                                Padding="0"
+                                BackgroundColor="White"
+                                CornerRadius="20"
+                                HasShadow="False">
+
+                                <Grid RowDefinitions="180,Auto,Auto,Auto" RowSpacing="0">
+
+                                    <!-- Image Section -->
+                                    <Border
+                                        Grid.Row="0"
+                                        StrokeThickness="0"
+                                        StrokeShape="RoundRectangle 20,20,0,0"
+                                        Background="#F3F4F6">
+                                        <Grid>
+                                            <Image
+                                                Source="{Binding ImageUrl}"
+                                                Aspect="AspectFill"
+                                                HorizontalOptions="Fill"
+                                                VerticalOptions="Fill" />
+
+                                            <!-- Status Badge (top-left) -->
+                                            <Frame
+                                                Padding="12,6"
+                                                CornerRadius="12"
+                                                BackgroundColor="{Binding StatusBackgroundColor}"
+                                                HasShadow="False"
+                                                VerticalOptions="Start"
+                                                HorizontalOptions="Start"
+                                                Margin="12">
+                                                <Label
+                                                    Text="{Binding StatusDisplay}"
+                                                    FontSize="12"
+                                                    FontAttributes="Bold"
+                                                    TextColor="White" />
+                                            </Frame>
+
+                                            <!-- Time Badge (top-right) -->
+                                            <Frame
+                                                Padding="10,6"
+                                                CornerRadius="12"
+                                                BackgroundColor="#CC000000"
+                                                HasShadow="False"
+                                                VerticalOptions="Start"
+                                                HorizontalOptions="End"
+                                                Margin="12">
+                                                <Label
+                                                    Text="{Binding TimeAgo}"
+                                                    FontSize="11"
+                                                    TextColor="White" />
+                                            </Frame>
+                                        </Grid>
+                                    </Border>
+
+                                    <!-- Title & Description Section -->
+                                    <VerticalStackLayout Grid.Row="1" Padding="16,14,16,0" Spacing="6">
+                                        <Label
+                                            Text="{Binding Title}"
+                                            FontSize="18"
+                                            FontAttributes="Bold"
+                                            TextColor="#111827"
+                                            LineBreakMode="TailTruncation"
+                                            MaxLines="1" />
+
+                                        <Label
+                                            Text="{Binding Description}"
+                                            FontSize="14"
+                                            TextColor="#6B7280"
+                                            LineBreakMode="TailTruncation"
+                                            MaxLines="2" />
+                                    </VerticalStackLayout>
+
+                                    <!-- Category & Date Info -->
+                                    <HorizontalStackLayout Grid.Row="2" Padding="16,10,16,0" Spacing="8">
+                                        <Frame
+                                            Padding="10,5"
+                                            CornerRadius="10"
+                                            HasShadow="False"
+                                            BackgroundColor="#F3F4F6">
+                                            <Label
+                                                Text="{Binding CategoryDisplay}"
+                                                FontSize="12"
+                                                TextColor="#6B7280" />
+                                        </Frame>
+                                        <Label
+                                            Text="•"
+                                            FontSize="12"
+                                            TextColor="#9CA3AF"
+                                            VerticalOptions="Center" />
+                                        <Label
+                                            Text="{Binding DateDisplay}"
+                                            FontSize="12"
+                                            TextColor="#9CA3AF"
+                                            VerticalOptions="Center" />
+                                    </HorizontalStackLayout>
+
+                                    <!-- Action Buttons -->
+                                    <Grid Grid.Row="3" Padding="12,12,12,14" ColumnSpacing="10">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="{Binding EditColumnWidth}" />
+                                            <ColumnDefinition Width="{Binding CompleteColumnWidth}" />
+                                            <ColumnDefinition Width="*" />
+                                        </Grid.ColumnDefinitions>
+
+                                        <!-- Edit Button (hidden when completed) -->
+                                        <Button
+                                            Grid.Column="0"
+                                            Text="✎  Edit"
+                                            BackgroundColor="#5B2EFF"
+                                            TextColor="White"
+                                            FontSize="14"
+                                            FontAttributes="Bold"
+                                            CornerRadius="12"
+                                            HeightRequest="44"
+                                            IsVisible="{Binding CanEdit}"
+                                            Clicked="OnEditClicked"
+                                            CommandParameter="{Binding .}" />
+
+                                        <!-- Complete Button (hidden when completed) -->
+                                        <Button
+                                            Grid.Column="1"
+                                            Text="✓  Complete"
+                                            BackgroundColor="#DCFCE7"
+                                            TextColor="#166534"
+                                            FontSize="14"
+                                            FontAttributes="Bold"
+                                            CornerRadius="12"
+                                            HeightRequest="44"
+                                            IsVisible="{Binding CanEdit}"
+                                            Clicked="OnCompleteClicked"
+                                            CommandParameter="{Binding .}" />
+
+                                        <!-- Delete Button -->
+                                        <Button
+                                            Grid.Column="2"
+                                            Text="✕  Delete"
+                                            BackgroundColor="#FEE2E2"
+                                            TextColor="#DC2626"
+                                            FontSize="14"
+                                            FontAttributes="Bold"
+                                            CornerRadius="12"
+                                            HeightRequest="44"
+                                            Clicked="OnDeleteClicked"
+                                            CommandParameter="{Binding .}" />
+                                    </Grid>
+                                </Grid>
+                            </Frame>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+
+                    <CollectionView.Footer>
+                        <Grid HeightRequest="20" BackgroundColor="Transparent" />
+                    </CollectionView.Footer>
+                </CollectionView>
+            </Grid>
+
+        </Grid>
+    </Grid>
+
+</ContentPage>

@@ -1,0 +1,21 @@
+{
+  "rules": {
+    ".read": true,
+    ".write": true,
+    "donations": {
+      ".indexOn": ["CreatedAt", "UserId", "Status"]
+    },
+    "users": {
+      ".indexOn": ["CreatedAt", "Username", "UsernameLower"]
+    },
+    "requests": {
+      ".indexOn": ["RequesterId", "PostId", "DonorId"]
+    },
+    "addresses": {
+       ".indexOn": ["UserId"]
+    },
+    "notifications": {
+       ".indexOn": ["IsRead"]
+    }
+  }
+}

@@ -1,0 +1,339 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    x:Class="ShareCircle_G17.Views.NotificationsSettingsPage"
+    NavigationPage.HasNavigationBar="False"
+    BackgroundColor="Transparent">
+
+    <ContentPage.Background>
+        <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+            <GradientStop Color="#5B2EFF" Offset="0.0" />
+            <GradientStop Color="#EDE7FF" Offset="1.0" />
+        </LinearGradientBrush>
+    </ContentPage.Background>
+
+    <Grid RowDefinitions="Auto,*,Auto" Padding="16,20,16,0">
+
+        <!-- Header -->
+        <Grid Grid.Row="0" HeightRequest="64" ColumnSpacing="12" VerticalOptions="Start">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+
+            <!-- Select All (manage mode) -->
+            <CheckBox
+                x:Name="SelectAllCheckBox"
+                Grid.Column="0"
+                Color="White"
+                VerticalOptions="Center"
+                HorizontalOptions="Center"
+                IsVisible="False"
+                CheckedChanged="OnSelectAllCheckedChanged" />
+
+            <!-- Titles -->
+            <Label
+                x:Name="TitleLabel"
+                Grid.Column="0"
+                Text="Notifications"
+                FontSize="20"
+                FontAttributes="Bold"
+                TextColor="White"
+                VerticalOptions="Center" />
+            <Label
+                x:Name="SelectionCountLabel"
+                Grid.Column="1"
+                Text="Selected 0"
+                FontSize="17"
+                FontAttributes="Bold"
+                TextColor="White"
+                VerticalOptions="Center"
+                HorizontalOptions="Center"
+                IsVisible="False" />
+
+            <!-- Manage / Action -->
+            <Button
+                x:Name="ManageButton"
+                Grid.Column="2"
+                Text="Manage"
+                Padding="14,8"
+                BackgroundColor="#6D5BFF"
+                TextColor="White"
+                CornerRadius="12"
+                FontAttributes="Bold"
+                HeightRequest="36"
+                HorizontalOptions="End"
+                VerticalOptions="Center"
+                Clicked="OnManageClicked" />
+            <Button
+                x:Name="ActionButton"
+                Grid.Column="2"
+                Padding="14,8"
+                BackgroundColor="#6D5BFF"
+                TextColor="White"
+                CornerRadius="12"
+                FontAttributes="Bold"
+                Text="Done"
+                HeightRequest="36"
+                HorizontalOptions="End"
+                VerticalOptions="Center"
+                Clicked="OnActionButtonClicked"
+                IsVisible="False" />
+        </Grid>
+
+        <!-- Content -->
+        <Grid Grid.Row="1">
+            <CollectionView x:Name="NotificationsCollection"
+                            SelectionMode="None"
+                            ItemsSource="{Binding Notifications}"
+                            Margin="0"
+                            BackgroundColor="Transparent">
+                <CollectionView.Header>
+                    <VerticalStackLayout Spacing="12" Padding="0,0,0,12">
+                        <Label Text="Recent activity"
+                               FontSize="17"
+                               FontAttributes="Bold"
+                               TextColor="White" />
+                        <ActivityIndicator x:Name="LoadingIndicator"
+                                           IsRunning="False"
+                                           IsVisible="False"
+                                           Color="White"
+                                           HeightRequest="12" />
+                        
+                        <!-- Empty State -->
+                        <VerticalStackLayout
+                            x:Name="EmptyStateLayout"
+                            Spacing="20"
+                            Padding="30,60"
+                            VerticalOptions="Start"
+                            HorizontalOptions="Fill"
+                            IsVisible="False">
+
+                            <Frame
+                                HeightRequest="100"
+                                WidthRequest="100"
+                                CornerRadius="50"
+                                Padding="0"
+                                HasShadow="False"
+                                BackgroundColor="#33FFFFFF"
+                                HorizontalOptions="Center">
+                                <Label
+                                    Text="🔔"
+                                    FontSize="48"
+                                    HorizontalOptions="Center"
+                                    VerticalOptions="Center"
+                                    TextColor="White" />
+                            </Frame>
+
+                            <Label
+                                Text="No Notifications"
+                                FontSize="22"
+                                FontAttributes="Bold"
+                                TextColor="White"
+                                HorizontalOptions="Center" />
+
+                            <Label
+                                Text="You're all caught up! New activity will appear here."
+                                FontSize="15"
+                                TextColor="White"
+                                Opacity="0.9"
+                                HorizontalOptions="Center"
+                                HorizontalTextAlignment="Center" />
+
+                            <Button
+                                Text="Go Home"
+                                BackgroundColor="White"
+                                TextColor="#5B2EFF"
+                                FontAttributes="Bold"
+                                CornerRadius="16"
+                                Padding="24,12"
+                                Margin="0,10,0,0"
+                                HorizontalOptions="Center"
+                                Clicked="OnHomeNavTapped" />
+                        </VerticalStackLayout>
+                    </VerticalStackLayout>
+                </CollectionView.Header>
+
+                <CollectionView.ItemTemplate>
+                    <DataTemplate>
+                        <Frame Margin="0,0,0,14"
+                               Padding="14"
+                               BackgroundColor="{Binding CardBackgroundColor}"
+                               CornerRadius="18"
+                               HasShadow="False"
+                               BorderColor="{Binding CardBorderColor}">
+                            <Frame.GestureRecognizers>
+                                <TapGestureRecognizer Tapped="OnCardTapped" CommandParameter="{Binding .}" />
+                            </Frame.GestureRecognizers>
+                            <Grid ColumnDefinitions="Auto,Auto,*" RowDefinitions="Auto,Auto,Auto" ColumnSpacing="12" RowSpacing="6">
+                            <CheckBox Grid.RowSpan="3"
+                                      IsChecked="{Binding IsSelected, Mode=TwoWay}"
+                                      IsVisible="{Binding IsSelectionMode}"
+                                      Color="#5B2EFF"
+                                      VerticalOptions="Center"
+                                      HorizontalOptions="Center"
+                                      InputTransparent="True" />
+                                <Frame Grid.Column="1" Grid.RowSpan="3"
+                                       HeightRequest="54"
+                                       WidthRequest="54"
+                                       Padding="0"
+                                       CornerRadius="10"
+                                       HasShadow="False"
+                                       IsClippedToBounds="True"
+                                       BorderColor="#E5E7EB">
+                                    <Image Source="{Binding ImageUrl}"
+                                           Aspect="AspectFill" />
+                                </Frame>
+
+                                <!-- Title -->
+                                <Label Grid.Column="2"
+                                       Text="{Binding Title}"
+                                       FontSize="15"
+                                       FontAttributes="Bold"
+                                       TextColor="#111827"
+                                       LineBreakMode="TailTruncation" 
+                                       MaxLines="2" />
+
+                                <!-- Unread Dot -->
+                                <BoxView Grid.Column="2" 
+                                         HeightRequest="8" WidthRequest="8" 
+                                         CornerRadius="4" Color="#EF4444" 
+                                         HorizontalOptions="End" VerticalOptions="Start" 
+                                         IsVisible="{Binding IsUnread}" />
+
+                                <!-- Link -->
+                                <Label Grid.Row="1" Grid.Column="2"
+                                       Text="{Binding LinkText}"
+                                       FontSize="13"
+                                       TextColor="#0F766E"
+                                       FontAttributes="Bold">
+                                    <Label.GestureRecognizers>
+                                        <TapGestureRecognizer Tapped="OnNotificationDetailsTapped"
+                                                              CommandParameter="{Binding RequestId}" />
+                                    </Label.GestureRecognizers>
+                                </Label>
+
+                                <!-- Time -->
+                                <Label Grid.Row="2" Grid.Column="2"
+                                       Text="{Binding TimeAgo}"
+                                       FontSize="12"
+                                       TextColor="#6B7280" />
+                            </Grid>
+                        </Frame>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+        </Grid>
+        <!-- Floating bottom navigation -->
+        <Grid Grid.Row="3" Padding="0,0,0,16" VerticalOptions="End" Margin="-16,0,-16,0">
+            <Frame
+                BackgroundColor="#5B2EFF"
+                CornerRadius="24"
+                Padding="16,12"
+                HasShadow="True"
+                Margin="16,0,16,0">
+                <Frame.Shadow>
+                    <Shadow Brush="#40000000" Radius="20" Offset="0,-5" Opacity="0.8" />
+                </Frame.Shadow>
+                <Grid ColumnDefinitions="*,*,Auto,*,*" ColumnSpacing="8" VerticalOptions="Center">
+                    <!-- Home -->
+                    <VerticalStackLayout
+                        Grid.Column="0"
+                        HorizontalOptions="Center"
+                        VerticalOptions="Center"
+                        Spacing="4">
+                        <VerticalStackLayout.GestureRecognizers>
+                            <TapGestureRecognizer Tapped="OnHomeNavTapped" NumberOfTapsRequired="1" />
+                        </VerticalStackLayout.GestureRecognizers>
+                        <Image
+                            Source="home.png"
+                            WidthRequest="24"
+                            HeightRequest="24"
+                            Aspect="AspectFit" />
+                        <Label Text="Home" FontSize="11" TextColor="White" HorizontalOptions="Center" />
+                    </VerticalStackLayout>
+
+                    <!-- Explore -->
+                    <VerticalStackLayout
+                        Grid.Column="1"
+                        HorizontalOptions="Center"
+                        VerticalOptions="Center"
+                        Spacing="4">
+                        <VerticalStackLayout.GestureRecognizers>
+                            <TapGestureRecognizer Tapped="OnExploreNavTapped" NumberOfTapsRequired="1" />
+                        </VerticalStackLayout.GestureRecognizers>
+                        <Image
+                            Source="https://img.icons8.com/ios/50/ffffff/compass--v1.png"
+                            WidthRequest="24"
+                            HeightRequest="24"
+                            Aspect="AspectFit" />
+                        <Label Text="Explore" FontSize="11" TextColor="White" HorizontalOptions="Center" />
+                    </VerticalStackLayout>
+
+                    <!-- Add/Donate button (center) -->
+                    <VerticalStackLayout
+                        Grid.Column="2"
+                        HorizontalOptions="Center"
+                        VerticalOptions="Center"
+                        Spacing="4">
+                        <Frame
+                            HeightRequest="62"
+                            WidthRequest="62"
+                            CornerRadius="31"
+                            BackgroundColor="White"
+                            HasShadow="True"
+                            Padding="0">
+                            <Frame.GestureRecognizers>
+                                <TapGestureRecognizer Tapped="OnDonateNavTapped" NumberOfTapsRequired="1" />
+                            </Frame.GestureRecognizers>
+                            <VerticalStackLayout HorizontalOptions="Center" VerticalOptions="Center">
+                                <Image
+                                    Source="add_2.png"
+                                    WidthRequest="22"
+                                    HeightRequest="22"
+                                    Aspect="AspectFit" />
+                            </VerticalStackLayout>
+                        </Frame>
+                    </VerticalStackLayout>
+
+                    <!-- Notification -->
+                    <VerticalStackLayout
+                        Grid.Column="3"
+                        HorizontalOptions="Center"
+                        VerticalOptions="Center"
+                        Spacing="4">
+                        <VerticalStackLayout.GestureRecognizers>
+                            <TapGestureRecognizer Tapped="OnNotificationNavTapped" NumberOfTapsRequired="1" />
+                        </VerticalStackLayout.GestureRecognizers>
+                        <Image
+                            Source="https://img.icons8.com/ios/50/ffffff/appointment-reminders--v1.png"
+                            WidthRequest="24"
+                            HeightRequest="24"
+                            Aspect="AspectFit" />
+                        <Label Text="Notify" FontSize="11" TextColor="White" HorizontalOptions="Center" FontAttributes="Bold" />
+                    </VerticalStackLayout>
+
+                    <!-- Profile -->
+                    <VerticalStackLayout
+                        Grid.Column="4"
+                        HorizontalOptions="Center"
+                        VerticalOptions="Center"
+                        Spacing="4">
+                        <VerticalStackLayout.GestureRecognizers>
+                            <TapGestureRecognizer Tapped="OnProfileNavTapped" NumberOfTapsRequired="1" />
+                        </VerticalStackLayout.GestureRecognizers>
+                        <Image
+                            Source="face.png"
+                            WidthRequest="24"
+                            HeightRequest="24"
+                            Aspect="AspectFit" />
+                        <Label Text="Profile" FontSize="11" TextColor="White" HorizontalOptions="Center" />
+                    </VerticalStackLayout>
+                </Grid>
+            </Frame>
+        </Grid>
+    </Grid>
+
+</ContentPage>

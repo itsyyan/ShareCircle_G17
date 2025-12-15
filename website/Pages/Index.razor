@@ -1,0 +1,121 @@
+@page "/"
+@attribute [Authorize]
+@using website.Services
+@using website.Data
+@inject FirebaseService DbService
+
+<PageTitle>Dashboard</PageTitle>
+
+<h1>Admin Dashboard</h1>
+<p>Welcome to ShareCircle Admin Panel.</p>
+
+@if (isLoading)
+{
+    <p><em>Loading statistics...</em></p>
+}
+else
+{
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card text-white bg-primary mb-3">
+                <div class="card-header">Total App Users</div>
+                <div class="card-body">
+                    <h2 class="card-title">@totalUsers</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-white bg-success mb-3">
+                <div class="card-header">Total Posts</div>
+                <div class="card-body">
+                    <h2 class="card-title">@totalPosts</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-white bg-info mb-3">
+                <div class="card-header">New Users (This Month)</div>
+                <div class="card-body">
+                    <h2 class="card-title">@newUsers</h2>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <h3>Top 5 Donors of the Month</h3>
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Rank</th>
+                <th>Username</th>
+                <th>Donations (Total)</th>
+            </tr>
+        </thead>
+        <tbody>
+            @for (int i = 0; i < topDonors.Count; i++)
+            {
+                var donor = topDonors[i];
+                <tr>
+                    <td>@(i + 1)</td>
+                    <td>@donor.Name</td>
+                    <td>@donor.Count</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    private bool isLoading = true;
+    private int totalUsers;
+    private int totalPosts;
+    private int newUsers;
+    private List<DonorStat> topDonors = new();
+
+    public class DonorStat
+    {
+        public string Name { get; set; } = "Unknown";
+        public int Count { get; set; }
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadStats();
+    }
+
+    private async Task LoadStats()
+    {
+        var users = await DbService.GetAllUsersAsync();
+        var posts = await DbService.GetAllPostsAsync();
+
+        totalUsers = users.Count;
+        totalPosts = posts.Count;
+
+        // New users this month
+        var now = DateTime.UtcNow;
+        newUsers = users.Count(u => u.CreatedAt.Month == now.Month && u.CreatedAt.Year == now.Year);
+
+        // Top 5 Donors
+        // Group posts by UserId
+        var donorGroups = posts
+            .Where(p => !string.IsNullOrEmpty(p.UserId))
+            .GroupBy(p => p.UserId)
+            .Select(g => new { UserId = g.Key, Count = g.Count() })
+            .OrderByDescending(x => x.Count)
+            .Take(5)
+            .ToList();
+
+        topDonors.Clear();
+        foreach (var d in donorGroups)
+        {
+            var user = users.FirstOrDefault(u => u.UserId == d.UserId);
+            topDonors.Add(new DonorStat 
+            { 
+                Name = user?.Username ?? "Unknown User", 
+                Count = d.Count 
+            });
+        }
+
+        isLoading = false;
+    }
+}

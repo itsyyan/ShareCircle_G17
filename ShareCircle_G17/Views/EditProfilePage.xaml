@@ -1,0 +1,201 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    x:Class="ShareCircle_G17.Views.EditProfilePage"
+    NavigationPage.HasNavigationBar="False"
+    BackgroundColor="White">
+
+    <Grid RowDefinitions="Auto,*,Auto" Padding="0">
+
+        <!-- Custom Header -->
+        <Grid
+            Grid.Row="0"
+            HeightRequest="64"
+            Padding="12,16"
+            BackgroundColor="#5B2EFF"
+            ColumnSpacing="10">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+
+            <!-- Back Button -->
+            <ImageButton
+                Grid.Column="0"
+                WidthRequest="36"
+                HeightRequest="36"
+                BackgroundColor="Transparent"
+                Clicked="OnBackClicked"
+                VerticalOptions="Center">
+                <ImageButton.Source>
+                    <FontImageSource
+                        FontFamily="Arial"
+                        Glyph="&lt;"
+                        Size="20"
+                        Color="White" />
+                </ImageButton.Source>
+            </ImageButton>
+
+            <!-- Title -->
+            <Label
+                Grid.Column="1"
+                Text="Edit Profile"
+                FontSize="17"
+                FontAttributes="Bold"
+                TextColor="White"
+                VerticalOptions="Center"
+                HorizontalOptions="Start"
+                Margin="6,0,0,0" />
+        </Grid>
+
+        <!-- Content -->
+        <ScrollView Grid.Row="1">
+            <VerticalStackLayout Padding="30,40" Spacing="25">
+
+                <!-- Profile Picture Section -->
+                <VerticalStackLayout Spacing="15" HorizontalOptions="Center">
+                    <Frame
+                        x:Name="ProfileImageFrame"
+                        WidthRequest="120"
+                        HeightRequest="120"
+                        CornerRadius="60"
+                        Padding="0"
+                        HasShadow="True"
+                        BorderColor="#5B2EFF"
+                        BackgroundColor="White"
+                        HorizontalOptions="Center">
+                        <Grid>
+                            <!-- Placeholder or actual image -->
+                            <Image
+                                x:Name="ProfileImage"
+                                Aspect="AspectFill"
+                                IsVisible="False" />
+                            <Label
+                                x:Name="ProfilePlaceholder"
+                                Text="U"
+                                FontSize="60"
+                                HorizontalOptions="Center"
+                                VerticalOptions="Center"
+                                TextColor="#5B2EFF" />
+                        </Grid>
+                    </Frame>
+
+                    <!-- Change Photo Button -->
+                    <Button
+                        Text="Change Photo"
+                        TextColor="#5B2EFF"
+                        BackgroundColor="Transparent"
+                        BorderColor="#5B2EFF"
+                        BorderWidth="2"
+                        CornerRadius="20"
+                        HeightRequest="40"
+                        WidthRequest="160"
+                        FontSize="14"
+                        FontAttributes="Bold"
+                        Clicked="OnChangePhotoClicked" />
+
+                    <Label
+                        x:Name="UsernameDisplayLabel"
+                        Text="Username"
+                        FontSize="18"
+                        FontAttributes="Bold"
+                        TextColor="#333"
+                        HorizontalOptions="Center" />
+                </VerticalStackLayout>
+
+                <!-- Username Section -->
+                <VerticalStackLayout Spacing="8">
+                    <Label
+                        Text="Username"
+                        FontSize="16"
+                        FontAttributes="Bold"
+                        TextColor="#333" />
+                    <Frame
+                        CornerRadius="12"
+                        Padding="15"
+                        HasShadow="False"
+                        BorderColor="#E0E0E0"
+                        BackgroundColor="White">
+                        <Entry
+                            x:Name="UsernameEntry"
+                            Placeholder="Enter your username"
+                            PlaceholderColor="Gray"
+                            TextColor="#333"
+                            FontSize="16" />
+                    </Frame>
+                </VerticalStackLayout>
+
+                <!-- Email Section -->
+                <VerticalStackLayout Spacing="8">
+                    <Label
+                        Text="Email"
+                        FontSize="16"
+                        FontAttributes="Bold"
+                        TextColor="#333" />
+                    <Frame
+                        CornerRadius="12"
+                        Padding="15"
+                        HasShadow="False"
+                        BorderColor="#E0E0E0"
+                        BackgroundColor="#F5F5F5">
+                        <Entry
+                            x:Name="EmailEntry"
+                            Placeholder="Enter your email"
+                            PlaceholderColor="Gray"
+                            TextColor="#999"
+                            FontSize="16"
+                            IsReadOnly="True"
+                            Keyboard="Email" />
+                    </Frame>
+                    <Label
+                        Text="Email cannot be changed"
+                        FontSize="12"
+                        TextColor="Gray"
+                        Margin="5,0,0,0" />
+                </VerticalStackLayout>
+
+                <!-- Bio Section (Optional) -->
+                <VerticalStackLayout Spacing="8">
+                    <Label
+                        Text="Bio (Optional)"
+                        FontSize="16"
+                        FontAttributes="Bold"
+                        TextColor="#333" />
+                    <Frame
+                        CornerRadius="12"
+                        Padding="15"
+                        HasShadow="False"
+                        BorderColor="#E0E0E0"
+                        BackgroundColor="White">
+                        <Editor
+                            x:Name="BioEditor"
+                            Placeholder="Tell us about yourself..."
+                            PlaceholderColor="Gray"
+                            TextColor="#333"
+                            FontSize="16"
+                            HeightRequest="100"
+                            AutoSize="TextChanges" />
+                    </Frame>
+                </VerticalStackLayout>
+
+            </VerticalStackLayout>
+        </ScrollView>
+
+        <!-- Save Button -->
+        <Grid Grid.Row="2" Padding="20,10,20,30" BackgroundColor="White">
+            <Button
+                x:Name="SaveButton"
+                Text="Save Changes"
+                TextColor="White"
+                BackgroundColor="#5B2EFF"
+                CornerRadius="25"
+                HeightRequest="50"
+                FontSize="16"
+                FontAttributes="Bold"
+                Clicked="OnSaveClicked" />
+        </Grid>
+
+    </Grid>
+
+</ContentPage>
