@@ -3,23 +3,25 @@ const router = express.Router();
 const firebaseService = require('../services/firebaseService');
 const { requireAuth } = require('../middleware/auth');
 
-// Users list page
+// Get all users
 router.get('/', requireAuth, async (req, res) => {
     try {
         const forceRefresh = req.query.refresh === 'true';
         const users = await firebaseService.getRecentUsers(50, forceRefresh);
-
-        res.render('users', {
-            title: 'Manage Users',
-            users: users,
-            message: req.query.message || null
+        
+        res.render('users', { 
+            title: 'Users',
+            users,
+            message: req.query.message,
+            error: null
         });
     } catch (error) {
         console.error('Users page error:', error);
-        res.render('users', {
-            title: 'Manage Users',
+        res.render('users', { 
+            title: 'Users',
             users: [],
-            error: 'Failed to load users'
+            message: null,
+            error: 'Failed to load users' 
         });
     }
 });
@@ -29,7 +31,7 @@ router.post('/delete/:userId', requireAuth, async (req, res) => {
     const { userId } = req.params;
 
     if (!userId) {
-        return res.redirect('/users?message=Invalid user ID');
+        return res.redirect('/users?message=Invalid User ID');
     }
 
     const success = await firebaseService.deleteUser(userId);

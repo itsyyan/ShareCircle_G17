@@ -74,7 +74,12 @@
 
                     <div class="mb-4">
                         <label class="form-label text-secondary">Password</label>
-                        <input type="password" class="form-control form-control-lg" name="password" placeholder="Enter password" required>
+                        <div class="input-group">
+                            <input type="password" class="form-control form-control-lg" name="password" id="password" placeholder="Enter password" required>
+                            <button class="btn btn-outline-secondary" type="button" id="togglePassword">
+                                <i class="oi oi-eye"></i>
+                            </button>
+                        </div>
                     </div>
 
                     <% if (error) { %>
@@ -93,6 +98,25 @@
     </div>
 
     <script>
+        const togglePassword = document.querySelector('#togglePassword');
+        const password = document.querySelector('#password');
+
+        if (togglePassword && password) {
+            togglePassword.addEventListener('click', function (e) {
+                const type = password.getAttribute('type') === 'password' ? 'text' : 'password';
+                password.setAttribute('type', type);
+                
+                const icon = this.querySelector('i');
+                if (type === 'text') {
+                    icon.classList.remove('oi-eye');
+                    icon.classList.add('oi-circle-x');
+                } else {
+                    icon.classList.remove('oi-circle-x');
+                    icon.classList.add('oi-eye');
+                }
+            });
+        }
+
         document.getElementById('loginForm').addEventListener('submit', function() {
             const btn = document.getElementById('submitBtn');
             btn.querySelector('.btn-text').textContent = 'Signing In...';

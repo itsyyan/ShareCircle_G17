@@ -163,17 +163,16 @@ class FirebaseService {
 
     // Authenticate admin
     async authenticateAdmin(username, password) {
-        // Hardcoded admin fallback (优先检查，快速返回)
-        if ((username === 'admin' && password === 'admin123') ||
-            (username === 'nwchang' && password === 'admin1234')) {
-            return true;
-        }
-
         try {
             const adminData = await firebaseRequest(`/admins/${username}`);
+            console.log(`[Auth] Check for ${username}:`, adminData);
 
-            if (adminData && adminData.password === password) {
-                return true;
+            if (adminData) {
+                // Handle potential data entry error in DB where key is "password:"
+                const dbPassword = adminData.password || adminData['password:'];
+                if (dbPassword === password) {
+                    return true;
+                }
             }
             return false;
         } catch (error) {

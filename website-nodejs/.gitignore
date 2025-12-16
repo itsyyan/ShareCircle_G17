@@ -25,3 +25,9 @@ build/
 
 # Firebase service account (if used)
 serviceAccountKey.json
+
+# Firebase
+.firebase/
+firebase-debug.log
+firebase-debug.*.log
+.runtimeconfig.json

@@ -1,0 +1,29 @@
+{
+  "name": "sharecircle-admin",
+  "version": "1.0.0",
+  "description": "ShareCircle Admin Dashboard",
+  "main": "index.js",
+  "engines": {
+    "node": "20"
+  },
+  "scripts": {
+    "start": "node app.js",
+    "dev": "nodemon app.js",
+    "serve": "firebase emulators:start --only functions,hosting",
+    "deploy": "firebase deploy",
+    "logs": "firebase functions:log"
+  },
+  "dependencies": {
+    "cookie-session": "^2.1.1",
+    "cors": "^2.8.5",
+    "dotenv": "^16.3.1",
+    "ejs": "^3.1.9",
+    "express": "^4.18.2",
+    "express-session": "^1.17.3",
+    "firebase-admin": "^11.11.0",
+    "firebase-functions": "^7.0.1"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.2"
+  }
+}

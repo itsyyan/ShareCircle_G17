@@ -49,13 +49,9 @@ router.get('/', requireAuth, async (req, res) => {
         });
     } catch (error) {
         console.error('Dashboard error:', error);
-        res.render('index', {
-            title: 'Dashboard',
-            totalUsers: 0,
-            totalPosts: 0,
-            newUsers: 0,
-            topDonors: [],
-            error: 'Failed to load statistics'
+        res.status(500).json({
+            error: 'Failed to load statistics',
+            details: error.message
         });
     }
 });

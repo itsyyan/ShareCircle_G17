@@ -3,22 +3,24 @@ const router = express.Router();
 const firebaseService = require('../services/firebaseService');
 const { requireAuth } = require('../middleware/auth');
 
-// Posts list page
+// Get all posts
 router.get('/', requireAuth, async (req, res) => {
     try {
         const forceRefresh = req.query.refresh === 'true';
         const posts = await firebaseService.getRecentPosts(50, forceRefresh);
 
         res.render('posts', {
-            title: 'Manage Posts',
-            posts: posts,
-            message: req.query.message || null
+            title: 'Posts',
+            posts,
+            message: req.query.message,
+            error: null
         });
     } catch (error) {
         console.error('Posts page error:', error);
         res.render('posts', {
-            title: 'Manage Posts',
+            title: 'Posts',
             posts: [],
+            message: null,
             error: 'Failed to load posts'
         });
     }
@@ -29,7 +31,7 @@ router.post('/delete/:postId', requireAuth, async (req, res) => {
     const { postId } = req.params;
 
     if (!postId) {
-        return res.redirect('/posts?message=Invalid post ID');
+        return res.redirect('/posts?message=Invalid Post ID');
     }
 
     const success = await firebaseService.deletePost(postId);
