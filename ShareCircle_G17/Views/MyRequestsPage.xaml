@@ -17,7 +17,7 @@
             </BoxView.Background>
         </BoxView>
 
-        <Grid RowDefinitions="Auto,*" Padding="0">
+        <Grid RowDefinitions="Auto,Auto,*" Padding="0">
 
             <!-- Custom Header -->
             <Grid Grid.Row="0" HeightRequest="80" Padding="16,10,16,0" ColumnSpacing="12" VerticalOptions="Start">
@@ -72,8 +72,54 @@
                     VerticalOptions="Center" />
             </Grid>
 
+            <!-- Filter Tabs -->
+            <Grid Grid.Row="1" ColumnDefinitions="*,*" ColumnSpacing="10" Padding="16,0,16,10">
+                <Frame
+                    x:Name="FilterPending"
+                    Grid.Column="0"
+                    Padding="16,8"
+                    CornerRadius="20"
+                    HasShadow="False"
+                    BackgroundColor="White"
+                    HorizontalOptions="Fill"
+                    BorderColor="Transparent">
+                    <Frame.GestureRecognizers>
+                        <TapGestureRecognizer Tapped="OnFilterPendingTapped" />
+                    </Frame.GestureRecognizers>
+                    <Label
+                        x:Name="FilterPendingLabel"
+                        Text="Pending"
+                        FontSize="14"
+                        FontAttributes="Bold"
+                        TextColor="#5B2EFF"
+                        HorizontalTextAlignment="Center"
+                        HorizontalOptions="Center" />
+                </Frame>
+
+                <Frame
+                    x:Name="FilterCompleted"
+                    Grid.Column="1"
+                    Padding="16,8"
+                    CornerRadius="20"
+                    HasShadow="False"
+                    BackgroundColor="#33FFFFFF"
+                    HorizontalOptions="Fill"
+                    BorderColor="Transparent">
+                    <Frame.GestureRecognizers>
+                        <TapGestureRecognizer Tapped="OnFilterCompletedTapped" />
+                    </Frame.GestureRecognizers>
+                    <Label
+                        x:Name="FilterCompletedLabel"
+                        Text="Completed"
+                        FontSize="14"
+                        TextColor="White"
+                        HorizontalTextAlignment="Center"
+                        HorizontalOptions="Center" />
+                </Frame>
+            </Grid>
+
             <!-- Content -->
-            <ScrollView Grid.Row="1" Padding="0,10,0,0">
+            <ScrollView Grid.Row="2" Padding="0,10,0,0">
                 <VerticalStackLayout Spacing="0">
 
                     <!-- Empty State -->

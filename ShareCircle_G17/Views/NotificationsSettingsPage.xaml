@@ -167,15 +167,8 @@
                             <Frame.GestureRecognizers>
                                 <TapGestureRecognizer Tapped="OnCardTapped" CommandParameter="{Binding .}" />
                             </Frame.GestureRecognizers>
-                            <Grid ColumnDefinitions="Auto,Auto,*" RowDefinitions="Auto,Auto,Auto" ColumnSpacing="12" RowSpacing="6">
-                            <CheckBox Grid.RowSpan="3"
-                                      IsChecked="{Binding IsSelected, Mode=TwoWay}"
-                                      IsVisible="{Binding IsSelectionMode}"
-                                      Color="#5B2EFF"
-                                      VerticalOptions="Center"
-                                      HorizontalOptions="Center"
-                                      InputTransparent="True" />
-                                <Frame Grid.Column="1" Grid.RowSpan="3"
+                            <Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto,Auto,Auto" ColumnSpacing="12" RowSpacing="6">
+                                <Frame Grid.Column="0" Grid.RowSpan="3"
                                        HeightRequest="54"
                                        WidthRequest="54"
                                        Padding="0"
@@ -188,7 +181,7 @@
                                 </Frame>
 
                                 <!-- Title -->
-                                <Label Grid.Column="2"
+                                <Label Grid.Column="1"
                                        Text="{Binding Title}"
                                        FontSize="15"
                                        FontAttributes="Bold"
@@ -197,14 +190,14 @@
                                        MaxLines="2" />
 
                                 <!-- Unread Dot -->
-                                <BoxView Grid.Column="2" 
+                                <BoxView Grid.Column="1" 
                                          HeightRequest="8" WidthRequest="8" 
                                          CornerRadius="4" Color="#EF4444" 
                                          HorizontalOptions="End" VerticalOptions="Start" 
                                          IsVisible="{Binding IsUnread}" />
 
                                 <!-- Link -->
-                                <Label Grid.Row="1" Grid.Column="2"
+                                <Label Grid.Row="1" Grid.Column="1"
                                        Text="{Binding LinkText}"
                                        FontSize="13"
                                        TextColor="#0F766E"
@@ -216,7 +209,7 @@
                                 </Label>
 
                                 <!-- Time -->
-                                <Label Grid.Row="2" Grid.Column="2"
+                                <Label Grid.Row="2" Grid.Column="1"
                                        Text="{Binding TimeAgo}"
                                        FontSize="12"
                                        TextColor="#6B7280" />
@@ -307,11 +300,29 @@
                         <VerticalStackLayout.GestureRecognizers>
                             <TapGestureRecognizer Tapped="OnNotificationNavTapped" NumberOfTapsRequired="1" />
                         </VerticalStackLayout.GestureRecognizers>
-                        <Image
-                            Source="https://img.icons8.com/ios/50/ffffff/appointment-reminders--v1.png"
-                            WidthRequest="24"
-                            HeightRequest="24"
-                            Aspect="AspectFit" />
+                        
+                        <Grid>
+                            <Image
+                                Source="https://img.icons8.com/ios/50/ffffff/appointment-reminders--v1.png"
+                                WidthRequest="24"
+                                HeightRequest="24"
+                                Aspect="AspectFit" />
+                            
+                            <!-- Red Dot for unread notifications -->
+                            <Frame
+                                CornerRadius="100"
+                                WidthRequest="1"
+                                HeightRequest="1"
+                                Padding="0"
+                                BackgroundColor="#FF3B30"
+                                BorderColor="White"
+                                HasShadow="False"
+                                VerticalOptions="Start"
+                                HorizontalOptions="End"
+                                Margin="0,-7,-7,0"
+                                IsVisible="{Binding HasUnreadNotifications}" />
+                        </Grid>
+                        
                         <Label Text="Notify" FontSize="11" TextColor="White" HorizontalOptions="Center" FontAttributes="Bold" />
                     </VerticalStackLayout>
 

@@ -15,9 +15,19 @@ public partial class NotificationsSettingsPage : ContentPage
 {
     private readonly IFirebaseAuthService? _authService;
     private readonly IFirebaseDatabaseService? _databaseService;
+    private readonly ISQLiteDatabaseService? _sqliteService;
     private NotificationItem? _selected;
     private bool _isManageMode;
     private string? _currentUserId;
+
+    public static readonly BindableProperty HasUnreadNotificationsProperty =
+        BindableProperty.Create(nameof(HasUnreadNotifications), typeof(bool), typeof(NotificationsSettingsPage), defaultValue: false);
+
+    public bool HasUnreadNotifications
+    {
+        get => (bool)GetValue(HasUnreadNotificationsProperty);
+        set => SetValue(HasUnreadNotificationsProperty, value);
+    }
 
     public ObservableCollection<NotificationItem> Notifications { get; } = new();
 
@@ -26,14 +36,19 @@ public partial class NotificationsSettingsPage : ContentPage
         InitializeComponent();
         _authService = Resolve<IFirebaseAuthService>() ?? new FirebaseAuthService();
         _databaseService = Resolve<IFirebaseDatabaseService>() ?? new FirebaseDatabaseService();
+        _sqliteService = Resolve<ISQLiteDatabaseService>();
         BindingContext = this;
     }
 
-    public NotificationsSettingsPage(IFirebaseAuthService authService, IFirebaseDatabaseService databaseService)
+    public NotificationsSettingsPage(
+        IFirebaseAuthService authService, 
+        IFirebaseDatabaseService databaseService,
+        ISQLiteDatabaseService sqliteService)
     {
         InitializeComponent();
         _authService = authService;
         _databaseService = databaseService;
+        _sqliteService = sqliteService;
         BindingContext = this;
     }
 
@@ -46,13 +61,17 @@ public partial class NotificationsSettingsPage : ContentPage
     private async Task LoadNotificationsAsync()
     {
         EmptyStateLayout.IsVisible = false;
-        LoadingIndicator.IsVisible = LoadingIndicator.IsRunning = true;
-        Notifications.Clear();
+        // Only show spinner if we have no cached data
+        if (Notifications.Count == 0)
+        {
+            LoadingIndicator.IsVisible = LoadingIndicator.IsRunning = true;
+        }
+        
         _selected = null;
 
         try
         {
-            if (_authService == null || _databaseService == null)
+            if (_authService == null)
             {
                 EmptyStateLayout.IsVisible = true;
                 return;
@@ -66,20 +85,55 @@ public partial class NotificationsSettingsPage : ContentPage
             }
             _currentUserId = user.UserId;
 
-            var items = await _databaseService.GetNotificationsAsync(user.UserId);
-            foreach (var n in items)
-            {
-                Notifications.Add(new NotificationItem(n));
-            }
+            // 1. Load from SQLite Cache
+                            if (_sqliteService != null && _databaseService != null)
+                            {
+                                var cached = await _sqliteService.GetNotificationsAsync(user.UserId);
+                                if (cached != null && cached.Count > 0)
+                                {
+                                    Notifications.Clear();
+                                    foreach (var n in cached)
+                                    {
+                                        Notifications.Add(new NotificationItem(n, _databaseService));
+                                    }
+                                    LoadingIndicator.IsVisible = LoadingIndicator.IsRunning = false;
+                                }
+                            }
+            
+                            // 2. Fetch from Firebase (if online)
+                            if (_databaseService != null && Connectivity.Current.NetworkAccess == NetworkAccess.Internet)
+                            {
+                                var items = await _databaseService.GetNotificationsAsync(user.UserId);
+                                
+                                // Update Cache & UI
+                                Notifications.Clear();
+                                foreach (var n in items)
+                                {
+                                    n.UserId = user.UserId; // Ensure owner is set for local storage
+                                    Notifications.Add(new NotificationItem(n, _databaseService));
+                                    
+                                    if (_sqliteService != null)
+                                    {
+                                        await _sqliteService.SaveNotificationAsync(n);
+                                    }
+                                }
+                            }
             _selected = null;
             UpdateSelectionCount();
+            
+            HasUnreadNotifications = Notifications.Any(n => n.IsUnread);
 
             EmptyStateLayout.IsVisible = Notifications.Count == 0;
         }
         catch (Exception ex)
         {
-            await DisplayAlert("Error", $"Failed to load notifications: {ex.Message}", "OK");
-            EmptyStateLayout.IsVisible = true;
+            System.Diagnostics.Debug.WriteLine($"Error loading notifications: {ex.Message}");
+            // Only show alert if we have absolutely nothing to show
+            if (Notifications.Count == 0)
+            {
+                await DisplayAlert("Error", $"Failed to load notifications: {ex.Message}", "OK");
+                EmptyStateLayout.IsVisible = true;
+            }
         }
         finally
         {
@@ -145,9 +199,21 @@ public partial class NotificationsSettingsPage : ContentPage
             }
         }
 
-        if (!string.IsNullOrWhiteSpace(_selected.RequestId))
+        try
         {
-            try
+            // If approved/completed, go to ProductDetailsPage to show donor contact info
+            bool isApproved = string.Equals(_selected.Status, "approved", StringComparison.OrdinalIgnoreCase) ||
+                              string.Equals(_selected.Status, "completed", StringComparison.OrdinalIgnoreCase) ||
+                              string.Equals(_selected.Status, "accepted", StringComparison.OrdinalIgnoreCase);
+
+            if (isApproved && !string.IsNullOrWhiteSpace(_selected.PostId))
+            {
+                await Shell.Current.GoToAsync($"{nameof(ProductDetailsPage)}?PostId={_selected.PostId}");
+                return;
+            }
+
+            // Otherwise (e.g., pending request, rejected, or no PostId), go to RequestDetailsPage
+            if (!string.IsNullOrWhiteSpace(_selected.RequestId))
             {
                 var nav = new Dictionary<string, object>
                 {
@@ -155,10 +221,10 @@ public partial class NotificationsSettingsPage : ContentPage
                 };
                 await Shell.Current.GoToAsync(nameof(RequestDetailsPage), nav);
             }
-            catch (Exception ex)
-            {
-                await DisplayAlert("Navigation", $"Unable to open details: {ex.Message}", "OK");
-            }
+        }
+        catch (Exception ex)
+        {
+            await DisplayAlert("Navigation", $"Unable to open details: {ex.Message}", "OK");
         }
     }
 
@@ -268,6 +334,12 @@ public partial class NotificationsSettingsPage : ContentPage
             if (!string.IsNullOrWhiteSpace(item.NotificationId))
             {
                 await _databaseService.DeleteNotificationAsync(_currentUserId, item.NotificationId);
+                
+                // Also delete from local cache to prevent "flash back"
+                if (_sqliteService != null)
+                {
+                    await _sqliteService.DeleteNotificationAsync(item.Source);
+                }
             }
             Notifications.Remove(item);
         }
@@ -320,13 +392,16 @@ public partial class NotificationsSettingsPage : ContentPage
     }
 }
 
-public class NotificationItem
+public class NotificationItem : INotifyPropertyChanged
 {
-    public NotificationItem(UserNotification source)
+    private readonly IFirebaseDatabaseService _databaseService;
+
+    public NotificationItem(UserNotification source, IFirebaseDatabaseService databaseService)
     {
         Source = source;
+        _databaseService = databaseService;
         NotificationId = source.NotificationId ?? Guid.NewGuid().ToString();
-        Title = BuildTitle(source);
+        // Title = BuildTitle(source); // Will be built after username is fetched
         LinkText = BuildLinkText(source);
         Status = BuildStatus(source);
         StatusColor = BuildStatusColor(source);
@@ -337,11 +412,20 @@ public class NotificationItem
         PostId = source.PostId ?? string.Empty;
         RequestId = source.RequestId ?? string.Empty;
         _isRead = source.IsRead;
+
+        // Start loading username in background
+        _ = LoadFromUsernameDisplayAsync();
     }
 
+    // Properties... (rest of the properties remain)
     public string NotificationId { get; }
     public UserNotification Source { get; }
-    public string Title { get; }
+    private string _title = string.Empty; // Make title settable for async update
+    public string Title
+    {
+        get => _title;
+        private set { if (_title != value) { _title = value; OnPropertyChanged(); } }
+    }
     public string LinkText { get; }
     public string Status { get; }
     public Color StatusColor { get; }
@@ -401,21 +485,52 @@ public class NotificationItem
     {
         get
         {
-            if (IsSelected) return Color.FromArgb("#E0D4FC"); // Darker Purple for Selected
+            if (IsSelected) return Color.FromArgb("#E5E7EB"); // Darker Gray for Selected
             if (!IsRead) return Colors.White; // White for Unread
-            return Color.FromArgb("#F3F4F6"); // Clearly Gray for Read
+            return Color.FromArgb("#F3F4F6"); // Light Gray for Read
         }
     }
 
     public Color CardBorderColor => IsSelected ? Color.FromArgb("#5B2EFF") : Color.FromArgb("#E5E7EB");
 
-    private string BuildTitle(UserNotification n)
+    private string _fromUsernameDisplay = "User"; // Default value
+    public string FromUsernameDisplay
     {
-        var name = n.FromUserName ?? "Someone";
+        get => _fromUsernameDisplay;
+        private set { if (_fromUsernameDisplay != value) { _fromUsernameDisplay = value; OnPropertyChanged(); OnPropertyChanged(nameof(Title)); } }
+    }
+
+    private async Task LoadFromUsernameDisplayAsync()
+    {
+        if (string.IsNullOrWhiteSpace(Source.FromUserId)) return;
+
+        if (_databaseService != null)
+        {
+            try
+            {
+                var profile = await _databaseService.GetUserProfileAsync(Source.FromUserId);
+                FromUsernameDisplay = profile?.Username ?? "User";
+            }
+            catch
+            {
+                FromUsernameDisplay = "User";
+            }
+        }
+        else
+        {
+            FromUsernameDisplay = "User";
+        }
+        // Update the Title property after username is loaded
+        Title = BuildTitle(Source, FromUsernameDisplay);
+    }
+
+    private string BuildTitle(UserNotification n, string fromUsername)
+    {
         var item = string.IsNullOrWhiteSpace(n.ItemTitle) ? "your item" : n.ItemTitle;
         return n.Type switch
         {
-            "request" => $"New request from {name} for \"{item}\"",
+            "request" => $"New request from {fromUsername} for \"{item}\"",
+            "status_update" => $"Request {n.Status}: {item}",
             _ => item
         };
     }
@@ -464,7 +579,7 @@ public class NotificationItem
     }
 
     public event PropertyChangedEventHandler? PropertyChanged;
-    private void OnPropertyChanged([CallerMemberName] string? name = null)
+    protected void OnPropertyChanged([CallerMemberName] string? name = null)
     {
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
     }

@@ -103,6 +103,9 @@
                                 FontAttributes="Bold"
                                 TextColor="#111827" />
                         </VerticalStackLayout>
+                        <Frame.GestureRecognizers>
+                            <TapGestureRecognizer Tapped="OnListingsStatsClicked" />
+                        </Frame.GestureRecognizers>
                     </Frame>
 
                     <Frame Grid.Column="1" BackgroundColor="White" CornerRadius="14" HasShadow="True" Padding="14">
@@ -115,6 +118,9 @@
                                 FontAttributes="Bold"
                                 TextColor="#111827" />
                         </VerticalStackLayout>
+                        <Frame.GestureRecognizers>
+                            <TapGestureRecognizer Tapped="OnCompletedStatsClicked" />
+                        </Frame.GestureRecognizers>
                     </Frame>
 
                     <Frame Grid.Column="2" BackgroundColor="White" CornerRadius="14" HasShadow="True" Padding="14">
@@ -127,6 +133,9 @@
                                 FontAttributes="Bold"
                                 TextColor="#111827" />
                         </VerticalStackLayout>
+                        <Frame.GestureRecognizers>
+                            <TapGestureRecognizer Tapped="OnSavedItemsStatsClicked" />
+                        </Frame.GestureRecognizers>
                     </Frame>
                 </Grid>
 
@@ -439,11 +448,29 @@
                         <VerticalStackLayout.GestureRecognizers>
                             <TapGestureRecognizer Tapped="OnNotificationNavTapped" NumberOfTapsRequired="1" />
                         </VerticalStackLayout.GestureRecognizers>
-                        <Image
-                            Source="https://img.icons8.com/ios/50/ffffff/appointment-reminders--v1.png"
-                            WidthRequest="24"
-                            HeightRequest="24"
-                            Aspect="AspectFit" />
+                        
+                        <Grid>
+                            <Image
+                                Source="https://img.icons8.com/ios/50/ffffff/appointment-reminders--v1.png"
+                                WidthRequest="24"
+                                HeightRequest="24"
+                                Aspect="AspectFit" />
+                            
+                            <!-- Red Dot for unread notifications -->
+                            <Frame
+                                CornerRadius="100"
+                                WidthRequest="1"
+                                HeightRequest="1"
+                                Padding="0"
+                                BackgroundColor="#FF3B30"
+                                BorderColor="White"
+                                HasShadow="False"
+                                VerticalOptions="Start"
+                                HorizontalOptions="End"
+                                Margin="0,-7,-7,0"
+                                IsVisible="{Binding HasUnreadNotifications}" />
+                        </Grid>
+                        
                         <Label Text="Notify" FontSize="11" TextColor="White" HorizontalOptions="Center" />
                     </VerticalStackLayout>
 

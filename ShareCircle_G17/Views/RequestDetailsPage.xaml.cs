@@ -139,12 +139,22 @@ public partial class RequestDetailsPage : ContentPage, IQueryAttributable
             try
             {
                 var profile = await _databaseService.GetUserProfileAsync(req.RequesterId);
-                if (profile != null && !string.IsNullOrWhiteSpace(profile.ProfileImageUrl))
+                if (profile != null)
                 {
-                    RequesterImage.Source = profile.ProfileImageUrl;
-                    RequesterImage.IsVisible = true;
-                    RequesterInitialLabel.IsVisible = false;
-                    return;
+                    // 1. Update Username if available (fix for missing name)
+                    if (!string.IsNullOrWhiteSpace(profile.Username))
+                    {
+                        RequesterLabel.Text = profile.Username;
+                    }
+
+                    // 2. Update Avatar if available
+                    if (!string.IsNullOrWhiteSpace(profile.ProfileImageUrl))
+                    {
+                        RequesterImage.Source = profile.ProfileImageUrl;
+                        RequesterImage.IsVisible = true;
+                        RequesterInitialLabel.IsVisible = false;
+                        return;
+                    }
                 }
             }
             catch
@@ -155,7 +165,9 @@ public partial class RequestDetailsPage : ContentPage, IQueryAttributable
 
         RequesterImage.IsVisible = false;
         RequesterInitialLabel.IsVisible = true;
-        var initial = string.IsNullOrWhiteSpace(req.RequesterName) ? "R" : req.RequesterName.Substring(0, 1).ToUpper();
+        var initial = string.IsNullOrWhiteSpace(RequesterLabel.Text) || RequesterLabel.Text == "Unknown User"
+            ? "R" 
+            : RequesterLabel.Text.Substring(0, 1).ToUpper();
         RequesterInitialLabel.Text = initial;
     }
 
@@ -166,7 +178,7 @@ public partial class RequestDetailsPage : ContentPage, IQueryAttributable
 
     private async void OnAcceptClicked(object sender, EventArgs e)
     {
-        await UpdateStatusAsync("completed");
+        await UpdateStatusAsync("approved");
     }
 
     private async void OnRejectClicked(object sender, EventArgs e)

@@ -16,6 +16,7 @@ namespace ShareCircle_G17.Views;
 public partial class ExploreMapPage : ContentPage
 {
     private readonly IFirebaseDatabaseService _databaseService;
+    private readonly IFirebaseAuthService _authService;
     private DonationPost? _selectedPost;
     private Location? _myLocation;
     private string? _currentCity;
@@ -34,10 +35,31 @@ public partial class ExploreMapPage : ContentPage
     private readonly Random _random = new();
     private bool _isFirstLoad = true;
 
-    public ExploreMapPage(IFirebaseDatabaseService databaseService)
+    public static readonly BindableProperty HasUnreadNotificationsProperty =
+        BindableProperty.Create(nameof(HasUnreadNotifications), typeof(bool), typeof(ExploreMapPage), defaultValue: false);
+
+    public bool HasUnreadNotifications
+    {
+        get => (bool)GetValue(HasUnreadNotificationsProperty);
+        set => SetValue(HasUnreadNotificationsProperty, value);
+    }
+
+    public ExploreMapPage(
+        IFirebaseDatabaseService databaseService,
+        IFirebaseAuthService authService)
     {
         InitializeComponent();
         _databaseService = databaseService;
+        _authService = authService;
+        BindingContext = this;
+    }
+
+    public ExploreMapPage()
+    {
+        InitializeComponent();
+        _databaseService = new FirebaseDatabaseService();
+        _authService = new FirebaseAuthService();
+        BindingContext = this;
     }
 
     protected override async void OnAppearing()
@@ -47,6 +69,30 @@ public partial class ExploreMapPage : ContentPage
         {
             await LoadMapDataAsync(isRefresh: false);
             _isFirstLoad = false;
+        }
+        await CheckUnreadNotificationsAsync();
+    }
+
+    private async Task CheckUnreadNotificationsAsync()
+    {
+        try
+        {
+            if (_authService == null || _databaseService == null) return;
+
+            var currentUser = await _authService.GetCurrentUserAsync();
+            if (currentUser != null && !string.IsNullOrEmpty(currentUser.UserId))
+            {
+                // Only check online for now
+                if (Connectivity.Current.NetworkAccess == NetworkAccess.Internet)
+                {
+                    var notifications = await _databaseService.GetNotificationsAsync(currentUser.UserId);
+                    HasUnreadNotifications = notifications != null && notifications.Any(n => !n.IsRead);
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"CheckUnreadNotificationsAsync error: {ex.Message}");
         }
     }
 

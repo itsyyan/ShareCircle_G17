@@ -144,7 +144,7 @@
                         Margin="0,5,0,0">
                         <Label.FormattedText>
                             <FormattedString>
-                                <Span Text="Already have an account? " TextColor="#E0E0E0" FontSize="13" />
+                                <Span Text="Already have an account? " TextColor="#5B2EFF" FontSize="13" />
                                 <Span Text="Sign In" TextColor="White" FontSize="13" FontAttributes="Bold" TextDecorations="Underline" />
                             </FormattedString>
                         </Label.FormattedText>

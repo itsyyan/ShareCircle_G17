@@ -148,6 +148,17 @@ class FirebaseService {
     // Delete post
     async deletePost(postId) {
         try {
+            // 1. Delete associated requests first
+            const requests = await firebaseRequest('/requests');
+            if (requests) {
+                const requestDeletions = Object.entries(requests)
+                    .filter(([_, req]) => req.PostId === postId)
+                    .map(([key, _]) => firebaseRequest(`/requests/${key}`, 'DELETE'));
+                
+                await Promise.all(requestDeletions);
+            }
+
+            // 2. Delete the post
             await firebaseRequest(`/donations/${postId}`, 'DELETE');
 
             // Update cache

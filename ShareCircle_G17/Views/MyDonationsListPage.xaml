@@ -207,6 +207,9 @@
                                 BackgroundColor="White"
                                 CornerRadius="20"
                                 HasShadow="False">
+                                <Frame.GestureRecognizers>
+                                    <TapGestureRecognizer Tapped="OnCardTapped" CommandParameter="{Binding .}" />
+                                </Frame.GestureRecognizers>
 
                                 <Grid RowDefinitions="180,Auto,Auto,Auto" RowSpacing="0">
 
@@ -223,7 +226,7 @@
                                                 HorizontalOptions="Fill"
                                                 VerticalOptions="Fill" />
 
-                                            <!-- Status Badge (top-left) -->
+                                            <!-- Status Badge (Top-Left) -->
                                             <Frame
                                                 Padding="12,6"
                                                 CornerRadius="12"
@@ -239,13 +242,30 @@
                                                     TextColor="White" />
                                             </Frame>
 
-                                            <!-- Time Badge (top-right) -->
+                                            <!-- Request Badge (Top-Right) - Visible only if requests exist -->
+                                            <Frame
+                                                Padding="10,6"
+                                                CornerRadius="12"
+                                                BackgroundColor="#EF4444"
+                                                HasShadow="False"
+                                                VerticalOptions="Start"
+                                                HorizontalOptions="End"
+                                                Margin="12"
+                                                IsVisible="{Binding HasPendingRequests}">
+                                                <HorizontalStackLayout Spacing="4">
+                                                    <Label Text="🔔" FontSize="12" TextColor="White" VerticalOptions="Center" />
+                                                    <Label Text="{Binding PendingRequestCount}" FontSize="12" FontAttributes="Bold" TextColor="White" VerticalOptions="Center" />
+                                                    <Label Text="Requests" FontSize="12" FontAttributes="Bold" TextColor="White" VerticalOptions="Center" />
+                                                </HorizontalStackLayout>
+                                            </Frame>
+
+                                            <!-- Time Badge (Bottom-Right) -->
                                             <Frame
                                                 Padding="10,6"
                                                 CornerRadius="12"
                                                 BackgroundColor="#CC000000"
                                                 HasShadow="False"
-                                                VerticalOptions="Start"
+                                                VerticalOptions="End"
                                                 HorizontalOptions="End"
                                                 Margin="12">
                                                 <Label
@@ -299,51 +319,49 @@
                                     </HorizontalStackLayout>
 
                                     <!-- Action Buttons -->
-                                    <Grid Grid.Row="3" Padding="12,12,12,14" ColumnSpacing="10">
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="{Binding EditColumnWidth}" />
-                                            <ColumnDefinition Width="{Binding CompleteColumnWidth}" />
-                                            <ColumnDefinition Width="*" />
-                                        </Grid.ColumnDefinitions>
-
-                                        <!-- Edit Button (hidden when completed) -->
+                                    <Grid Grid.Row="3" Padding="12,12,12,14" ColumnDefinitions="*,Auto,Auto" ColumnSpacing="8">
+                                        
+                                        <!-- Complete / Reopen Button (Primary) -->
                                         <Button
                                             Grid.Column="0"
-                                            Text="✎  Edit"
-                                            BackgroundColor="#5B2EFF"
-                                            TextColor="White"
+                                            Text="{Binding CompleteButtonText}"
+                                            BackgroundColor="{Binding CompleteButtonBackground}"
+                                            TextColor="{Binding CompleteButtonTextColor}"
                                             FontSize="14"
                                             FontAttributes="Bold"
                                             CornerRadius="12"
                                             HeightRequest="44"
+                                            Clicked="OnCompleteClicked"
+                                            CommandParameter="{Binding .}" />
+
+                                        <!-- Edit Button (Compact) -->
+                                        <Button
+                                            Grid.Column="1"
+                                            Text="✎"
+                                            BackgroundColor="#F3F4F6"
+                                            TextColor="#4B5563"
+                                            FontSize="20"
+                                            FontAttributes="Bold"
+                                            CornerRadius="12"
+                                            WidthRequest="44"
+                                            HeightRequest="44"
+                                            Padding="0"
                                             IsVisible="{Binding CanEdit}"
                                             Clicked="OnEditClicked"
                                             CommandParameter="{Binding .}" />
 
-                                        <!-- Complete Button (hidden when completed) -->
-                                        <Button
-                                            Grid.Column="1"
-                                            Text="✓  Complete"
-                                            BackgroundColor="#DCFCE7"
-                                            TextColor="#166534"
-                                            FontSize="14"
-                                            FontAttributes="Bold"
-                                            CornerRadius="12"
-                                            HeightRequest="44"
-                                            IsVisible="{Binding CanEdit}"
-                                            Clicked="OnCompleteClicked"
-                                            CommandParameter="{Binding .}" />
-
-                                        <!-- Delete Button -->
+                                        <!-- Delete Button (Compact) -->
                                         <Button
                                             Grid.Column="2"
-                                            Text="✕  Delete"
+                                            Text="✕"
                                             BackgroundColor="#FEE2E2"
                                             TextColor="#DC2626"
-                                            FontSize="14"
+                                            FontSize="20"
                                             FontAttributes="Bold"
                                             CornerRadius="12"
+                                            WidthRequest="44"
                                             HeightRequest="44"
+                                            Padding="0"
                                             Clicked="OnDeleteClicked"
                                             CommandParameter="{Binding .}" />
                                     </Grid>

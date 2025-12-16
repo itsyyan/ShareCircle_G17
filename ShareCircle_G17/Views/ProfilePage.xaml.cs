@@ -15,6 +15,15 @@ namespace ShareCircle_G17.Views
         private readonly IFirebaseDatabaseService _databaseService;
         private readonly ISQLiteDatabaseService _sqliteService;
 
+        public static readonly BindableProperty HasUnreadNotificationsProperty =
+            BindableProperty.Create(nameof(HasUnreadNotifications), typeof(bool), typeof(ProfilePage), defaultValue: false);
+
+        public bool HasUnreadNotifications
+        {
+            get => (bool)GetValue(HasUnreadNotificationsProperty);
+            set => SetValue(HasUnreadNotificationsProperty, value);
+        }
+
         public ProfilePage(
             IFirebaseAuthService authService, 
             IFirebaseDatabaseService databaseService,
@@ -24,6 +33,7 @@ namespace ShareCircle_G17.Views
             _authService = authService;
             _databaseService = databaseService;
             _sqliteService = sqliteService;
+            BindingContext = this;
         }
 
         protected override async void OnAppearing()
@@ -31,6 +41,30 @@ namespace ShareCircle_G17.Views
             base.OnAppearing();
             LoadSettings();
             await LoadUserProfile();
+            await CheckUnreadNotificationsAsync();
+        }
+
+        private async Task CheckUnreadNotificationsAsync()
+        {
+            try
+            {
+                if (_authService == null || _databaseService == null) return;
+
+                var currentUser = await _authService.GetCurrentUserAsync();
+                if (currentUser != null && !string.IsNullOrEmpty(currentUser.UserId))
+                {
+                    // Only check online for now
+                    if (Connectivity.Current.NetworkAccess == NetworkAccess.Internet)
+                    {
+                        var notifications = await _databaseService.GetNotificationsAsync(currentUser.UserId);
+                        HasUnreadNotifications = notifications != null && notifications.Any(n => !n.IsRead);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"CheckUnreadNotificationsAsync error: {ex.Message}");
+            }
         }
 
         private void LoadSettings()
@@ -128,8 +162,7 @@ namespace ShareCircle_G17.Views
 
                 if (useCacheOnly)
                 {
-                    var allDonations = await _sqliteService.GetAllDonationsAsync();
-                    var userPosts = allDonations.Where(d => d.UserId == userId).ToList();
+                    var userPosts = await _sqliteService.GetDonationsByUserIdAsync(userId);
                     
                     listingsCount = userPosts.Count;
                     completedCount = userPosts.Count(p => string.Equals(p.Status, "Completed", StringComparison.OrdinalIgnoreCase));
@@ -145,6 +178,12 @@ namespace ShareCircle_G17.Views
                     listingsCount = userPosts.Count;
                     completedCount = userPosts.Count(p => string.Equals(p.Status, "Completed", StringComparison.OrdinalIgnoreCase));
                     savedCount = savedItems.Count;
+
+                    // Sync fetched data to SQLite Cache
+                    foreach (var post in userPosts)
+                    {
+                        await _sqliteService.SaveDonationAsync(post);
+                    }
 
                     var savedIds = savedItems.Where(i => !string.IsNullOrEmpty(i.PostId)).Select(i => i.PostId!).ToList();
                     await _sqliteService.SyncSavedPostIdsAsync(userId, savedIds);
@@ -203,6 +242,26 @@ namespace ShareCircle_G17.Views
         }
 
         private async void OnSavedItemsClicked(object sender, EventArgs e)
+        {
+            await Shell.Current.GoToAsync(nameof(SavedItemsPage));
+        }
+
+        private async void OnListingsStatsClicked(object sender, EventArgs e)
+        {
+            await Shell.Current.GoToAsync(nameof(MyDonationsListPage));
+        }
+
+        private async void OnCompletedStatsClicked(object sender, EventArgs e)
+        {
+            // Navigate to MyDonationsListPage with a query parameter to filter by "Completed"
+            var navigationParameters = new Dictionary<string, object>
+            {
+                { "Filter", "Completed" }
+            };
+            await Shell.Current.GoToAsync(nameof(MyDonationsListPage), navigationParameters);
+        }
+
+        private async void OnSavedItemsStatsClicked(object sender, EventArgs e)
         {
             await Shell.Current.GoToAsync(nameof(SavedItemsPage));
         }
@@ -272,6 +331,12 @@ namespace ShareCircle_G17.Views
                         $"Cache cleared successfully!\n\nDeleted {deletedCount} file(s)\nFreed up {cacheSizeText}",
                         "OK"
                     );
+
+                    // Also clear database cache
+                    if (_sqliteService != null)
+                    {
+                        await _sqliteService.ClearAllDonationsAsync();
+                    }
                 }
             }
             catch (Exception ex)

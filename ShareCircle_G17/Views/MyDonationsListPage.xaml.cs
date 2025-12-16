@@ -12,14 +12,14 @@ using ShareCircle_G17.Services;
 
 namespace ShareCircle_G17.Views
 {
-    public partial class MyDonationsListPage : ContentPage
+    public partial class MyDonationsListPage : ContentPage, IQueryAttributable
     {
         private readonly IFirebaseAuthService? _authService;
         private readonly IFirebaseDatabaseService? _databaseService;
         private readonly ISQLiteDatabaseService? _sqliteService;
         private ObservableCollection<MyDonationItem> _donations;
         private List<MyDonationItem> _allDonations = new();
-        private string _currentFilter = "Available";
+        private string _currentFilter = "Available"; // Default filter
         private int _availableCount;
         private int _completedCount;
         private CancellationTokenSource? _loadingCts;
@@ -37,6 +37,7 @@ namespace ShareCircle_G17.Views
             _sqliteService = sqliteDatabaseService;
             _donations = new ObservableCollection<MyDonationItem>();
             DonationsCollectionView.ItemsSource = _donations;
+            BindingContext = this; // Ensure BindingContext is set
         }
 
         public MyDonationsListPage()
@@ -44,6 +45,16 @@ namespace ShareCircle_G17.Views
             InitializeComponent();
             _donations = new ObservableCollection<MyDonationItem>();
             DonationsCollectionView.ItemsSource = _donations;
+            BindingContext = this; // Ensure BindingContext is set
+        }
+
+        public void ApplyQueryAttributes(IDictionary<string, object> query)
+        {
+            if (query.TryGetValue("Filter", out object filterValue) && filterValue is string filterString)
+            {
+                _currentFilter = filterString;
+                // Since OnAppearing runs after this, the filter will be applied there.
+            }
         }
 
         protected override async void OnAppearing()
@@ -77,6 +88,8 @@ namespace ShareCircle_G17.Views
 
                 // First, load from SQLite cache
                 var loadedFromCache = await LoadFromCacheAsync(currentUser.UserId);
+                // The filter (_currentFilter) set by ApplyQueryAttributes will be used by PopulateDonationItems -> ApplyFilter
+
                 if (loadedFromCache)
                 {
                     // Show cached counts/cards immediately while syncing
@@ -118,6 +131,10 @@ namespace ShareCircle_G17.Views
                 if (userDonations.Count == 0) return false;
 
                 PopulateDonationItems(userDonations);
+
+                // Fetch cached request counts immediately
+                _ = UpdatePendingRequestCountsAsync(onlyCache: true);
+
                 loaded = true;
                 System.Diagnostics.Debug.WriteLine($"MyDonationsListPage: Loaded {userDonations.Count} donations from cache");
             }
@@ -147,11 +164,72 @@ namespace ShareCircle_G17.Views
 
                 // Update UI
                 PopulateDonationItems(userDonations);
+
+                // Fetch pending requests for these donations (full sync)
+                _ = UpdatePendingRequestCountsAsync(onlyCache: false);
+
                 System.Diagnostics.Debug.WriteLine($"MyDonationsListPage: Synced {userDonations.Count} donations from Firebase");
             }
             catch (Exception ex)
             {
                 System.Diagnostics.Debug.WriteLine($"SyncFromFirebaseAsync error: {ex.Message}");
+            }
+        }
+
+        private async Task UpdatePendingRequestCountsAsync(bool onlyCache = false)
+        {
+            // Clone list to avoid modification issues during iteration
+            var itemsToUpdate = _allDonations.ToList();
+
+            foreach (var item in itemsToUpdate)
+            {
+                try
+                {
+                    // 1. Try Local Cache First
+                    if (_sqliteService != null)
+                    {
+                        var cachedRequests = await _sqliteService.GetRequestsForPostAsync(item.PostId);
+                        if (cachedRequests != null && cachedRequests.Count > 0)
+                        {
+                            var cachedPending = cachedRequests.Where(r => string.Equals(r.Status, "Pending", StringComparison.OrdinalIgnoreCase)).ToList();
+                            
+                            MainThread.BeginInvokeOnMainThread(() =>
+                            {
+                                item.PendingRequestCount = cachedPending.Count;
+                                item.FirstPendingRequestId = cachedPending.FirstOrDefault()?.RequestId;
+                            });
+                        }
+                    }
+
+                    if (onlyCache) continue;
+
+                    // 2. Fetch from Firebase
+                    if (_databaseService != null)
+                    {
+                        var requests = await _databaseService.GetDonationRequestsForPostAsync(item.PostId);
+                        var pending = requests.Where(r => string.Equals(r.Status, "Pending", StringComparison.OrdinalIgnoreCase)).ToList();
+
+                        // Update UI
+                        MainThread.BeginInvokeOnMainThread(() =>
+                        {
+                            item.PendingRequestCount = pending.Count;
+                            item.FirstPendingRequestId = pending.FirstOrDefault()?.RequestId;
+                        });
+
+                        // 3. Update Cache
+                        if (_sqliteService != null)
+                        {
+                            foreach (var req in requests)
+                            {
+                                await _sqliteService.SaveRequestAsync(req);
+                            }
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Debug.WriteLine($"Failed to load requests for post {item.PostId}: {ex.Message}");
+                }
             }
         }
 
@@ -318,6 +396,27 @@ namespace ShareCircle_G17.Views
             if (sender is Button btn && btn.CommandParameter is MyDonationItem donation)
             {
                 await DeleteDonationAsync(donation);
+            }
+        }
+
+        private async void OnCardTapped(object? sender, TappedEventArgs e)
+        {
+            if (e.Parameter is MyDonationItem donation)
+            {
+                if (donation.HasPendingRequests && !string.IsNullOrWhiteSpace(donation.FirstPendingRequestId))
+                {
+                    // If requests exist, jump to the request details (first pending)
+                    var nav = new Dictionary<string, object>
+                    {
+                        { "RequestId", donation.FirstPendingRequestId }
+                    };
+                    await Shell.Current.GoToAsync(nameof(RequestDetailsPage), nav);
+                }
+                else
+                {
+                    // Otherwise, just view the product details (or edit)
+                    await Shell.Current.GoToAsync($"{nameof(ProductDetailsPage)}?PostId={donation.PostId}");
+                }
             }
         }
 
@@ -640,6 +739,29 @@ namespace ShareCircle_G17.Views
         public Color CompleteButtonTextColor => Status?.ToLower() == "completed"
             ? Color.FromArgb("#B45309")  // Dark amber
             : Color.FromArgb("#166534"); // Dark green
+
+        // Pending requests logic
+        private int _pendingRequestCount;
+        public int PendingRequestCount
+        {
+            get => _pendingRequestCount;
+            set
+            {
+                if (_pendingRequestCount != value)
+                {
+                    _pendingRequestCount = value;
+                    OnPropertyChanged();
+                    OnPropertyChanged(nameof(HasPendingRequests));
+                    OnPropertyChanged(nameof(RequestsButtonText));
+                }
+            }
+        }
+
+        public bool HasPendingRequests => PendingRequestCount > 0;
+        
+        public string RequestsButtonText => $"Requests ({PendingRequestCount})";
+
+        public string? FirstPendingRequestId { get; set; }
 
         public event PropertyChangedEventHandler? PropertyChanged;
         protected void OnPropertyChanged([CallerMemberName] string? name = null)

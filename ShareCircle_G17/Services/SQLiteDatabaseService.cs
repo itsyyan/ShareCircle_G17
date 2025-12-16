@@ -33,6 +33,8 @@ namespace ShareCircle_G17.Services
             await _database.CreateTableAsync<DonationRequest>();
             await _database.CreateTableAsync<SavedPostEntry>();
             await _database.CreateTableAsync<Address>();
+            await _database.CreateTableAsync<UserNotification>();
+            await _database.CreateTableAsync<SearchHistory>();
             await EnsureUserColumnAsync("LocalPasswordHash", "TEXT");
             await EnsureUserColumnAsync("LocalPasswordSalt", "TEXT");
         }
@@ -157,6 +159,15 @@ namespace ShareCircle_G17.Services
                 .ToListAsync();
         }
 
+        public async Task<List<DonationPost>> GetDonationsByUserIdAsync(string userId)
+        {
+            await InitializeDatabaseAsync();
+            return await _database!.Table<DonationPost>()
+                .Where(d => d.UserId == userId)
+                .OrderByDescending(d => d.CreatedAt)
+                .ToListAsync();
+        }
+
         public async Task<List<DonationPost>> GetDonationsByCategoryAsync(string category)
         {
             await InitializeDatabaseAsync();
@@ -277,6 +288,100 @@ namespace ShareCircle_G17.Services
                 .ToListAsync();
         }
 
+        public async Task<List<DonationRequest>> GetRequestsForPostAsync(string postId)
+        {
+            await InitializeDatabaseAsync();
+            return await _database!.Table<DonationRequest>()
+                .Where(r => r.PostId == postId)
+                .OrderByDescending(r => r.RequestedAt)
+                .ToListAsync();
+        }
+
+        // Notification operations
+        public async Task<List<UserNotification>> GetNotificationsAsync(string userId)
+        {
+            await InitializeDatabaseAsync();
+            return await _database!.Table<UserNotification>()
+                .Where(n => n.UserId == userId)
+                .OrderByDescending(n => n.CreatedAt)
+                .ToListAsync();
+        }
+
+        public async Task<int> SaveNotificationAsync(UserNotification notification)
+        {
+            await InitializeDatabaseAsync();
+            var existing = await _database!.Table<UserNotification>()
+                .Where(n => n.NotificationId == notification.NotificationId)
+                .FirstOrDefaultAsync();
+
+            if (existing != null)
+            {
+                return await _database.UpdateAsync(notification);
+            }
+            else
+            {
+                return await _database.InsertAsync(notification);
+            }
+        }
+
+        public async Task<int> DeleteNotificationAsync(UserNotification notification)
+        {
+            await InitializeDatabaseAsync();
+            return await _database!.DeleteAsync(notification);
+        }
+
+        // Search History operations
+        public async Task<List<SearchHistory>> GetSearchHistoryAsync(string userId)
+        {
+            await InitializeDatabaseAsync();
+            return await _database!.Table<SearchHistory>()
+                .Where(h => h.UserId == userId)
+                .OrderByDescending(h => h.CreatedAt)
+                .ToListAsync();
+        }
+
+        public async Task AddSearchHistoryAsync(string userId, string keyword)
+        {
+            await InitializeDatabaseAsync();
+            if (string.IsNullOrWhiteSpace(keyword)) return;
+
+            var normalized = keyword.Trim();
+
+            // Check if exists
+            var existing = await _database!.Table<SearchHistory>()
+                .Where(h => h.UserId == userId && h.Keyword == normalized)
+                .FirstOrDefaultAsync();
+
+            if (existing != null)
+            {
+                existing.CreatedAt = DateTime.UtcNow;
+                await _database.UpdateAsync(existing);
+            }
+            else
+            {
+                var history = new SearchHistory
+                {
+                    UserId = userId,
+                    Keyword = normalized,
+                    CreatedAt = DateTime.UtcNow
+                };
+                await _database.InsertAsync(history);
+            }
+        }
+
+        public async Task ClearSearchHistoryAsync(string userId)
+        {
+            await InitializeDatabaseAsync();
+            var items = await _database!.Table<SearchHistory>()
+                .Where(h => h.UserId == userId)
+                .ToListAsync();
+            
+            foreach (var item in items)
+            {
+                await _database.DeleteAsync(item);
+            }
+        }
+
         // Database operations
         public async Task ClearAllDataAsync()
         {
@@ -286,6 +391,8 @@ namespace ShareCircle_G17.Services
             await _database!.DeleteAllAsync<DonationRequest>();
             await _database!.DeleteAllAsync<SavedPostEntry>();
             await _database!.DeleteAllAsync<Address>();
+            await _database!.DeleteAllAsync<UserNotification>();
+            await _database!.DeleteAllAsync<SearchHistory>();
         }
 
         private async Task EnsureUserColumnAsync(string columnName, string sqlType)

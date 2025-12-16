@@ -9,14 +9,23 @@ namespace ShareCircle_G17.Views
     {
         private readonly IFirebaseAuthService? _authService;
         private readonly IFirebaseDatabaseService? _databaseService;
+        private readonly ISQLiteDatabaseService? _sqliteService;
         private ObservableCollection<RequestItemViewModel> _requests;
+        private List<RequestItemViewModel> _allRequests = new();
+        private string _currentFilter = "Pending";
+        private int _pendingCount;
+        private int _completedCount;
 
         // Constructor with dependency injection
-        public MyRequestsPage(IFirebaseAuthService authService, IFirebaseDatabaseService databaseService)
+        public MyRequestsPage(
+            IFirebaseAuthService authService, 
+            IFirebaseDatabaseService databaseService,
+            ISQLiteDatabaseService sqliteService)
         {
             InitializeComponent();
             _authService = authService;
             _databaseService = databaseService;
+            _sqliteService = sqliteService;
             _requests = new ObservableCollection<RequestItemViewModel>();
             RequestsCollectionView.ItemsSource = _requests;
         }
@@ -39,16 +48,12 @@ namespace ShareCircle_G17.Views
         {
             try
             {
-                _requests.Clear();
-
-                // Check if services are available
-                if (_authService == null || _databaseService == null)
+                if (_authService == null)
                 {
                     ShowEmptyState();
                     return;
                 }
 
-                // Get current user
                 var currentUser = await _authService.GetCurrentUserAsync();
                 if (currentUser == null || string.IsNullOrEmpty(currentUser.UserId))
                 {
@@ -57,65 +62,237 @@ namespace ShareCircle_G17.Views
                     return;
                 }
 
-                // Get user's requests from database
-                var userRequests = await _databaseService.GetUserRequestsAsync(currentUser.UserId);
-
-                System.Diagnostics.Debug.WriteLine($"MyRequests - Found {userRequests?.Count ?? 0} requests");
-
-                if (userRequests == null || userRequests.Count == 0)
+                // 1. Load from SQLite Cache
+                if (_sqliteService != null)
                 {
-                    ShowEmptyState();
-                    return;
-                }
-
-                // Convert to view models for display
-                foreach (var request in userRequests)
-                {
-                    string donorImage = "https://img.icons8.com/color/48/user-male-circle--v1.png"; // Default
-                    
-                    // Try to fetch donor's actual profile image
-                    if (!string.IsNullOrEmpty(request.DonorId))
+                    var allAssociatedRequests = await _sqliteService.GetRequestsByUserAsync(currentUser.UserId);
+                    if (allAssociatedRequests != null && allAssociatedRequests.Count > 0)
                     {
-                        try
+                        // Filter to show only requests MADE by the user (not received)
+                        var myOutgoingRequests = allAssociatedRequests
+                            .Where(r => r.RequesterId == currentUser.UserId)
+                            .ToList();
+
+                        if (myOutgoingRequests.Count > 0)
                         {
-                            var donorProfile = await _databaseService.GetUserProfileAsync(request.DonorId);
-                            if (donorProfile != null && !string.IsNullOrEmpty(donorProfile.ProfileImageUrl))
-                            {
-                                donorImage = donorProfile.ProfileImageUrl;
-                            }
-                        }
-                        catch
-                        {
-                            // Ignore error, keep default
+                            await PopulateRequests(myOutgoingRequests);
                         }
                     }
-
-                    _requests.Add(new RequestItemViewModel
-                    {
-                        RequestId = request.RequestId ?? string.Empty,
-                        PostId = request.PostId ?? string.Empty,
-                        ItemTitle = request.ItemTitle ?? "Untitled",
-                        ItemDescription = request.ItemDescription ?? string.Empty,
-                        ItemImageUrl = request.ItemImageUrl ?? string.Empty,
-                        DonorName = request.DonorName ?? "Unknown",
-                        DonorImageUrl = donorImage,
-                        Status = request.Status ?? "Pending",
-                        RequestedAt = request.RequestedAt,
-                        Message = request.Message ?? string.Empty
-                    });
                 }
 
-                // Show requests list
-                EmptyStateLayout.IsVisible = false;
-                RequestsCollectionView.IsVisible = true;
+                // 2. Sync from Firebase (if online)
+                if (_databaseService != null && Connectivity.Current.NetworkAccess == NetworkAccess.Internet)
+                {
+                    var userRequests = await _databaseService.GetUserRequestsAsync(currentUser.UserId);
+
+                    System.Diagnostics.Debug.WriteLine($"MyRequests - Found {userRequests?.Count ?? 0} requests from Firebase");
+
+                    if (userRequests != null && userRequests.Count > 0)
+                    {
+                        await PopulateRequests(userRequests);
+
+                        // Cache to SQLite
+                        if (_sqliteService != null)
+                        {
+                            foreach (var req in userRequests)
+                            {
+                                await _sqliteService.SaveRequestAsync(req);
+                            }
+                        }
+                    }
+                    else if (_allRequests.Count == 0)
+                    {
+                        ShowEmptyState();
+                    }
+                }
+                else if (_allRequests.Count == 0)
+                {
+                    ShowEmptyState();
+                }
             }
             catch (Exception ex)
             {
                 System.Diagnostics.Debug.WriteLine($"LoadMyRequestsAsync - Error: {ex.Message}");
-                await DisplayAlert("Error", $"Failed to load requests: {ex.Message}", "OK");
-                ShowEmptyState();
+                // Only show alert if list is empty
+                if (_requests.Count == 0)
+                {
+                    await DisplayAlert("Error", $"Failed to load requests: {ex.Message}", "OK");
+                    ShowEmptyState();
+                }
             }
         }
+
+        private async Task PopulateRequests(List<DonationRequest> newRequests)
+        {
+            // Update _allRequests logic (similar to smart merge but for the master list)
+            var newIds = new HashSet<string>(newRequests.Select(r => r.RequestId));
+            var toRemove = _allRequests.Where(vm => !newIds.Contains(vm.RequestId)).ToList();
+            foreach (var item in toRemove) _allRequests.Remove(item);
+
+            var pendingRequestsToCheck = new List<RequestItemViewModel>();
+
+            foreach (var req in newRequests)
+            {
+                var existing = _allRequests.FirstOrDefault(vm => vm.RequestId == req.RequestId);
+                
+                string donorImage = "https://img.icons8.com/color/48/user-male-circle--v1.png";
+                if (!string.IsNullOrEmpty(req.DonorId) && _databaseService != null && Connectivity.Current.NetworkAccess == NetworkAccess.Internet)
+                {
+                    try
+                    {
+                        var donorProfile = await _databaseService.GetUserProfileAsync(req.DonorId);
+                        if (donorProfile != null && !string.IsNullOrEmpty(donorProfile.ProfileImageUrl))
+                        {
+                            donorImage = donorProfile.ProfileImageUrl;
+                        }
+                    }
+                    catch { /* Ignore */ }
+                }
+
+                if (existing != null)
+                {
+                    // Update properties
+                    if (existing.Status != req.Status) existing.Status = req.Status ?? "Pending";
+                    if (existing.ItemTitle != req.ItemTitle) existing.ItemTitle = req.ItemTitle ?? "Untitled";
+                    if (existing.ItemImageUrl != req.ItemImageUrl) existing.ItemImageUrl = req.ItemImageUrl ?? string.Empty;
+                    if (existing.DonorName != req.DonorName) existing.DonorName = req.DonorName ?? "Unknown";
+                    if (existing.DonorImageUrl != donorImage) existing.DonorImageUrl = donorImage;
+                    
+                    if (string.Equals(existing.Status, "Pending", StringComparison.OrdinalIgnoreCase))
+                    {
+                        pendingRequestsToCheck.Add(existing);
+                    }
+                }
+                else
+                {
+                    var newItem = new RequestItemViewModel
+                    {
+                        RequestId = req.RequestId ?? string.Empty,
+                        PostId = req.PostId ?? string.Empty,
+                        ItemTitle = req.ItemTitle ?? "Untitled",
+                        ItemDescription = req.ItemDescription ?? string.Empty,
+                        ItemImageUrl = req.ItemImageUrl ?? string.Empty,
+                        DonorName = req.DonorName ?? "Unknown",
+                        DonorImageUrl = donorImage,
+                        Status = req.Status ?? "Pending",
+                        RequestedAt = req.RequestedAt,
+                        Message = req.Message ?? string.Empty
+                    };
+                    _allRequests.Add(newItem);
+
+                    if (string.Equals(newItem.Status, "Pending", StringComparison.OrdinalIgnoreCase))
+                    {
+                        pendingRequestsToCheck.Add(newItem);
+                    }
+                }
+            }
+
+            // Recount
+            _pendingCount = _allRequests.Count(r => string.Equals(r.Status, "Pending", StringComparison.OrdinalIgnoreCase));
+            _completedCount = _allRequests.Count - _pendingCount;
+
+            ApplyFilter(_currentFilter);
+
+            // 3. Background check for deleted posts (orphaned requests)
+            if (pendingRequestsToCheck.Count > 0 && _databaseService != null && Connectivity.Current.NetworkAccess == NetworkAccess.Internet)
+            {
+                _ = Task.Run(async () =>
+                {
+                    foreach (var item in pendingRequestsToCheck)
+                    {
+                        try
+                        {
+                            var post = await _databaseService.GetDonationPostAsync(item.PostId);
+                            if (post == null)
+                            {
+                                MainThread.BeginInvokeOnMainThread(() =>
+                                {
+                                    item.Status = "Item Deleted";
+                                    // Refresh counts and filter if needed
+                                    _pendingCount--;
+                                    _completedCount++;
+                                    UpdateFilterUI();
+                                    if (_currentFilter == "Pending") _requests.Remove(item);
+                                    else if (_currentFilter == "Completed") _requests.Add(item); // Simple add, sorting might be off but acceptable
+                                });
+                                await _databaseService.UpdateRequestStatusAsync(item.RequestId, "Item Deleted");
+                            }
+                        }
+                        catch { }
+                    }
+                });
+            }
+        }
+
+        private void ApplyFilter(string filter)
+        {
+            _currentFilter = filter;
+            UpdateFilterUI();
+
+            // Filter items
+            IEnumerable<RequestItemViewModel> filteredItems;
+            if (filter == "Pending")
+            {
+                filteredItems = _allRequests.Where(r => string.Equals(r.Status, "Pending", StringComparison.OrdinalIgnoreCase));
+            }
+            else // Completed
+            {
+                filteredItems = _allRequests.Where(r => !string.Equals(r.Status, "Pending", StringComparison.OrdinalIgnoreCase));
+            }
+
+            // Smart Merge into _requests (ObservableCollection)
+            var newSet = new HashSet<string>(filteredItems.Select(r => r.RequestId));
+            
+            // Remove items not in new set
+            var toRemove = _requests.Where(r => !newSet.Contains(r.RequestId)).ToList();
+            foreach(var item in toRemove) _requests.Remove(item);
+
+            // Add items not in current list
+            foreach(var item in filteredItems)
+            {
+                if (!_requests.Any(r => r.RequestId == item.RequestId))
+                {
+                    _requests.Add(item);
+                }
+            }
+
+            // Show/Hide list
+            if (_requests.Count == 0 && _allRequests.Count == 0)
+            {
+                ShowEmptyState();
+            }
+            else
+            {
+                EmptyStateLayout.IsVisible = false;
+                RequestsCollectionView.IsVisible = true;
+            }
+        }
+
+        private void UpdateFilterUI()
+        {
+            FilterPendingLabel.Text = $"Pending ({_pendingCount})";
+            FilterCompletedLabel.Text = $"Completed ({_completedCount})";
+
+            if (_currentFilter == "Pending")
+            {
+                FilterPending.BackgroundColor = Colors.White;
+                FilterPendingLabel.TextColor = Color.FromArgb("#5B2EFF");
+                
+                FilterCompleted.BackgroundColor = Color.FromArgb("#33FFFFFF");
+                FilterCompletedLabel.TextColor = Colors.White;
+            }
+            else
+            {
+                FilterPending.BackgroundColor = Color.FromArgb("#33FFFFFF");
+                FilterPendingLabel.TextColor = Colors.White;
+                
+                FilterCompleted.BackgroundColor = Colors.White;
+                FilterCompletedLabel.TextColor = Color.FromArgb("#5B2EFF");
+            }
+        }
+
+        private void OnFilterPendingTapped(object sender, EventArgs e) => ApplyFilter("Pending");
+        private void OnFilterCompletedTapped(object sender, EventArgs e) => ApplyFilter("Completed");
 
         private void ShowEmptyState()
         {
@@ -179,16 +356,58 @@ namespace ShareCircle_G17.Views
     }
 
     // ViewModel for displaying request items
-    public class RequestItemViewModel
+    public class RequestItemViewModel : System.ComponentModel.INotifyPropertyChanged
     {
         public string RequestId { get; set; } = string.Empty;
         public string PostId { get; set; } = string.Empty;
-        public string ItemTitle { get; set; } = string.Empty;
+        
+        private string _itemTitle = string.Empty;
+        public string ItemTitle 
+        { 
+            get => _itemTitle; 
+            set { if(_itemTitle != value) { _itemTitle = value; OnPropertyChanged(); } } 
+        }
+
         public string ItemDescription { get; set; } = string.Empty;
-        public string ItemImageUrl { get; set; } = string.Empty;
-        public string DonorName { get; set; } = string.Empty;
-        public string DonorImageUrl { get; set; } = string.Empty;
-        public string Status { get; set; } = string.Empty;
+        
+        private string _itemImageUrl = string.Empty;
+        public string ItemImageUrl 
+        { 
+            get => _itemImageUrl; 
+            set { if(_itemImageUrl != value) { _itemImageUrl = value; OnPropertyChanged(); } } 
+        }
+
+        private string _donorName = string.Empty;
+        public string DonorName 
+        { 
+            get => _donorName; 
+            set { if(_donorName != value) { _donorName = value; OnPropertyChanged(); } } 
+        }
+
+        private string _donorImageUrl = string.Empty;
+        public string DonorImageUrl 
+        { 
+            get => _donorImageUrl; 
+            set { if(_donorImageUrl != value) { _donorImageUrl = value; OnPropertyChanged(); } } 
+        }
+
+        private string _status = string.Empty;
+        public string Status 
+        { 
+            get => _status; 
+            set 
+            { 
+                if(_status != value) 
+                { 
+                    _status = value; 
+                    OnPropertyChanged(); 
+                    OnPropertyChanged(nameof(StatusBackgroundColor));
+                    OnPropertyChanged(nameof(StatusTextColor));
+                    OnPropertyChanged(nameof(CanCancel));
+                } 
+            } 
+        }
+
         public DateTime RequestedAt { get; set; }
         public string Message { get; set; } = string.Empty;
 
@@ -231,6 +450,12 @@ namespace ShareCircle_G17.Views
                 var status = Status?.ToLower();
                 return status == "pending" || status == "approved";
             }
+        }
+
+        public event System.ComponentModel.PropertyChangedEventHandler? PropertyChanged;
+        protected void OnPropertyChanged([System.Runtime.CompilerServices.CallerMemberName] string? name = null)
+        {
+            PropertyChanged?.Invoke(this, new System.ComponentModel.PropertyChangedEventArgs(name));
         }
     }
 }

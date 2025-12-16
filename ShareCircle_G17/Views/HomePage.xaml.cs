@@ -292,13 +292,13 @@ public partial class HomePage : ContentPage
 
             if (userDonations != null)
             {
-                TotalDonations = userDonations.Count;
+                TotalDonations = userDonations.Count(d => string.Equals(d.Status, "Completed", StringComparison.OrdinalIgnoreCase));
             }
             else if (_sqliteService != null)
             {
                 // Use local cached donations count if available
                 var localDonations = await _sqliteService.GetAllDonationsAsync();
-                TotalDonations = localDonations?.Count(d => d.UserId == currentUser.UserId) ?? 0;
+                TotalDonations = localDonations?.Count(d => d.UserId == currentUser.UserId && string.Equals(d.Status, "Completed", StringComparison.OrdinalIgnoreCase)) ?? 0;
             }
             else
             {
@@ -361,7 +361,7 @@ public partial class HomePage : ContentPage
             if (!string.IsNullOrEmpty(_currentUserId))
             {
                 var localDonations = await _sqliteService.GetAllDonationsAsync();
-                TotalDonations = localDonations?.Count(d => d.UserId == _currentUserId) ?? 0;
+                TotalDonations = localDonations?.Count(d => d.UserId == _currentUserId && string.Equals(d.Status, "Completed", StringComparison.OrdinalIgnoreCase)) ?? 0;
             }
         }
         catch (Exception ex)
@@ -415,7 +415,7 @@ public partial class HomePage : ContentPage
                 var userDonations = await _databaseService.GetUserDonationPostsAsync(_currentUserId);
                 if (userDonations != null)
                 {
-                    TotalDonations = userDonations.Count;
+                    TotalDonations = userDonations.Count(d => string.Equals(d.Status, "Completed", StringComparison.OrdinalIgnoreCase));
                 }
             }
 
@@ -963,26 +963,32 @@ public partial class HomePage : ContentPage
             bool fetchSuccess = false;
             _savedPostIds = await GetSavedPostIdsAsync();
 
-            // 1. Try Remote Fetch
-            if (Connectivity.Current.NetworkAccess == NetworkAccess.Internet && _databaseService != null)
-            {
-                donations = await _databaseService.GetAllDonationPostsAsync();
-                if (donations != null)
-                {
-                    fetchSuccess = true;
-                    // Update Cache
-                    if (_sqliteService != null)
-                    {
-                        await _sqliteService.InitializeDatabaseAsync();
-                        await _sqliteService.ClearAllDonationsAsync();
-                        foreach (var d in donations)
-                        {
-                            await _sqliteService.SaveDonationAsync(d);
-                        }
-                    }
-                }
-            }
-
+                            // 1. Try Remote Fetch
+                            if (Connectivity.Current.NetworkAccess == NetworkAccess.Internet && _databaseService != null)
+                            {
+                                donations = await _databaseService.GetAllDonationPostsAsync();
+                                if (donations != null)
+                                {
+                                    fetchSuccess = true;
+                                    // Update Cache
+                                    if (_sqliteService != null)
+                                    {
+                                        await _sqliteService.InitializeDatabaseAsync();
+                                        await _sqliteService.ClearAllDonationsAsync();
+                                        foreach (var d in donations)
+                                        {
+                                            await _sqliteService.SaveDonationAsync(d);
+                                        }
+                                    }
+                                }
+                                else
+                                {
+                                    // Fetch failed (returned null) even though we are online
+                                    // This explains why old data persists (fallback to cache)
+                                    // Silent fail or notify user? notify if manual refresh.
+                                    System.Diagnostics.Debug.WriteLine("HomePage: Remote fetch returned null");
+                                }
+                            }
             // 2. Fallback to Local Cache if Remote Failed/Offline
             if (!fetchSuccess && _sqliteService != null)
             {

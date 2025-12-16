@@ -17,6 +17,7 @@ namespace ShareCircle_G17.Services
         Task<int> SaveDonationAsync(DonationPost donation);
         Task<int> DeleteDonationAsync(DonationPost donation);
         Task<List<DonationPost>> GetAllDonationsAsync();
+        Task<List<DonationPost>> GetDonationsByUserIdAsync(string userId);
         Task<List<DonationPost>> GetDonationsByCategoryAsync(string category);
         Task<List<DonationPost>> GetDonationsBySubCategoryAsync(string subCategory);
         Task<List<DonationPost>> GetUnsyncedDonationsAsync();
@@ -37,6 +38,17 @@ namespace ShareCircle_G17.Services
         Task<DonationRequest?> GetRequestAsync(string requestId);
         Task<int> SaveRequestAsync(DonationRequest request);
         Task<List<DonationRequest>> GetRequestsByUserAsync(string userId);
+        Task<List<DonationRequest>> GetRequestsForPostAsync(string postId);
+
+        // Notification operations
+        Task<List<UserNotification>> GetNotificationsAsync(string userId);
+        Task<int> SaveNotificationAsync(UserNotification notification);
+        Task<int> DeleteNotificationAsync(UserNotification notification);
+
+        // Search History operations
+        Task<List<SearchHistory>> GetSearchHistoryAsync(string userId);
+        Task AddSearchHistoryAsync(string userId, string keyword);
+        Task ClearSearchHistoryAsync(string userId);
 
         // Database operations
         Task InitializeDatabaseAsync();

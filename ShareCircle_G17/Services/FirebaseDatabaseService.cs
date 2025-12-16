@@ -663,6 +663,33 @@ namespace ShareCircle_G17.Services
                     request.Status = "Pending";
                 }
 
+                // 1. Check if Post is Available
+                if (!string.IsNullOrEmpty(request.PostId))
+                {
+                    var post = await GetDonationPostAsync(request.PostId);
+                    if (post == null)
+                    {
+                        return (false, "Item not found.", null);
+                    }
+
+                    if (!string.Equals(post.Status, "Available", StringComparison.OrdinalIgnoreCase))
+                    {
+                        return (false, "Item is no longer available.", null);
+                    }
+
+                    // 2. Lock the post (Set to Pending)
+                    post.Status = "Pending";
+                    post.UpdatedAt = DateTime.UtcNow;
+                    
+                    // We update the post first to prevent race conditions (simple optimistic locking)
+                    // In a real transactional system, this should be atomic.
+                    await _firebaseClient
+                        .Child("donations")
+                        .Child(request.PostId)
+                        .PutAsync(post);
+                }
+
+                // 3. Create Request
                 await _firebaseClient
                     .Child("requests")
                     .Child(request.RequestId)
@@ -671,6 +698,13 @@ namespace ShareCircle_G17.Services
                 // Also write a lightweight notification entry for the donor (if provided)
                 if (!string.IsNullOrWhiteSpace(request.DonorId))
                 {
+                    // Ensure Requester's username is present for notification
+                    var requesterUsername = request.RequesterName;
+                    if (string.IsNullOrWhiteSpace(requesterUsername) && !string.IsNullOrWhiteSpace(request.RequesterId))
+                    {
+                        requesterUsername = await GetUsernameForUserId(request.RequesterId);
+                    }
+
                     var notification = new UserNotification
                     {
                         NotificationId = request.RequestId,
@@ -678,7 +712,6 @@ namespace ShareCircle_G17.Services
                         RequestId = request.RequestId,
                         PostId = request.PostId,
                         FromUserId = request.RequesterId,
-                        FromUserName = request.RequesterName,
                         ItemTitle = request.ItemTitle,
                         ItemImageUrl = request.ItemImageUrl,
                         Status = request.Status,
@@ -712,6 +745,37 @@ namespace ShareCircle_G17.Services
                     return (false, "Request not found.");
                 }
 
+                // 1. Handle Post Status Update FIRST (to prevent inconsistency)
+                if (!string.IsNullOrEmpty(request.PostId))
+                {
+                    var post = await GetDonationPostAsync(request.PostId);
+                    if (post != null)
+                    {
+                        bool postUpdated = false;
+
+                        // If approving/completing, mark post as Completed
+                        if (string.Equals(status, "approved", StringComparison.OrdinalIgnoreCase) ||
+                            string.Equals(status, "completed", StringComparison.OrdinalIgnoreCase))
+                        {
+                            post.Status = "Completed";
+                            postUpdated = true;
+                        }
+                        // If rejecting/cancelling, unlock the post (make Available)
+                        else if (string.Equals(status, "rejected", StringComparison.OrdinalIgnoreCase) ||
+                                 string.Equals(status, "cancelled", StringComparison.OrdinalIgnoreCase))
+                        {
+                            post.Status = "Available";
+                            postUpdated = true;
+                        }
+
+                        if (postUpdated)
+                        {
+                            await UpdateDonationPostAsync(request.PostId, post);
+                        }
+                    }
+                }
+
+                // 2. Update Request Status
                 request.Status = status;
                 request.RespondedAt = DateTime.UtcNow;
 
@@ -720,34 +784,23 @@ namespace ShareCircle_G17.Services
                     .Child(requestId)
                     .PutAsync(request);
 
-                // If request is approved/completed, mark the post as Completed
-                if (string.Equals(status, "approved", StringComparison.OrdinalIgnoreCase) ||
-                    string.Equals(status, "completed", StringComparison.OrdinalIgnoreCase))
-                {
-                    if (!string.IsNullOrEmpty(request.PostId))
-                    {
-                        var post = await GetDonationPostAsync(request.PostId);
-                        if (post != null)
-                        {
-                            post.Status = "Completed";
-                            // Use UpdateDonationPostAsync logic directly to avoid circular dependency or overhead if needed, 
-                            // but calling the method is cleaner.
-                            await UpdateDonationPostAsync(request.PostId, post);
-                        }
-                    }
-                }
-
-                // Send notification to Requester about status update
+                // 3. Send Notification
                 if (!string.IsNullOrEmpty(request.RequesterId))
                 {
+                    // Ensure Donor's username is present for notification
+                    var donorUsername = request.DonorName;
+                    if (string.IsNullOrWhiteSpace(donorUsername) && !string.IsNullOrWhiteSpace(request.DonorId))
+                    {
+                        donorUsername = await GetUsernameForUserId(request.DonorId);
+                    }
+
                     var notification = new UserNotification
                     {
                         NotificationId = Guid.NewGuid().ToString(),
                         Type = "status_update",
                         RequestId = request.RequestId,
                         PostId = request.PostId,
-                        FromUserId = request.DonorId, // From donor
-                        FromUserName = request.DonorName,
+                        FromUserId = request.DonorId,
                         ItemTitle = request.ItemTitle,
                         ItemImageUrl = request.ItemImageUrl,
                         Status = status,
@@ -788,6 +841,17 @@ namespace ShareCircle_G17.Services
                     .Child("requests")
                     .Child(requestId)
                     .PutAsync(request);
+
+                // Revert post to Available
+                if (!string.IsNullOrEmpty(request.PostId))
+                {
+                    var post = await GetDonationPostAsync(request.PostId);
+                    if (post != null)
+                    {
+                        post.Status = "Available";
+                        await UpdateDonationPostAsync(request.PostId, post);
+                    }
+                }
 
                 return (true, "Request cancelled successfully!");
             }
@@ -1035,6 +1099,13 @@ namespace ShareCircle_G17.Services
 
                 return () => subscription.Dispose();
             });
+        }
+
+        private async Task<string> GetUsernameForUserId(string userId)
+        {
+            if (string.IsNullOrWhiteSpace(userId)) return "User";
+            var userProfile = await GetUserProfileAsync(userId);
+            return userProfile?.Username ?? "User";
         }
 
         #endregion

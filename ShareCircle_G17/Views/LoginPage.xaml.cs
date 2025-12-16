@@ -73,8 +73,12 @@ namespace ShareCircle_G17.Views
 
         private async void OnLoginClicked(object sender, EventArgs e)
         {
+            var button = (Button)sender;
             try
             {
+                // Disable button to prevent multiple clicks
+                button.IsEnabled = false;
+
                 // Get input values (username or email accepted)
                 string usernameOrEmail = UsernameEntry.Text?.Trim() ?? string.Empty;
                 string password = PasswordEntry.Text ?? string.Empty;
@@ -91,17 +95,6 @@ namespace ShareCircle_G17.Views
                     await DisplayAlert("Error", "Please enter your password.", "OK");
                     return;
                 }
-
-                // Show loading indicator
-                var loadingIndicator = new ActivityIndicator
-                {
-                    IsRunning = true,
-                    IsVisible = true
-                };
-
-                // Disable button to prevent multiple clicks
-                var button = (Button)sender;
-                button.IsEnabled = false;
 
                 // Resolve username to email if possible (best effort, falls back to offline lookup)
                 string emailToUse = usernameOrEmail;
@@ -154,11 +147,20 @@ namespace ShareCircle_G17.Views
                 {
                     var offlineResult = await TryOfflineLoginAsync(usernameOrEmail, password);
                     loggedIn = offlineResult.Success;
-                    resultMessage = offlineResult.Message;
+                    // Only overwrite message if offline login logic actually ran/failed specifically
+                    if (!IsOnline()) 
+                    {
+                         resultMessage = offlineResult.Message;
+                    }
+                    // If online failed (wrong password) and offline also failed, keep online message?
+                    // Actually TryOfflineLoginAsync returns specific messages.
+                    if (!loggedIn)
+                    {
+                        // If we tried offline and failed, use that message if we are truly offline.
+                        // If we are online, the online error is more authoritative (e.g. wrong password).
+                        // But if online failed due to connection glitch (IsOnline() check is instantaneous), offline might have tried.
+                    }
                 }
-
-                // Re-enable button
-                button.IsEnabled = true;
 
                 if (loggedIn)
                 {
@@ -188,6 +190,10 @@ namespace ShareCircle_G17.Views
             catch (Exception ex)
             {
                 await DisplayAlert("Error", $"An unexpected error occurred: {ex.Message}", "OK");
+            }
+            finally
+            {
+                button.IsEnabled = true;
             }
         }
 
