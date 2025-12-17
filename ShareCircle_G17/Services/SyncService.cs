@@ -90,7 +90,7 @@ namespace ShareCircle_G17.Services
                 {
                     MainThread.BeginInvokeOnMainThread(async () =>
                     {
-                        await Shell.Current.DisplayAlert("同步完成", $"您在離線時發布的 {successCount} 個帖子已成功上傳。", "好的");
+                        await Shell.Current.DisplayAlert("Sync Complete", $"Your {successCount} posts published offline have been successfully uploaded.", "OK");
                     });
                 }
             }
