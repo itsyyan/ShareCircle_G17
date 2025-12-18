@@ -33,22 +33,39 @@ namespace ShareCircle_G17
             if (isOnline && _wasOffline)
             {
                 System.Diagnostics.Debug.WriteLine("Network restored - syncing pending donations...");
-
-                try
-                {
-                    if (_syncService != null)
-                    {
-                        await _syncService.SyncUnsyncedDonationsToFirebaseAsync();
-                        System.Diagnostics.Debug.WriteLine("Pending donations synced successfully!");
-                    }
-                }
-                catch (Exception ex)
-                {
-                    System.Diagnostics.Debug.WriteLine($"Error syncing pending donations: {ex.Message}");
-                }
+                await SyncPendingDonationsAsync();
             }
 
             _wasOffline = !isOnline;
+        }
+
+        protected override void OnResume()
+        {
+            base.OnResume();
+
+            // Check and sync pending donations when app resumes
+            // This is a fallback in case ConnectivityChanged event was missed
+            if (Connectivity.Current.NetworkAccess == NetworkAccess.Internet)
+            {
+                System.Diagnostics.Debug.WriteLine("App resumed with network - checking for pending donations...");
+                _ = SyncPendingDonationsAsync();
+            }
+        }
+
+        private async Task SyncPendingDonationsAsync()
+        {
+            try
+            {
+                if (_syncService != null)
+                {
+                    await _syncService.SyncUnsyncedDonationsToFirebaseAsync();
+                    System.Diagnostics.Debug.WriteLine("Pending donations synced successfully!");
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Error syncing pending donations: {ex.Message}");
+            }
         }
 
         protected override void CleanUp()

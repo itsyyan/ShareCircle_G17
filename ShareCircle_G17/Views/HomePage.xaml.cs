@@ -22,6 +22,7 @@ public partial class HomePage : ContentPage
     private readonly IFirebaseDatabaseService? _databaseService;
     private readonly IGoogleMapsService? _googleMapsService;
     private readonly ISQLiteDatabaseService? _sqliteService;
+    private readonly ISyncService? _syncService;
     private readonly List<HomeMasonryItem> _allMasonry = new();
     private string _currentFilter = "All";
     private HashSet<string> _savedPostIds = new(StringComparer.OrdinalIgnoreCase);
@@ -125,13 +126,15 @@ public partial class HomePage : ContentPage
         IFirebaseAuthService authService,
         IFirebaseDatabaseService databaseService,
         IGoogleMapsService googleMapsService,
-        ISQLiteDatabaseService sqliteDatabaseService)
+        ISQLiteDatabaseService sqliteDatabaseService,
+        ISyncService syncService)
     {
         InitializeComponent();
         _authService = authService;
         _databaseService = databaseService;
         _googleMapsService = googleMapsService;
         _sqliteService = sqliteDatabaseService;
+        _syncService = syncService;
         RefreshLocationCommand = new Command(async () => await RefreshLocationAsync());
         RefreshCommand = new Command(async () => await RefreshAllAsync(true));
         BindingContext = this;
@@ -385,6 +388,19 @@ public partial class HomePage : ContentPage
 
         try
         {
+            // IMPORTANT: First upload any unsynced donations before syncing from Firebase
+            if (_syncService != null)
+            {
+                try
+                {
+                    await _syncService.SyncUnsyncedDonationsToFirebaseAsync();
+                }
+                catch (Exception syncEx)
+                {
+                    System.Diagnostics.Debug.WriteLine($"HomePage SyncFromFirebase: Sync unsynced donations failed: {syncEx.Message}");
+                }
+            }
+
             // Sync user data
             if (_authService != null && !string.IsNullOrEmpty(_currentUserId))
             {
@@ -963,32 +979,45 @@ public partial class HomePage : ContentPage
             bool fetchSuccess = false;
             _savedPostIds = await GetSavedPostIdsAsync();
 
-                            // 1. Try Remote Fetch
-                            if (Connectivity.Current.NetworkAccess == NetworkAccess.Internet && _databaseService != null)
-                            {
-                                donations = await _databaseService.GetAllDonationPostsAsync();
-                                if (donations != null)
-                                {
-                                    fetchSuccess = true;
-                                    // Update Cache
-                                    if (_sqliteService != null)
-                                    {
-                                        await _sqliteService.InitializeDatabaseAsync();
-                                        await _sqliteService.ClearAllDonationsAsync();
-                                        foreach (var d in donations)
-                                        {
-                                            await _sqliteService.SaveDonationAsync(d);
-                                        }
-                                    }
-                                }
-                                else
-                                {
-                                    // Fetch failed (returned null) even though we are online
-                                    // This explains why old data persists (fallback to cache)
-                                    // Silent fail or notify user? notify if manual refresh.
-                                    System.Diagnostics.Debug.WriteLine("HomePage: Remote fetch returned null");
-                                }
-                            }
+            // 1. Try Remote Fetch
+            if (Connectivity.Current.NetworkAccess == NetworkAccess.Internet && _databaseService != null)
+            {
+                // IMPORTANT: First upload any unsynced donations before refreshing
+                if (_syncService != null)
+                {
+                    try
+                    {
+                        await _syncService.SyncUnsyncedDonationsToFirebaseAsync();
+                    }
+                    catch (Exception syncEx)
+                    {
+                        System.Diagnostics.Debug.WriteLine($"HomePage: Sync unsynced donations failed: {syncEx.Message}");
+                    }
+                }
+
+                donations = await _databaseService.GetAllDonationPostsAsync();
+                if (donations != null)
+                {
+                    fetchSuccess = true;
+                    // Update Cache - now safe to clear since unsynced were uploaded
+                    if (_sqliteService != null)
+                    {
+                        await _sqliteService.InitializeDatabaseAsync();
+                        await _sqliteService.ClearAllDonationsAsync();
+                        foreach (var d in donations)
+                        {
+                            await _sqliteService.SaveDonationAsync(d);
+                        }
+                    }
+                }
+                else
+                {
+                    // Fetch failed (returned null) even though we are online
+                    // This explains why old data persists (fallback to cache)
+                    // Silent fail or notify user? notify if manual refresh.
+                    System.Diagnostics.Debug.WriteLine("HomePage: Remote fetch returned null");
+                }
+            }
             // 2. Fallback to Local Cache if Remote Failed/Offline
             if (!fetchSuccess && _sqliteService != null)
             {
